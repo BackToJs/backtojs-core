@@ -23,7 +23,8 @@ module.exports = {
   },
   plugins: [
     new HtmlPlugin({
-      title: 'Hello World app'
+      title: 'Hello World app',
+      template: './src/index.html'
     })
   ]
 };

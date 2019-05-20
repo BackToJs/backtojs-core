@@ -1,7 +1,6 @@
 var Div = require("./org/lassiejs/components/basic/Div.js");
 
 function DockerAppInfo() {
-  // this.data = null;
   this.template = `
   <div>
       <span id="name"></span><br>

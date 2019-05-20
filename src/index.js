@@ -1,4 +1,3 @@
-
 import style from './style.css'
 import Div from './org/lassiejs/components/basic/Div.js'
 import HorizontalLayout from './org/lassiejs/layout/HorizontalLayout.js'
@@ -36,4 +35,4 @@ body.add({component:app7});
 let layout = new FlowLayout();
 body.setLayout(layout);
 
-document.body.appendChild(body.render());
+document.body.replaceChild(body.render(), document.getElementById("root"));
