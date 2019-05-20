@@ -5,6 +5,7 @@ function Generic() {
   this.data = null;
   this.sourceDomObject = null;
   this.text = null;
+  this.clickListener = null;
 }
 
 Generic.prototype.setLayout = function(layout) {
@@ -25,13 +26,21 @@ Generic.prototype.render = function() {
   if (this.layout) {
     this.layout.apply(this.sourceDomObject, this.components);
     this.sourceDomObject.outerHTML = this.layout.render();
+    if(this.clickListener){
+      this.sourceDomObject.addEventListener("click", this.clickListener);
+    }
     return this.sourceDomObject;
   } else {
     if (this.template) {
       let generic = document.createElement("template");
       generic.innerHTML = this.template;
       bindDataToTemplate(generic.content, this.data);
-      return generic.content;
+      this.sourceDomObject = document.createElement('div');
+      this.sourceDomObject.appendChild( generic.content.cloneNode(true) );
+      if(this.clickListener){
+        this.sourceDomObject.addEventListener("click", this.clickListener);
+      }
+      return this.sourceDomObject;
     } else {
 
       for (let key in this.components) {
@@ -39,6 +48,9 @@ Generic.prototype.render = function() {
         this.sourceDomObject.appendChild(component);
       }
 
+      if(this.clickListener){
+        this.sourceDomObject.addEventListener("click", this.clickListener);
+      }
       return this.sourceDomObject;
     }
 
@@ -47,6 +59,10 @@ Generic.prototype.render = function() {
 
 Generic.prototype.setData = function(data) {
   this.data = data;
+}
+
+Generic.prototype.setClickListener = function(clickListener) {
+  this.clickListener = clickListener;
 }
 
 

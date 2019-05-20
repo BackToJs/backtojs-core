@@ -31,6 +31,10 @@ body.add({component:app5});
 body.add({component:app6});
 body.add({component:app7});
 
+app7.setClickListener(function(){
+  alert("eureka")
+});
+
 
 let layout = new FlowLayout();
 body.setLayout(layout);

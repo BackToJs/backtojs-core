@@ -1,7 +1,7 @@
 function FlowLayout() {
   this.container;
   this.defaultHeight = true;
-  this.name = 'VerticalLayout';
+  this.name = 'FlowLayout';
 }
 
 FlowLayout.prototype.apply = function(parent, components) {
