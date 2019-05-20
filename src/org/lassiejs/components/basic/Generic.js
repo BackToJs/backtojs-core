@@ -12,7 +12,7 @@ Generic.prototype.setLayout = function(layout) {
 }
 
 Generic.prototype.add = function(component) {
-  if(this.components == undefined){
+  if (this.components == undefined) {
     this.components = [];
   }
   this.components.push(component);
@@ -22,7 +22,6 @@ Generic.prototype.add = function(component) {
 https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro
 */
 Generic.prototype.render = function() {
-
   if (this.layout) {
     this.layout.apply(this.sourceDomObject, this.components);
     this.sourceDomObject.outerHTML = this.layout.render();
@@ -31,6 +30,7 @@ Generic.prototype.render = function() {
     if (this.template) {
       let generic = document.createElement("template");
       generic.innerHTML = this.template;
+      bindDataToTemplate(generic.content, this.data);
       return generic.content;
     } else {
 
@@ -44,6 +44,32 @@ Generic.prototype.render = function() {
 
   }
 }
+
+Generic.prototype.setData = function(data) {
+  this.data = data;
+}
+
+
+function bindDataToTemplate(component, data) {
+  var childNodes = component.childNodes;
+  for (let key in childNodes) {
+    //only ui objects instead #text in documentFragment
+    if (typeof childNodes[key] === typeof {} && !(childNodes[key].data)) {
+      var uiNodes = childNodes[key].childNodes;
+      //searching children
+      for (objectKey in uiNodes) {
+        if (typeof uiNodes[objectKey] === typeof {} && !(uiNodes[objectKey].data)) {
+          if (data && uiNodes[objectKey].id) {
+            if (uiNodes[objectKey].tagName == "SPAN") {
+              uiNodes[objectKey].innerHTML = data[uiNodes[objectKey].id];
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 
 
 module.exports = Generic;
