@@ -4,6 +4,7 @@ import HorizontalLayout from './org/lassiejs/layout/HorizontalLayout.js'
 import VerticalLayout from './org/lassiejs/layout/VerticalLayout.js'
 import FlowLayout from './org/lassiejs/layout/FlowLayout.js'
 import DockerAppInfo from './DockerAppInfo.js'
+import Controller from './Controller.js'
 
 let body = new Div();
 
@@ -31,10 +32,7 @@ body.add({component:app5});
 body.add({component:app6});
 body.add({component:app7});
 
-app7.setClickListener(function(){
-  alert("eureka")
-});
-
+let controller = new Controller(app7);
 
 let layout = new FlowLayout();
 body.setLayout(layout);

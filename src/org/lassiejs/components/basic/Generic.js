@@ -6,6 +6,7 @@ function Generic() {
   this.sourceDomObject = null;
   this.text = null;
   this.clickListener = null;
+  this.domElementUniqueIds = null;
 }
 
 Generic.prototype.setLayout = function(layout) {
@@ -23,10 +24,13 @@ Generic.prototype.add = function(component) {
 https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro
 */
 Generic.prototype.render = function() {
+
+  this.domElementUniqueIds  = {};
+
   if (this.layout) {
     this.layout.apply(this.sourceDomObject, this.components);
     this.sourceDomObject.outerHTML = this.layout.render();
-    if(this.clickListener){
+    if (this.clickListener) {
       this.sourceDomObject.addEventListener("click", this.clickListener);
     }
     return this.sourceDomObject;
@@ -34,10 +38,10 @@ Generic.prototype.render = function() {
     if (this.template) {
       let generic = document.createElement("template");
       generic.innerHTML = this.template;
-      bindDataToTemplate(generic.content, this.data);
+      bindDataToTemplate(generic.content, this.data, this.domElementUniqueIds);
       this.sourceDomObject = document.createElement('div');
-      this.sourceDomObject.appendChild( generic.content.cloneNode(true) );
-      if(this.clickListener){
+      this.sourceDomObject.appendChild(generic.content.cloneNode(true));
+      if (this.clickListener) {
         this.sourceDomObject.addEventListener("click", this.clickListener);
       }
       return this.sourceDomObject;
@@ -48,7 +52,7 @@ Generic.prototype.render = function() {
         this.sourceDomObject.appendChild(component);
       }
 
-      if(this.clickListener){
+      if (this.clickListener) {
         this.sourceDomObject.addEventListener("click", this.clickListener);
       }
       return this.sourceDomObject;
@@ -65,8 +69,19 @@ Generic.prototype.setClickListener = function(clickListener) {
   this.clickListener = clickListener;
 }
 
+Generic.prototype.getElementByName = function(name) {
+  var uniqueId = this.domElementUniqueIds[name];
+  var element = document.querySelector('[uniqueid="'+uniqueId+'"]');
+  return element;
+}
 
-function bindDataToTemplate(component, data) {
+
+function bindDataToTemplate(component, data, domElementUniqueIds) {
+
+  if(!data || (typeof data !== typeof {})){
+    return;
+  }
+
   var childNodes = component.childNodes;
   for (let key in childNodes) {
     //only ui objects instead #text in documentFragment
@@ -76,6 +91,9 @@ function bindDataToTemplate(component, data) {
       for (objectKey in uiNodes) {
         if (typeof uiNodes[objectKey] === typeof {} && !(uiNodes[objectKey].data)) {
           if (data && uiNodes[objectKey].id) {
+            let uniqueId = Math.floor(Math.random() * 100001);
+            domElementUniqueIds[uiNodes[objectKey].id] = uniqueId;
+            uiNodes[objectKey].setAttribute('uniqueid', uniqueId);
             if (uiNodes[objectKey].tagName == "SPAN") {
               uiNodes[objectKey].innerHTML = data[uiNodes[objectKey].id];
             }
