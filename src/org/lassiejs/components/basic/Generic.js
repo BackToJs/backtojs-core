@@ -61,6 +61,10 @@ Generic.prototype.render = function() {
   }
 }
 
+Generic.prototype.setText = function(text) {
+  this.text = text;
+}
+
 Generic.prototype.setData = function(data) {
   this.data = data;
 }
@@ -96,6 +100,8 @@ function bindDataToTemplate(component, data, domElementUniqueIds) {
             uiNodes[objectKey].setAttribute('uniqueid', uniqueId);
             if (uiNodes[objectKey].tagName == "SPAN") {
               uiNodes[objectKey].innerHTML = data[uiNodes[objectKey].id];
+            }else {
+              console.log("Unsupported tag name:"+uiNodes[objectKey].tagName);
             }
           }
         }

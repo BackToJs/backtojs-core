@@ -6,7 +6,17 @@ import FlowLayout from './org/lassiejs/layout/FlowLayout.js'
 import DockerAppInfo from './DockerAppInfo.js'
 import Controller from './Controller.js'
 
-let body = new Div();
+let container = new Div();
+
+let breadCrumb = new Div();
+let appDetails = new Div();
+
+let verticalLayout = new VerticalLayout();
+verticalLayout.disableDefaultHeight(false);
+container.setLayout(verticalLayout);
+
+container.add({component:breadCrumb,height:"10%"});
+container.add({component:appDetails,height:"90%"});
 
 let app1 = new DockerAppInfo();
 let app2 = new DockerAppInfo();
@@ -24,17 +34,17 @@ app5.setData({name:"lassiejs",technology:"javascript",port:"8084"});
 app6.setData({name:"bet-web",technology:"nodejs",port:"8085"});
 app7.setData({name:"bet-api",technology:"java",port:"8086"});
 
-body.add({component:app1});
-body.add({component:app2});
-body.add({component:app3});
-body.add({component:app4});
-body.add({component:app5});
-body.add({component:app6});
-body.add({component:app7});
+appDetails.add({component:app1});
+appDetails.add({component:app2});
+appDetails.add({component:app3});
+appDetails.add({component:app4});
+appDetails.add({component:app5});
+appDetails.add({component:app6});
+appDetails.add({component:app7});
 
 let controller = new Controller(app7);
 
 let layout = new FlowLayout();
-body.setLayout(layout);
+appDetails.setLayout(layout);
 
-document.body.replaceChild(body.render(), document.getElementById("root"));
+document.body.replaceChild(container.render(), document.getElementById("root"));

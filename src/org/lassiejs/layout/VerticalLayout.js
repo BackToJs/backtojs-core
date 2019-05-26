@@ -8,6 +8,10 @@ function getDynamicHeight(length) {
   return window.innerHeight / length;
 }
 
+function getHeightPercentageToPixels(percentage) {
+  return (new Number(percentage.replace("%","")) * window.innerHeight) / 100;
+}
+
 VerticalLayout.prototype.apply = function(parent, components) {
 
   this.container = parent;
@@ -33,7 +37,7 @@ VerticalLayout.prototype.apply = function(parent, components) {
       let component = components[key].component.render();
       let height = components[key].height;
       component.style.width = "100%";
-      component.style.height = height;
+      component.style.height = getHeightPercentageToPixels(height)+"px";
       this.container.appendChild(component);
     }
   }
