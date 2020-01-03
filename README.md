@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/jrichardsz/static_resources/master/lassie.js-icon-title.png)
+![](https://raw.githubusercontent.com/jrichardsz/static_resources/master/lassie/lassie-tittle-2.0.png)
 
 # Lassie.js framework BETA
 ---
