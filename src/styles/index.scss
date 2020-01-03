@@ -17,18 +17,29 @@ p {
   font-size: $paragraph-font-size;
 }
 
-.logo-up{
-  background-image: url('../images/logo-up.jpg');
-  background-position:center;
-  background-repeat:no-repeat;
-  background-size:cover;
-  overflow: hidden;
-}
-
-.content {
+.logo-upper {
   position: fixed;
+  background-image: url('../images/logo-up.jpg');
+  background-repeat:no-repeat;
+  background-size: contain;
   top: 0;
   left: 0;
   bottom:0;
   right:0;
+}
+
+.logo-bottom{
+}
+
+@media (min-width: 320px) and (max-width: 480px) {
+  .logo-upper {
+    position: fixed;
+    background-image: url('../images/logo-480.jpg');
+    background-repeat:no-repeat;
+    background-size: contain;
+    top: 0;
+    left: 0;
+    bottom:0;
+    right:0;
+  }
 }
