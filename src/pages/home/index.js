@@ -7,7 +7,12 @@ function Home() {
 module.exports = Home;
 
 Home.prototype.render = function() {
-  console.log("home render:");
+  console.log("home - render:"+_this);
   let frag = document.createRange().createContextualFragment(_this.template());
   return frag;
+}
+
+Home.prototype.homeButtonOnClick = function(e) {
+  console.log("on click");
+  console.log(e);
 }

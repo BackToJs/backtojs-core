@@ -1,16 +1,89 @@
 const loaderUtils = require("loader-utils");
 const pathUtils = require('path');
 const fileUtils = require('fs')
+const cheerio = require('cheerio')
+
+var stringFunctionInitializeActionListeners = `
+@moduleName.prototype.initializeActionListeners = function() {
+  @elements
+}
+`;
+
+var stringAddOnClickEntry = `
+let @nativeId = document.getElementById(\"@nativeId\");
+@nativeId.onclick = _this.@nativeIdOnClick;
+`;
+
+var stringAddOnClickEntryDummy = `
+let @nativeId = document.getElementById(\"@nativeId\");
+@nativeId.onclick = function() { alert('i am @nativeId'); };
+`;
+
+var stringFunctionTemplate = `
+@moduleName.prototype.template = function() {
+  return \"@stringHtml\";
+}
+`;
 
 function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
-  console.log("##########################");
+  console.log("Lassie page analization:");
   console.log(this.resourcePath);
   console.log(this.context);
-  var stringTemplate = getHtmlTemplateAsString(this.resourcePath);
-  stringTemplate = fixString(stringTemplate);
-  var stringFunction = getTemplateFunctionAsString(capitalize(getParentDirectoryName(this.resourcePath)), stringTemplate);
-  content = content + "\n" + stringFunction
+  //get html template as string
+  var rawStringTemplate = getHtmlTemplateAsString(this.resourcePath);
+  var stringTemplate = fixString(rawStringTemplate);
+  var moduleName = capitalize(getParentDirectoryName(this.resourcePath));
+
+  //add template() function
+  content = addTemplateFunction(content,stringTemplate,moduleName);
+
+  const $=cheerio.load(rawStringTemplate);
+
+  var actionableElements = [];
+  $('button, select').each(function (index, element) {
+    if($(element)){
+      if($(element).attr('ls-scan')==="true"){
+        actionableElements.push($(element))
+      }
+    }
+  });
+
+  //add initializeActionListeners() function
+  content = addInitializeActionListenersFunction(content, moduleName, actionableElements);
+
+  return content;
+}
+
+function addInitializeActionListenersFunction(content, moduleName, actionableElements){
+  //TODO: add ls-id as unique id for each element before renderization
+  // this id will be used for avoid collisions when listeners are binding if native id
+  // is duplicated
+
+  //TODO: lookup object by ls-id instead native id
+  var elements = "";
+  actionableElements.forEach(function (htmlElement) {
+    var nativeId = htmlElement.attr('id');
+    if(nativeId){
+      var entry = stringAddOnClickEntry.replace(/@nativeId/g,nativeId);
+      elements = elements.concat("\n").concat(entry);
+    }
+  });
+
+  //add elments in initializeActionListeners string
+
+  var stringFunction = stringFunctionInitializeActionListeners
+  .replace("@moduleName",moduleName)
+  .replace("@elements",elements);
+
+  console.log(stringFunction);
+  content = content.concat("\n").concat(stringFunction);
+  return content;
+}
+
+function addTemplateFunction(content, stringTemplate, moduleName){
+  var stringFunction = getTemplateFunctionAsString(moduleName, stringTemplate);
+  content = content.concat("\n").concat(stringFunction);
   return content;
 }
 
@@ -23,10 +96,9 @@ function capitalize(word){
 }
 
 function getTemplateFunctionAsString(moduleName, stringTemplate){
-  var rawTemplate = "@moduleName.prototype.template = function() {"+
-  "return \""+stringTemplate+"\""+
-  "}";
-  return rawTemplate.replace("@moduleName",moduleName);
+  return stringFunctionTemplate
+  .replace("@moduleName",moduleName)
+  .replace("@stringHtml",stringTemplate);
 }
 
 
@@ -51,12 +123,3 @@ function fixString(string){
 }
 
 module.exports = loader;
-
-
-/*
-
-Home.prototype.template = function() {
-  console.log("hello!!");
-}
-
-*/

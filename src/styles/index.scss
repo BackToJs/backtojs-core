@@ -1,45 +1,64 @@
+// @font-face {
+//   font-family: 'Roboto';
+//   src: url(../fonts/Roboto-Regular.ttf)
+// }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url(../fonts/Roboto-Regular.ttf)
+  font-display: swap;
+  font-family: 'Press Start 2P';
+  src: url(../fonts/PressStart2P-Regular.ttf) format('truetype');
 }
 
 @import 'variables';
 
 html {
-  font-size: $root-font-size;
-  font-family: $font-family;
-  max-width: $page-width;
-  margin: 0 auto;
-  text-align: center;
+  // font-size: $root-font-size;
+  // font-family: $font-family;
+  // max-width: $page-width;
+  // margin: 0 auto;
+  // text-align: center;
+  height: 100%;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	background: #FAFAFA;
+	font-family: 'Press Start 2P', cursive;
+	font-size: 12px;
 }
 
-p {
-  font-size: $paragraph-font-size;
-}
-
-.logo-upper {
-  position: fixed;
-  background-image: url('../images/logo-up.jpg');
-  background-repeat:no-repeat;
-  background-size: contain;
+.home {
+  position: absolute;
   top: 0;
   left: 0;
-  bottom:0;
-  right:0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	line-height: 1.5;
 }
 
-.logo-bottom{
+
+.head {
+	max-width: 300px;
+	padding-bottom: 30px;
+	font-size: 1.2rem;
 }
 
-@media (min-width: 320px) and (max-width: 480px) {
-  .logo-upper {
-    position: fixed;
-    background-image: url('../images/logo-480.jpg');
-    background-repeat:no-repeat;
-    background-size: contain;
-    top: 0;
-    left: 0;
-    bottom:0;
-    right:0;
-  }
+.button {
+  width: 200px;
+  height: 50px;
+  background-color: #e7a61a;
+	color: #000;
+  border: 0;
+  border-radius: 10px;
+  -webkit-box-shadow: 0px 3px 6px 0px #000;
+  -moz-box-shadow: 0px 3px 6px 0px #000;
+  box-shadow: 0px 3px 6px 0px #000;
+  outline: none;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1.2rem;
+	cursor: pointer;
 }

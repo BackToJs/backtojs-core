@@ -26,10 +26,14 @@ module.exports = merge(common, {
   devServer: {
     historyApiFallback: true,
     contentBase: paths.build,
-    open: true,
+    open: false,
     compress: true,
     hot: true,
     port: 8080,
+    watchOptions: {
+      aggregateTimeout: 300,
+      poll: 1000
+    }
   },
 
   plugins: [
