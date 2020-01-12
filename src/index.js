@@ -1,10 +1,5 @@
 import './styles/index.scss'
+import Di4js from './org/jrichardsz/di4js'
 
-import Home from './pages/home'
-
-let home = new Home();
-var render = home.render();
-
-document.body.replaceChild(render, document.getElementById("root"));
-
-home.initializeActionListeners();
+let di4js = new Di4js();
+di4js.discover();

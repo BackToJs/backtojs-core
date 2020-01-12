@@ -39,6 +39,10 @@ function loader(content) {
 
 module.exports = loader;
 
+###
+
+// document.body.replaceChild(render, document.getElementById("root"));
+
 
 ##
 

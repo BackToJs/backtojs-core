@@ -77,14 +77,11 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: ['babel-loader', 'eslint-loader'],
-      },
-
-      {
-         test: /\.js$/,
-         loader: "./src/org/lassiejs/webpack/loader/lassie-loader.js",
-         include: path.join(paths.src, '/pages'),
-         exclude: /node_modules/
+        use: [
+          { loader: 'babel-loader'},
+          { loader: 'eslint-loader'},
+          { loader: './src/org/lassiejs/webpack/loader/lassie-loader.js', options: { pagesFolder: path.join(paths.src, '/pages') } },          
+        ],
       },
       /**
        * Styles
@@ -128,7 +125,7 @@ module.exports = {
           name: '[path][name].[ext]',
           context: 'src', // prevent display of src/ in filename
         },
-      },
+      }
     ],
   },
 }

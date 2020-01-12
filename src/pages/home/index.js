@@ -2,17 +2,24 @@
 
 function Home() {
   _this = this;
+
+  this.getInstance = function() {
+      return _this;
+  }
 }
 
 module.exports = Home;
 
 Home.prototype.render = function() {
-  console.log("home - render:"+_this);
+  console.log("render:"+this.getInstance());
+  console.log(_this);
   let frag = document.createRange().createContextualFragment(_this.template());
   return frag;
 }
 
 Home.prototype.homeButtonOnClick = function(e) {
   console.log("on click");
-  console.log(e);
+  console.log(_this);
+  console.log(_this.navigation);
+  _this.navigation.route('map');
 }

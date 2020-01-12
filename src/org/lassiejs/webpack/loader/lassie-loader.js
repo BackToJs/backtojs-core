@@ -5,12 +5,14 @@ const cheerio = require('cheerio')
 
 var stringFunctionInitializeActionListeners = `
 @moduleName.prototype.initializeActionListeners = function() {
+  console.log(\"initializeActionListeners\");
   @elements
 }
 `;
 
 var stringAddOnClickEntry = `
 let @nativeId = document.getElementById(\"@nativeId\");
+console.log(@nativeId);
 @nativeId.onclick = _this.@nativeIdOnClick;
 `;
 
@@ -25,11 +27,22 @@ var stringFunctionTemplate = `
 }
 `;
 
+var debug;
+
 function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
-  console.log("Lassie page analization:");
-  console.log(this.resourcePath);
-  console.log(this.context);
+  debug = options.debug;
+
+  //TODO: validateOptions like
+  // https://github.com/webpack-contrib/file-loader/blob/master/src/index.js#L11
+
+  //just pages
+  if(!this.resourcePath.startsWith(options.pagesFolder)){
+    return content;
+  }
+
+  logInfo("Lassie page analization: "+this.resourcePath);
+
   //get html template as string
   var rawStringTemplate = getHtmlTemplateAsString(this.resourcePath);
   var stringTemplate = fixString(rawStringTemplate);
@@ -76,7 +89,7 @@ function addInitializeActionListenersFunction(content, moduleName, actionableEle
   .replace("@moduleName",moduleName)
   .replace("@elements",elements);
 
-  console.log(stringFunction);
+  logDebug(stringFunction);
   content = content.concat("\n").concat(stringFunction);
   return content;
 }
@@ -120,6 +133,16 @@ function getHtmlTemplateAsString(moduleAbsolutePath){
 
 function fixString(string){
   return string.replace(/\"/g,"\\\"").replace(/(\r\n|\n|\r)/gm, "");
+}
+
+function logInfo(string){
+  console.log(string);
+}
+
+function logDebug(string){
+  if(debug===true){
+    console.log(string);
+  }
 }
 
 module.exports = loader;
