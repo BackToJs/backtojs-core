@@ -3,7 +3,6 @@ const Map = require('../../../pages/map')
 const Navigation = require('../../../navigation')
 
 function Di4js() {
-  console.log("Di4js "+new Date());
   this.context = [];
 }
 

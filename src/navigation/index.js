@@ -10,12 +10,11 @@ function NavigationController() {
 module.exports = NavigationController;
 
 NavigationController.prototype.main = function () {
-  console.log("starting navigation controller...");
+  console.log("starting default navigation");
   this._self.route(this._self.rule.main);
 };
 
 NavigationController.prototype.route = function (viewId) {
-  console.log(this);
   var view = this[viewId];
   var element = view.render();
   document.getElementById("root").innerHTML = '';

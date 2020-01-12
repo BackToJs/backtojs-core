@@ -5,14 +5,14 @@ const cheerio = require('cheerio')
 
 var stringFunctionInitializeActionListeners = `
 @moduleName.prototype.initializeActionListeners = function() {
-  console.log(\"initializeActionListeners\");
+  //console.log(\"initializeActionListeners\");
   @elements
 }
 `;
 
 var stringAddOnClickEntry = `
 let @nativeId = document.getElementById(\"@nativeId\");
-console.log(@nativeId);
+//console.log(@nativeId);
 @nativeId.onclick = _this.@nativeIdOnClick;
 `;
 
