@@ -4,15 +4,14 @@ const fileUtils = require('fs')
 const cheerio = require('cheerio')
 
 var stringFunctionInitializeActionListeners = `
-@moduleName.prototype.initializeActionListeners = function() {
-  //console.log(\"initializeActionListeners\");
+_this.initializeActionListeners = function() {
+  console.log(\"initializeActionListeners\");
   @elements
 }
 `;
 
 var stringAddOnClickEntry = `
 let @nativeId = document.getElementById(\"@nativeId\");
-//console.log(@nativeId);
 @nativeId.onclick = _this.@nativeIdOnClick;
 `;
 
@@ -22,8 +21,15 @@ let @nativeId = document.getElementById(\"@nativeId\");
 `;
 
 var stringFunctionTemplate = `
-@moduleName.prototype.template = function() {
+_this.template = function() {
   return \"@stringHtml\";
+}
+`;
+
+var stringRenderFunctionTemplate = `
+_this.render = function() {
+  let frag = document.createRange().createContextualFragment(_this.template());
+  return frag;
 }
 `;
 
@@ -45,11 +51,15 @@ function loader(content) {
 
   //get html template as string
   var rawStringTemplate = getHtmlTemplateAsString(this.resourcePath);
-  var stringTemplate = fixString(rawStringTemplate);
+  var fixedHtmlTemplate = fixString(rawStringTemplate);
   var moduleName = capitalize(getParentDirectoryName(this.resourcePath));
 
   //add template() function
-  content = addTemplateFunction(content,stringTemplate,moduleName);
+  var htmlTemplateFunction = getTemplateFunctionAsString(moduleName, fixedHtmlTemplate)
+  content = addNotParametrizableTemplateFunction(content,htmlTemplateFunction);
+
+  //add render() function
+  content = addNotParametrizableTemplateFunction(content,stringRenderFunctionTemplate);
 
   const $=cheerio.load(rawStringTemplate);
 
@@ -65,6 +75,7 @@ function loader(content) {
   //add initializeActionListeners() function
   content = addInitializeActionListenersFunction(content, moduleName, actionableElements);
 
+  console.log(content);
   return content;
 }
 
@@ -90,14 +101,18 @@ function addInitializeActionListenersFunction(content, moduleName, actionableEle
   .replace("@elements",elements);
 
   logDebug(stringFunction);
-  content = content.concat("\n").concat(stringFunction);
+  // content = content.concat("\n").concat(stringFunction);
+  content = addNotParametrizableTemplateFunction(content,stringFunction);
   return content;
+}
+
+function addNotParametrizableTemplateFunction(content, stringTemplate){
+  return replaceLast(content, "}", stringTemplate+"\n}");
 }
 
 function addTemplateFunction(content, stringTemplate, moduleName){
   var stringFunction = getTemplateFunctionAsString(moduleName, stringTemplate);
-  content = content.concat("\n").concat(stringFunction);
-  return content;
+  return replaceLast(content, "}", stringFunction+"\n}");
 }
 
 function getParentDirectoryName(filename){
@@ -129,6 +144,12 @@ function getHtmlTemplateAsString(moduleAbsolutePath){
     return "";
   }
 
+}
+
+function replaceLast(x, y, z){
+  var a = x.split("");
+  a[x.lastIndexOf(y)] = z;
+  return a.join("");
 }
 
 function fixString(string){

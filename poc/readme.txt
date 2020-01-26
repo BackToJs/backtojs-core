@@ -47,3 +47,5 @@ module.exports = loader;
 ##
 
 https://github.com/webpack-contrib/file-loader/blob/master/src/index.js
+
+//https://stackoverflow.com/questions/45540613/how-document-fragment-works

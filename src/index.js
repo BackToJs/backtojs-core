@@ -1,5 +1,5 @@
 import './styles/index.scss'
-import Di4js from './org/jrichardsz/di4js'
+import ModulesFactory from './autoconfigure/factory'
 
-let di4js = new Di4js();
-di4js.discover();
+let modulesFactory = new ModulesFactory();
+modulesFactory.discover();

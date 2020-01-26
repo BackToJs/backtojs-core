@@ -1,14 +1,14 @@
-const Home = require('../../../pages/home')
-const Map = require('../../../pages/map')
-const Navigation = require('../../../navigation')
+const Home = require('../../pages/home')
+const Map = require('../../pages/map')
+const Navigation = require('../../navigation')
 
-function Di4js() {
+function ModulesFactory() {
   this.context = [];
 }
 
-module.exports = Di4js;
+module.exports = ModulesFactory;
 
-Di4js.prototype.discover = function () {
+ModulesFactory.prototype.discover = function () {
   this.context['home'] = new Home();
   this.context['map'] = new Map();
   this.context['navigation'] = new Navigation();
@@ -21,6 +21,6 @@ Di4js.prototype.discover = function () {
 };
 
 
-Di4js.prototype.lookup = function (moduleId) {
+ModulesFactory.prototype.lookup = function (moduleId) {
   return this.context[moduleId];
 };

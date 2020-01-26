@@ -1,20 +1,12 @@
-//https://stackoverflow.com/questions/45540613/how-document-fragment-works
-
 function Home() {
-  _this = this;
+  var _this = this;
 
-  this.getInstance = function() {
-      return _this;
+  _this.homeButtonOnClick = function(e) {
+    console.log("i am the click on home");
+    var navigation = _this['navigation'];
+    navigation.route('map');
   }
+
 }
 
 module.exports = Home;
-
-Home.prototype.render = function() {
-  let frag = document.createRange().createContextualFragment(_this.template());
-  return frag;
-}
-
-Home.prototype.homeButtonOnClick = function(e) {
-  _this.navigation.route('map');
-}

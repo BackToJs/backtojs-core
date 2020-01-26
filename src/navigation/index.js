@@ -1,24 +1,26 @@
 // const Di4js = require('../org/jrichardsz/di4js')
 
 function NavigationController() {
-  this._self = this;
-  this.rule = {
+  var _this = this;
+
+  _this.rule = {
     "main" : "home"
+  };
+
+  _this.main = function () {
+    console.log("starting default navigation");
+    _this.route(_this.rule.main);
+  };
+
+  _this.route = function (viewId) {
+    console.log("route to:"+viewId);
+    var view = _this[viewId];
+    var element = view.render();
+    document.getElementById("root").innerHTML = '';
+    document.getElementById("root").appendChild(element);
+    //TODO: how initialize onclick before dom insertion
+    view.initializeActionListeners();
   };
 }
 
 module.exports = NavigationController;
-
-NavigationController.prototype.main = function () {
-  console.log("starting default navigation");
-  this._self.route(this._self.rule.main);
-};
-
-NavigationController.prototype.route = function (viewId) {
-  var view = this[viewId];
-  var element = view.render();
-  document.getElementById("root").innerHTML = '';
-  document.getElementById("root").appendChild(element);
-  //TODO: how initialize onclick before dom insertion
-  view.initializeActionListeners();
-};
