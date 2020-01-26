@@ -80,7 +80,7 @@ module.exports = {
         use: [
           { loader: 'babel-loader'},
           { loader: 'eslint-loader'},
-          { loader: './src/org/lassiejs/webpack/loader/lassie-loader.js', options: { pagesFolder: path.join(paths.src, '/pages') } },          
+          { loader: './src/org/lassiejs/webpack/loader/lassie-loader.js', options: { pagesFolder: path.join(paths.src, '/pages'), debug:false } },          
         ],
       },
       /**

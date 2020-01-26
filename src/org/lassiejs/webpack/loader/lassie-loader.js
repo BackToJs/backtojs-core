@@ -75,7 +75,7 @@ function loader(content) {
   //add initializeActionListeners() function
   content = addInitializeActionListenersFunction(content, moduleName, actionableElements);
 
-  console.log(content);
+  logDebug(content);
   return content;
 }
 
