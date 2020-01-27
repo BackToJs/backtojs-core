@@ -5,113 +5,92 @@
 
 A JavaScript framework for creating web applications in an fast, simple and intuitive way focus on productivity inspired in swing, spring and my beloved java.
 
+# Dependency Injection
+
+coming soon
+
 # Template Engine
 
-Lassie.js applications are built by composing a series of simple components. By convention, components are made up of a vanilla JavaScript class, with a corresponding HTML template.
+Lassie.js applications are built by composing a series of simple components. By convention, modules are made up of a vanilla JavaScript class, with a corresponding HTML template in **pages** folder.
+
+Example : Home page
 
 ```
-function DockerAppInfo() {
-  this.data = null;
-  this.template = `
-  <div>
-      <span id="name"></span><br>
-      <span id="technology"></span><br>
-      <span id="port"></span>
+src/pages/home/index.js
+src/pages/home/index.html
+```
+
+- index.js is a simple module related to inxed.html
+- index.html contains a clean html code , related to its index.html
+
+This html will be injected to the index.js, so when this page is called, html will be renderized.
+
+# Action Listeners
+
+You don't need to manually bind onclick function to an html element.
+
+You just need
+
+- add **ls-scan=true** in your html template
+
+```html
+<div class="home">
+  <div class="head">
+    <h2>Pets vs Aliens</h2>
   </div>
-  `;
+  <button id="homeButton" ls-scan=true class="button" >New Game</button>
+</div>
+```
+- add a function with the same name of html id element with **OnClick** suffix in the index.js file
+
+```js
+_this.homeButtonOnClick = function(e) {
+  console.log("i am the click on home");
 }
 ```
 
-# Programmatic UI
+- this funcion will be called when user click on `<button id="homeButton" >`
 
-If you don't want to use templates, you can create your ui components explicitly.
+# Entrypoint
 
-```
-let container = new DockerAppInfo();
-let spanName = new Span();
-let spanTechnology = new Span();
-let spanPort = new Span();
-
-container.add({component:spanName});
-container.add({component:spanTechnology});
-container.add({component:spanPort});
-```
-
-Do you remember swing java framework?
-
-# Layouts
-
-No more complex development, you can use:
-
-- Vertical Layout : If you want to add ui components in vertical order
-- Horizontal Layout : If you want to add ui components in Horizontal order
-- Flow Layout : If you want to add ui components with dynamic append.
+You just need to instantiate ModulesFactory.
 
 ```
-let layout = new FlowLayout();
-body.setLayout(layout);
+import './styles/index.scss'
+import ModulesFactory from './autoconfigure/factory'
+
+let modulesFactory = new ModulesFactory();
+modulesFactory.discover();
 ```
 
 # Hello world
 
-This demo show us how to create a simple gallery of divs with fictitious data:
+Coming soon.
 
+# Run
 
-```
+- npm install
+- npm run dev
+- go to http://localhost:8080
 
-import style from './style.css'
-import Div from './org/lassiejs/components/basic/Div.js'
-import HorizontalLayout from './org/lassiejs/layout/HorizontalLayout.js'
-import VerticalLayout from './org/lassiejs/layout/VerticalLayout.js'
-import FlowLayout from './org/lassiejs/layout/FlowLayout.js'
-import DockerAppInfo from './DockerAppInfo.js'
+You will see the html of /src/pages/home as welcome page and if you click on **new game** button you will be redirected to /src/pages/map html
 
-let body = new Div();
+With this we will demonstrate:
 
-let app1 = new DockerAppInfo();
-let app2 = new DockerAppInfo();
-let app3 = new DockerAppInfo();
-let app4 = new DockerAppInfo();
-let app5 = new DockerAppInfo();
-let app6 = new DockerAppInfo();
-let app7 = new DockerAppInfo();
+- Simple page rendering of html
+- Simple onclick functionality
+- Simple navigation
 
-app1.setData({name:"osums",technology:"php",port:"8080"});
-app2.setData({name:"openxava",technology:"java",port:"8081"});
-app3.setData({name:"simple-proxy",technology:"nodejs",port:"8082"});
-app4.setData({name:"starcraft",technology:"c++",port:"8083"});
-app5.setData({name:"lassiejs",technology:"javascript",port:"8084"});
-app6.setData({name:"bet-web",technology:"nodejs",port:"8085"});
-app7.setData({name:"bet-api",technology:"java",port:"8086"});
-
-body.add({component:app1});
-body.add({component:app2});
-body.add({component:app3});
-body.add({component:app4});
-body.add({component:app5});
-body.add({component:app6});
-body.add({component:app7});
-
-
-let layout = new FlowLayout();
-body.setLayout(layout);
-
-document.body.appendChild(body.render());
-```
-
-Result:
-
-![https://raw.githubusercontent.com/jrichardsz/static_resources/master/lassiejs-demo.png](https://raw.githubusercontent.com/jrichardsz/static_resources/master/lassiejs-demo.png)
 
 # Coming Soon
 
-- Add store for complex behaviors
-- Research about dependencies injection like java spring-framework
+- Create src/autoconfigure/factory/index.js dynamically using https://github.com/jrichardsz/dependency-injection-4nodejs (with new webpack loader called dependency-injection-loader)
+- Create src/navigation/index.js dynamically (with new webpack loader called lassie-navigation-loader)
+- Create 3 repository for this loaders
 - Code refactor
 - Unit tests
 - Package as library
 - Create more default ui components and layout
-- a lot of work!!
 
 # Contributors
 
