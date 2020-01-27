@@ -1,4 +1,6 @@
-![](https://raw.githubusercontent.com/jrichardsz/static_resources/master/lassie/lassie-tittle-2.0.png)
+
+<img src="https://raw.githubusercontent.com/jrichardsz/static_resources/master/lassie/lassie-tittle-2.0.png" alt="alt text" width="300">
+
 
 # Lassie.js framework BETA
 ---
