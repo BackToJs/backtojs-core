@@ -1,5 +1,4 @@
-// const Di4js = require('../org/jrichardsz/di4js')
-
+//@Dependency("NavigationController")
 function NavigationController() {
   var _this = this;
 

@@ -1,5 +1,5 @@
 import './styles/index.scss'
-import ModulesFactory from './autoconfigure/factory'
+import ApplicationContext from './context'
 
-let modulesFactory = new ModulesFactory();
-modulesFactory.discover();
+let applicationContext = new ApplicationContext();
+applicationContext.start();

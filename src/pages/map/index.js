@@ -1,3 +1,4 @@
+//@Dependency("Map")
 function Map() {
   var _this = this;
 
