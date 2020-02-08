@@ -81,7 +81,7 @@ module.exports = {
           { loader: 'babel-loader'},
           { loader: 'eslint-loader'},
           { loader: './src/org/lassiejs/webpack/loader/lassie-loader.js', options: { pagesFolder: path.join(paths.src, '/pages'), debug:false } },
-          { loader: './src/org/lassiejs/webpack/loader/autumn-loader.js', options: { applicationContextLocation: path.join(paths.src, '/context/index.js'), debug:true , folderToScan: paths.src} }          
+          { loader: './src/org/lassiejs/webpack/loader/autumn-loader.js', options: { applicationContextLocation: path.join(paths.src, '/lassie/startup/index.js'), debug:true , folderToScan: paths.src} }          
         ],
       },
       /**

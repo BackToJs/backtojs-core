@@ -72,11 +72,10 @@ var detectAdvancedJockers = function(fileContent, file) {
   var dependency = {};
 
   //lookup @Dependency annotations : /@Dependency\("\w+"\)/g
-  var dependencyMatchs = fileContent.match(new RegExp('@Dependency\\(\"\\w+\"\\)', "g"));
+  var dependencyMatchs = fileContent.match(new RegExp('@Page\\(.+\\)|@PageListener\\(.+\\)', "g"));
   if(dependencyMatchs && dependencyMatchs.length == 1){
-    // console.log(parseDependencyAnnotation(dependencyMatchs[0]));
     dependency.location = file;
-    dependency.name = parseDependencyAnnotation(dependencyMatchs[0]);
+    dependency.arguments = parseDependencyAnnotation(dependencyMatchs[0]);
   }
 
   //continue if this is a valid dependency
@@ -98,6 +97,13 @@ var detectAdvancedJockers = function(fileContent, file) {
   }
 
   dependency.variablesToInject = variablesToInject;
+
+  //lookup @DefaultEntryPointView annotation
+  // var defaultEntryPointViewMatchs = fileContent.match(new RegExp('@DefaultEntryPointView', "g"));
+  // if(defaultEntryPointViewMatchs && defaultEntryPointViewMatchs.length == 1){
+  //   dependency.isDefaultEntryPointView = true;
+  // }
+
   return dependency;
 }
 
@@ -119,11 +125,36 @@ input: @Dependency("Properties")
 output: Properties
 */
 var parseDependencyAnnotation = function(stringAnnotationRawData) {
-  var startIndex =  stringAnnotationRawData.indexOf("\"");
-  var lastIndex =  stringAnnotationRawData.lastIndexOf("\"");
-  var dependencyName = stringAnnotationRawData.substring(startIndex+1,lastIndex);
-  var dependencyNameCamelCase = dependencyName.charAt(0).toLowerCase() + dependencyName.slice(1);
-  return dependencyNameCamelCase;
+  var annotationPayload = getAnnotationPayload(stringAnnotationRawData);
+  if(new RegExp('^\\"\\w+\\"$', "g").test(annotationPayload)){
+    var startIndex =  stringAnnotationRawData.indexOf("\"");
+    var lastIndex =  stringAnnotationRawData.lastIndexOf("\"");
+    var dependencyName = stringAnnotationRawData.substring(startIndex+1,lastIndex);
+    var dependencyNameCamelCase = dependencyName.charAt(0).toLowerCase() + dependencyName.slice(1);
+    return {"name":dependencyNameCamelCase};
+  }else{
+    var rawArguments = stringAnnotationRawData.match(new RegExp('\\w+=\\"\\w+\\"', "g"));
+    var annotationArguments = {};
+    rawArguments.forEach(function(rawArgument) {
+        var argumentArray = rawArgument.split("=");
+        var key = argumentArray[0];
+        var value = argumentArray[1].replace(new RegExp("\"", 'g'),"");
+        annotationArguments[key] = value;
+    });
+    return annotationArguments;
+  }
+}
+
+/*
+Get clean body of annotation.
+input: @Dependency("Properties")
+output: Properties
+*/
+var getAnnotationPayload = function(stringAnnotationRawData) {
+  var annotationPayload =  stringAnnotationRawData.replace("@Page(","")
+  .replace("@PageListener(","")
+  .replace(")","")
+  return annotationPayload;
 }
 
 /*

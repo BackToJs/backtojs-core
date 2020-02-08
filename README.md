@@ -7,67 +7,95 @@
 
 A JavaScript framework for creating web applications in an fast, simple and intuitive way focus on productivity inspired in swing, spring and my beloved java.
 
-# Dependency Injection
+Lassie.js applications are built by composing a series of simple html page templates + javascript page listener.
 
-coming soon
+# Features
 
-# Template Engine
+- @Annotattions like java
+- Dependency Injection
+- Template Engine with pure html. Forgot strange <tags>
+- Automatic onclick bindings
+- Automatic router binding
 
-Lassie.js applications are built by composing a series of simple components. By convention, modules are made up of a vanilla JavaScript class, with a corresponding HTML template in **pages** folder.
+# Sample requirement
 
-Example : Home page
+- Create a web with to pages : home and win.
+- Home page must have a title "Pets vs Aliens" and a button called "new game"
+- When "new game" button is clicked, a new page must be loaded : Win page
+- Win page must have a message : "You win" and a button "exit"
+- When "exit" button is clicked, initial page must be loaded: Home page
 
-```
-src/pages/home/index.js
-src/pages/home/index.html
-```
+# Implementation with Lassie.js
 
-- index.js is a simple module related to inxed.html
-- index.html contains a clean html code , related to its index.html
+- Create 2 html files
 
-This html will be injected to the index.js, so when this page is called, html will be renderized.
-
-# Action Listeners
-
-You don't need to manually bind onclick function to an html element.
-
-You just need
-
-- add **ls-scan=true** in your html template
-
+**/src/pages/home/index.html**
 ```html
-<div class="home">
+<div class="page">
   <div class="head">
     <h2>Pets vs Aliens</h2>
   </div>
   <button id="homeButton" ls-scan=true class="button" >New Game</button>
 </div>
 ```
-- add a function with the same name of html id element with **OnClick** suffix in the index.js file
+
+**/src/pages/win/index.html**
+```html
+<div class="page">
+  <div class="head">
+      <h2>You win</h2>
+  </div>
+  <button id="backButton" ls-scan=true class="button" >Exit</button>
+</div>
+```
+
+- Create 2 js modules annotated with @PageListener.
+
+**/src/pages/home/index.js**
+```js
+//@PageListener(name="home", mainPage="true")
+function Home() {
+  var _this = this;
+  _this.homeButtonOnClick = function(e) {
+    window.location = '#win'
+  }
+}
+module.exports = Home;
+```
+
+**/src/pages/win/index.js**
+```js
+//@PageListener("win")
+function Win() {
+  var _this = this;
+  _this.backButtonOnClick = function(e) {
+    window.location = '#home'
+  }
+}
+module.exports = Win;
+```
+
+- Create the startup module
+
+**src/startup/index.js**
 
 ```js
-_this.homeButtonOnClick = function(e) {
-  console.log("i am the click on home");
+function LassieStartupApplication() {
+  var _this = this;
+  _this.context = {};
 }
+module.exports = LassieStartupApplication;
 ```
 
-- this funcion will be called when user click on `<button id="homeButton" >`
+- Launch the startup module
 
-# Entrypoint
-
-You just need to instantiate ModulesFactory.
-
-```
+```js
 import './styles/index.scss'
-import ModulesFactory from './autoconfigure/factory'
+import LassieStartupApplication from './context'
 
-let modulesFactory = new ModulesFactory();
-modulesFactory.discover();
+let lassieStartupApplication = new LassieStartupApplication();
+lassieStartupApplication.start();
 ```
-
-# Hello world
-
-Coming soon.
 
 # Run
 
@@ -75,19 +103,16 @@ Coming soon.
 - npm run dev
 - go to http://localhost:8080
 
-You will see the html of /src/pages/home as welcome page and if you click on **new game** button you will be redirected to /src/pages/map html
+You will see the home page and if you click on **new game** button you will be redirected to win page with "You win" message
 
-With this we will demonstrate:
+# How it works?
 
-- Simple page rendering of html
-- Simple onclick functionality
-- Simple navigation
+- Coming Soon
 
 
-# Coming Soon
+# Road map
 
-- Create src/autoconfigure/factory/index.js dynamically using https://github.com/jrichardsz/dependency-injection-4nodejs (with new webpack loader called dependency-injection-loader)
-- Create src/navigation/index.js dynamically (with new webpack loader called lassie-navigation-loader)
+- Externalize loaders and autumnframework source code as new git repositories
 - Create 3 repository for this loaders
 - Code refactor
 - Unit tests
@@ -95,8 +120,6 @@ With this we will demonstrate:
 - Create more default ui components and layout
 
 # Contributors
-
-Thanks goes to these wonderful people :
 
 <table>
   <tbody>

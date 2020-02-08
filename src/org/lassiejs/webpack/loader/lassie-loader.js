@@ -5,7 +5,6 @@ const cheerio = require('cheerio')
 
 var stringFunctionInitializeActionListeners = `
 _this.initializeActionListeners = function() {
-  console.log(\"initializeActionListeners\");
   @elements
 }
 `;

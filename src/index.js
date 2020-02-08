@@ -1,5 +1,5 @@
 import './styles/index.scss'
-import ApplicationContext from './context'
+import LassieStartupApplication from './lassie/startup'
 
-let applicationContext = new ApplicationContext();
-applicationContext.start();
+let lassieStartupApplication = new LassieStartupApplication();
+lassieStartupApplication.start();
