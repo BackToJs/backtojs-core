@@ -75,12 +75,12 @@ module.exports = {
        * Use Babel to transpile JavaScript files.
        */
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
+        test: /\.(js|html)$/,
+        exclude: [/node_modules/, /index\.html$/],
         use: [
           { loader: 'babel-loader'},
           { loader: 'eslint-loader'},
-          { loader: './src/org/lassiejs/webpack/loader/autumn-loader.js', options: { autoConfigurationLocation: path.join(paths.src, '/lassie/startup/index.js'), debug:true , folderToScan: paths.src} }
+          { loader: './src/org/lassiejs/webpack/loader/autumn-loader.js', options: { autoConfigurationLocation: path.join(paths.src, '/lassie/startup/index.js'), logLevel:"debug" , folderToScan: paths.src} }
         ],
       },
       /**
@@ -125,6 +125,11 @@ module.exports = {
           name: '[path][name].[ext]',
           context: 'src', // prevent display of src/ in filename
         },
+      }
+      ,
+      {
+        test: /\.html$/i,
+        loader: 'underscore-template-loader',
       }
     ],
   },

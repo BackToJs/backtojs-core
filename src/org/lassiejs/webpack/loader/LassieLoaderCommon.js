@@ -34,7 +34,7 @@ LassieLoaderCommon.replaceLast = function(x, y, z){
 }
 
 LassieLoaderCommon.logDebug = function(string){
-  if(lassieLoaderDebug===true){
+  if(lassieLoaderLogLevel==="debug"){
     console.log(string);
   }
 }

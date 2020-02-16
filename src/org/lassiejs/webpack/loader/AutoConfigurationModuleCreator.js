@@ -77,6 +77,11 @@ function AutoConfigurationModuleCreator() {
         var rawStringTemplate = LassieLoaderCommon.getHtmlTemplateAsString(dependency.location);
         var fixedHtmlTemplate = LassieLoaderCommon.fixString(rawStringTemplate);
 
+        var requireSentence = requireTemplate
+          .replace("@dependencyClassName", dependencyClassName)
+          .replace("@dependencyLocation", dependency.location);
+        requires = requires.concat("\n").concat(requireSentence);
+
         //instantiate
         var instantiateSentence = instantiateVariableTemplate
           .replace("@dependencyName", dependency.arguments.name)

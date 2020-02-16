@@ -7,9 +7,11 @@ var debug;
 
 function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
-  debug = options.debug;
+  logLevel = options.logLevel;
 
-  global.lassieLoaderDebug = debug;
+  global.lassieLoaderLogLevel = logLevel;
+
+  console.log("Lassie page analization: "+this.resourcePath);
 
   if(this.resourcePath.startsWith(options.autoConfigurationLocation)){
     var autoConfigurationModuleCreator = new AutoConfigurationModuleCreator();
