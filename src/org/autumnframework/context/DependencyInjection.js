@@ -137,7 +137,7 @@ output: Properties
 */
 var parseDependencyAnnotation = function(stringAnnotationRawData) {
   var annotationPayload = getAnnotationPayload(stringAnnotationRawData);
-  console.log("annotationPayload:"+annotationPayload);
+
   if(new RegExp('^\\"\\w+\\"$', "g").test(annotationPayload)){
     var startIndex =  stringAnnotationRawData.indexOf("\"");
     var lastIndex =  stringAnnotationRawData.lastIndexOf("\"");
@@ -145,7 +145,7 @@ var parseDependencyAnnotation = function(stringAnnotationRawData) {
     var dependencyNameCamelCase = dependencyName.charAt(0).toLowerCase() + dependencyName.slice(1);
     return {"name":dependencyNameCamelCase};
   }else{
-    console.log(stringAnnotationRawData);
+
     var rawArguments = stringAnnotationRawData.match(new RegExp('\\w+=\\"\\w+\\"', "g"));
     var annotationArguments = {};
     rawArguments.forEach(function(rawArgument) {
