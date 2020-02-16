@@ -14,11 +14,6 @@ let @nativeId = document.getElementById(\"@nativeId\");
 @nativeId.onclick = _this.@nativeIdOnClick;
 `;
 
-var stringAddOnClickEntryDummy = `
-let @nativeId = document.getElementById(\"@nativeId\");
-@nativeId.onclick = function() { alert('i am @nativeId'); };
-`;
-
 var stringFunctionTemplate = `
 _this.template = function() {
   return \"@stringHtml\";
