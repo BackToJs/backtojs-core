@@ -1,4 +1,4 @@
-//@PageListener(name="home", mainPage="true")
+//@Page-Listener(name="home", mainPage="true")
 function Home() {
   var _this = this;
 

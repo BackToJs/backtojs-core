@@ -4,35 +4,41 @@ const fileUtils = require('fs')
 const DependencyInjection = require('../../../../org/autumnframework/context/DependencyInjection.js')
 
 var requireTemplate = `const @dependencyClassName = require('@dependencyLocation');`;
-
-var instantiateTemplate = `_this.context["@dependencyName"] = new @dependencyClassName();`;
-
-var injectionTemplate = `_this.context.@dependencyName.@autowireName = this.context.@autowireName;`;
+var instantiateModuleTemplate = `_this.context["@dependencyName"] = new @dependencyClassName();`;
+var instantiateVariableTemplate = `_this.context["@dependencyName"] =  @variableValue;`;
+var injectionTemplate = `_this.context["@dependencyName"].@autowireName = _this.context["@autowireName"];`;
+var fragmentMappingTemplate = `_this.listenersByFragmentUrlId["@fragmentUrlId"] = _this.context["@dependencyName"];`;
 
 var startFunctionTemplate = `
 _this.start = function () {
   @require
   @instantiate
   @injection
-  _this.route(_this.mainPage);
+  @fragmentListeners
+
+  if(_this.entrypointFragmentUrlId && _this.listenersByFragmentUrlId[_this.entrypointFragmentUrlId]){
+    console.log("default:"+_this.entrypointFragmentUrlId);
+    _this.route(_this.entrypointFragmentUrlId);
+  }else{
+    console.log('There are not any @PageListener defined as entrypoint');
+  }
 };
 `;
 
 //TODO: how initialize onclick before dom insertion
 var routeFunctionTemplate = `
-_this.route = function (pageName) {
-  var page = _this.context[pageName];
-  var element = page.render();
+_this.route = function (fragmentUrlId) {
+  var pageListener = _this.listenersByFragmentUrlId[fragmentUrlId];
+  var element = pageListener.render();
   document.getElementById("root").innerHTML = '';
   document.getElementById("root").appendChild(element);
-  page.initializeActionListeners();
+  // page.initializeActionListeners();
 };
 `;
 
 var locationHashChangedFunctionTemplate = `
 function locationHashChanged() {
   console.log(location.hash);
-  //lookup in context
   var pageName = location.hash.replace("#","");
   if(!_this.context[pageName]){
     console.log("There are not any page with name: "+pageName);
@@ -44,7 +50,7 @@ window.onhashchange = locationHashChanged;
 `;
 
 var mainPageAttributeTemplate = `
-_this.mainPage = "@dependencyName";
+_this.entrypointFragmentUrlId = "@fragmentUrlId";
 `;
 
 var debug;
@@ -59,36 +65,59 @@ function loader(content) {
 
   logDebug("applicationContextLocation:"+options.applicationContextLocation);
   logDebug("folderToScan:"+options.folderToScan);
-  var dependencies = DependencyInjection.getDependecies(options.folderToScan);
+  var dependencies = DependencyInjection.getDependecies(options.folderToScan, [".js",".html"]);
 
   logDebug("dependencies");
   logDebug(dependencies);
 
-  var instancedDependecies = {};
-
   logDebug("\nPerform instantation...");
   var requires = "";
   var instantiates = "";
-  var mainPage;
+  var fragmentListeners = "";
+  var entrypointFragmentUrlId;
   for(dependency of dependencies){
     var dependencyClassName = capitalize(dependency.arguments.name);
 
-    //get require
-    var requireSentence = requireTemplate
-    .replace("@dependencyClassName",dependencyClassName)
-    .replace("@dependencyLocation",dependency.location);
-    // logDebug(requireSentence);
-    requires = requires.concat("\n").concat(requireSentence);
-    //instantiate
-    var instantiateSentence = instantiateTemplate
-    .replace("@dependencyClassName",dependencyClassName)
-    .replace("@dependencyName",dependency.arguments.name);
-    // logDebug(instantiateSentence);
-    instantiates = instantiates.concat("\n").concat(instantiateSentence);
+    if(dependency.type == "Template"){
+      var rawStringTemplate = getHtmlTemplateAsString(dependency.location);
+      var fixedHtmlTemplate = fixString(rawStringTemplate);
 
-    //lookup main page
-    if(dependency.arguments.mainPage == "true"){
-      mainPage = dependency.arguments.name;
+      //instantiate
+      var instantiateSentence = instantiateVariableTemplate
+      .replace("@dependencyName",dependency.arguments.name)
+      .replace("@variableValue","\""+fixedHtmlTemplate+"\"");
+
+      instantiates = instantiates.concat("\n").concat(instantiateSentence);
+    }else{
+      //get require
+      var requireSentence = requireTemplate
+      .replace("@dependencyClassName",dependencyClassName)
+      .replace("@dependencyLocation",dependency.location);
+      // logDebug(requireSentence);
+      requires = requires.concat("\n").concat(requireSentence);
+      //instantiate
+      var instantiateSentence = instantiateModuleTemplate
+      .replace("@dependencyClassName",dependencyClassName)
+      .replace("@dependencyName",dependency.arguments.name);
+      // logDebug(instantiateSentence);
+      instantiates = instantiates.concat("\n").concat(instantiateSentence);
+
+      if(dependency.arguments.fragmentUrlId){
+        var fragmentMappingSentence = fragmentMappingTemplate
+        .replace("@fragmentUrlId",dependency.arguments.fragmentUrlId)
+        .replace("@dependencyName",dependency.arguments.name);
+        // logDebug(fragmentListeners);
+        fragmentListeners = fragmentListeners.concat("\n").concat(fragmentMappingSentence);
+      }
+    }
+
+    //custom configurations
+
+    //lookup default entry point
+    if(dependency.arguments.entrypoint == "true"){
+      if(dependency.arguments.fragmentUrlId){
+        entrypointFragmentUrlId = dependency.arguments.fragmentUrlId;
+      }
     }
   }
 
@@ -110,23 +139,44 @@ function loader(content) {
   var stringStartFunction = startFunctionTemplate
   .replace("@require",requires)
   .replace("@instantiate",instantiates)
-  .replace("@injection",injections);
+  .replace("@injection",injections)
+  .replace("@fragmentListeners",(fragmentListeners.length >0 ? fragmentListeners : ""));
 
   content = addNotParametrizableTemplateFunction(content,stringStartFunction);
   content = addNotParametrizableTemplateFunction(content,routeFunctionTemplate);
   content = addNotParametrizableTemplateFunction(content,locationHashChangedFunctionTemplate);
 
 
-  if(mainPage){
+  if(entrypointFragmentUrlId){
     var mainPageAttribute = mainPageAttributeTemplate
-    .replace("@dependencyName",mainPage);
+    .replace("@fragmentUrlId",entrypointFragmentUrlId);
     content = addNotParametrizableTemplateFunction(content,mainPageAttribute);
   }else {
-    content = addNotParametrizableTemplateFunction(content,"console.log('There are not any @PageListener defined as mainPage');");
+    content = addNotParametrizableTemplateFunction(content,"console.log('There are not any @PageListener defined as entrypoint');");
   }
 
   logDebug(content);
   return content;
+}
+
+function getHtmlTemplateAsString(moduleAbsolutePath){
+  var templateAbsolutePath = moduleAbsolutePath.replace(new RegExp('js$'), "html");
+  try {
+    if (fileUtils.existsSync(templateAbsolutePath)) {
+      var fileContents = fileUtils.readFileSync(templateAbsolutePath).toString();
+      return fileContents;
+    }else{
+      return "";
+    }
+  } catch(err) {
+    console.log(err);
+    return "";
+  }
+
+}
+
+function fixString(string){
+  return string.replace(/\"/g,"\\\"").replace(/(\r\n|\n|\r)/gm, "");
 }
 
 function addNotParametrizableTemplateFunction(content, stringTemplate){

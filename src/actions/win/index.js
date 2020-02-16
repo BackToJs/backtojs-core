@@ -1,4 +1,4 @@
-//@Page-Listener("win")
+//@PageListener("winListener")
 function Win() {
   var _this = this;
 

@@ -6,15 +6,14 @@ function DependencyInjection() {
 
 }
 
-DependencyInjection.getDependecies = function(rootPath) {
+DependencyInjection.getDependecies = function(rootPath, expectedExtensions) {
 
   var files = [];
   var dependencies = [];
-  getJsFiles(rootPath, files)
+  getJsFiles(rootPath, files, expectedExtensions)
   for (var key in files) {
     var file = files[key];
     var contents = fs.readFileSync(file, 'utf8');
-    // console.log(file);
     var dependencyMetadata = detectAdvancedJockers(contents,file);
     if(dependencyMetadata){
       dependencies.push(dependencyMetadata);
@@ -72,8 +71,9 @@ var detectAdvancedJockers = function(fileContent, file) {
   var dependency = {};
 
   //lookup @Dependency annotations : /@Dependency\("\w+"\)/g
-  var dependencyMatchs = fileContent.match(new RegExp('@Page\\(.+\\)|@PageListener\\(.+\\)', "g"));
+  var dependencyMatchs = fileContent.match(new RegExp('@Template\\(.+\\)|@PageListener\\(.+\\)', "g"));
   if(dependencyMatchs && dependencyMatchs.length == 1){
+    dependency.type = getDependecyType(dependencyMatchs[0]);
     dependency.location = file;
     dependency.arguments = parseDependencyAnnotation(dependencyMatchs[0]);
   }
@@ -112,6 +112,17 @@ Get name of var to autowire.
 input:   var controller;
 output: controller
 */
+var getDependecyType = function(stringAnnotationRawData) {
+  var ini = stringAnnotationRawData.indexOf("@");
+  var end = stringAnnotationRawData.indexOf("(");
+  return stringAnnotationRawData.substring(ini+1, end);
+}
+
+/*
+Get name of var to autowire.
+input:   var controller;
+output: controller
+*/
 var parseAutowireAnnotation = function(stringAnnotationRawData) {
   var match = stringAnnotationRawData.match(new RegExp('\\s+\\w+\\;', "g"));
   if(match && match.length == 1){
@@ -126,6 +137,7 @@ output: Properties
 */
 var parseDependencyAnnotation = function(stringAnnotationRawData) {
   var annotationPayload = getAnnotationPayload(stringAnnotationRawData);
+  console.log("annotationPayload:"+annotationPayload);
   if(new RegExp('^\\"\\w+\\"$', "g").test(annotationPayload)){
     var startIndex =  stringAnnotationRawData.indexOf("\"");
     var lastIndex =  stringAnnotationRawData.lastIndexOf("\"");
@@ -133,6 +145,7 @@ var parseDependencyAnnotation = function(stringAnnotationRawData) {
     var dependencyNameCamelCase = dependencyName.charAt(0).toLowerCase() + dependencyName.slice(1);
     return {"name":dependencyNameCamelCase};
   }else{
+    console.log(stringAnnotationRawData);
     var rawArguments = stringAnnotationRawData.match(new RegExp('\\w+=\\"\\w+\\"', "g"));
     var annotationArguments = {};
     rawArguments.forEach(function(rawArgument) {
@@ -151,9 +164,9 @@ input: @Dependency("Properties")
 output: Properties
 */
 var getAnnotationPayload = function(stringAnnotationRawData) {
-  var annotationPayload =  stringAnnotationRawData.replace("@Page(","")
+  var annotationPayload =  stringAnnotationRawData.replace("@Template(","")
   .replace("@PageListener(","")
-  .replace(")","")
+  .replace(")","").replace(")","")
   return annotationPayload;
 }
 
@@ -162,17 +175,17 @@ Get list of js files in the main project, without excludes
 input: main path
 output: string[]
 */
-var getJsFiles = function(path, files) {
+var getJsFiles = function(path, files, expectedExtensions) {
   fs.readdirSync(path).forEach(function(file) {
     var subpath = path + '/' + file;
     if (fs.lstatSync(subpath).isDirectory()) {
       if (subpath.includes("node_modules") || subpath.includes(".git")) {
         return;
       }
-      getJsFiles(subpath, files);
+      getJsFiles(subpath, files, expectedExtensions);
     } else {
       var ext = pathUtil.extname(file);
-      if (ext !== ".js" || file.endsWith("DependencyInjection.js") || file.endsWith("-loader.js")) {
+      if ((expectedExtensions.indexOf(ext) < 0) || file.endsWith("DependencyInjection.js") || file.endsWith("-loader.js")) {
         return;
       }
       files.push(path + '/' + file);
