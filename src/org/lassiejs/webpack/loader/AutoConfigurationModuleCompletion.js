@@ -2,7 +2,7 @@ const fileUtils = require('fs')
 const DependencyInjection = require('../../../../org/autumnframework/context/DependencyInjection.js')
 const LassieLoaderCommon = require('./LassieLoaderCommon.js');
 
-function AutoConfigurationModuleCreator() {
+function AutoConfigurationModuleCompletion() {
 
   var _this = this;
 
@@ -77,10 +77,10 @@ function AutoConfigurationModuleCreator() {
         var rawStringTemplate = LassieLoaderCommon.getHtmlTemplateAsString(dependency.location);
         var fixedHtmlTemplate = LassieLoaderCommon.fixString(rawStringTemplate);
 
-        var requireSentence = requireTemplate
-          .replace("@dependencyClassName", dependencyClassName)
-          .replace("@dependencyLocation", dependency.location);
-        requires = requires.concat("\n").concat(requireSentence);
+        // var requireSentence = requireTemplate
+        //   .replace("@dependencyClassName", dependencyClassName)
+        //   .replace("@dependencyLocation", dependency.location);
+        // requires = requires.concat("\n").concat(requireSentence);
 
         //instantiate
         var instantiateSentence = instantiateVariableTemplate
@@ -163,4 +163,4 @@ function AutoConfigurationModuleCreator() {
 }
 
 
-module.exports = AutoConfigurationModuleCreator;
+module.exports = AutoConfigurationModuleCompletion;

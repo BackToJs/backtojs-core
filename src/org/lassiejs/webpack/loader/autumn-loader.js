@@ -1,6 +1,6 @@
 const loaderUtils = require("loader-utils");
 const pathUtils = require('path');
-const AutoConfigurationModuleCreator = require('./AutoConfigurationModuleCreator.js');
+const AutoConfigurationModuleCompletion = require('./AutoConfigurationModuleCompletion.js');
 const TemplateModuleCreator = require('./TemplateModuleCreator.js');
 
 var debug;
@@ -14,8 +14,8 @@ function loader(content) {
   console.log("Lassie page analization: "+this.resourcePath);
 
   if(this.resourcePath.startsWith(options.autoConfigurationLocation)){
-    var autoConfigurationModuleCreator = new AutoConfigurationModuleCreator();
-    return autoConfigurationModuleCreator.createModule(options, content);
+    var autoConfigurationModuleCompletion = new AutoConfigurationModuleCompletion();
+    return autoConfigurationModuleCompletion.createModule(options, content);
   }else if(isTemplate(content)){
     console.log("template detected");
     // var templateModuleCreator = new TemplateModuleCreator();
