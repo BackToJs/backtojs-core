@@ -80,7 +80,10 @@ module.exports = {
         use: [
           { loader: 'babel-loader'},
           { loader: 'eslint-loader'},
-          { loader: './src/org/lassiejs/webpack/loader/autumn-loader.js', options: { autoConfigurationLocation: path.join(paths.src, '/lassie/startup/index.js'), logLevel:"debug" , folderToScan: paths.src} }
+          { loader: './src/org/lassiejs/webpack/loader/autumn-loader.js', options: {
+            autoConfigurationLocation: path.join(paths.src, '/lassie/startup/index.js'),
+            logLevel:"debug" , folderToScan: paths.src}
+          }
         ],
       },
       /**

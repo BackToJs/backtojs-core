@@ -1,7 +1,7 @@
 const loaderUtils = require("loader-utils");
 const pathUtils = require('path');
 const AutoConfigurationModuleCompletion = require('./AutoConfigurationModuleCompletion.js');
-const TemplateModuleCreator = require('./TemplateModuleCreator.js');
+const TemplateModuleCompletion = require('./TemplateModuleCompletion.js');
 
 var debug;
 
