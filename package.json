@@ -1,11 +1,14 @@
 {
-  "name": "webpack-boilerplate",
+  "name": "lassiejs",
   "version": "1.0.0",
-  "description": "Webpack 4 Boilerplate",
+  "description": "lassie.js framework",
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config src/webpack/webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config src/webpack/webpack.prod.js"
+  },
+  "bin": {
+    "lassiejs": "src/index.js"
   },
   "keywords": [
     "webpack",

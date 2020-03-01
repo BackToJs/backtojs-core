@@ -78,9 +78,17 @@ module.exports = {
         test: /\.(js|html)$/,
         exclude: [/node_modules/, /index\.html$/],
         use: [
-          { loader: 'babel-loader'},
-          { loader: 'eslint-loader'},
-          { loader: './src/org/lassiejs/webpack/loader/autumn-loader.js', options: {
+          { loader: require.resolve('babel-loader'),
+            options: {
+              configFile: paths.lassiejsHomePath+'/.babelrc'
+            }
+          },
+          { loader: require.resolve('eslint-loader'),
+            options: {
+              configFile: paths.lassiejsHomePath+'/.eslintrc'
+            }
+          },
+          { loader: paths.lassiejsHomePath+'/src/org/lassiejs/webpack/loader/autumn-loader.js', options: {
             autoConfigurationLocation: path.join(paths.src, '/lassie/startup/index.js'),
             logLevel:"debug" , folderToScan: paths.src}
           }
@@ -94,10 +102,25 @@ module.exports = {
       {
         test: /\.(scss|css)$/,
         use: [
-          'style-loader',
-          { loader: 'css-loader', options: { sourceMap: true, importLoaders: 1 } },
-          { loader: 'postcss-loader', options: { sourceMap: true } },
-          { loader: 'sass-loader', options: { sourceMap: true } },
+          require.resolve('style-loader'),
+          { loader: require.resolve('css-loader'), options: { sourceMap: true, importLoaders: 1 } },
+          { loader: require.resolve('postcss-loader'),
+            options: {
+              ident: 'postcss',
+              plugins: (loader) => [
+                require('postcss-preset-env')({ //replacement of postcss.config.js
+                  browsers: [
+                        '>1%',
+                        'last 4 versions',
+                        'Firefox ESR',
+                        'not ie < 9', // React doesn't support IE8 anyway
+                      ]
+                }),
+                require('cssnano')()
+              ]
+            }
+          },
+          { loader: require.resolve('sass-loader'), options: { sourceMap: true } },
         ],
       },
 
@@ -122,7 +145,7 @@ module.exports = {
        */
       {
         test: /\.(woff(2)?|eot|ttf|otf|)$/,
-        loader: 'url-loader',
+        loader: require.resolve('url-loader'),
         options: {
           limit: 8192,
           name: '[path][name].[ext]',
@@ -132,7 +155,7 @@ module.exports = {
       ,
       {
         test: /\.html$/i,
-        loader: 'underscore-template-loader',
+        loader: require.resolve('underscore-template-loader'),
       }
     ],
   },
