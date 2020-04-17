@@ -1,13 +1,13 @@
 
-<img src="https://raw.githubusercontent.com/jrichardsz/static_resources/master/lassie/lassie-tittle-2.0.png" alt="alt text" width="300">
+![logo](https://raw.githubusercontent.com/jrichardsz/static_resources/master/linkstart/linkstart-533X300.png)
 
 
-# Lassie.js framework BETA
+# LinkStart.js Beta
 ---
 
 A JavaScript framework for creating web applications in an fast, simple and intuitive way focus on productivity inspired in swing, spring and my beloved java.
 
-Lassie.js applications are built by composing a series of simple html page templates + javascript page listener.
+LinkStart.js applications are built by composing a series of simple html page templates + javascript page listener.
 
 # Features
 
@@ -30,12 +30,12 @@ Check the first demo:
 
 # Road map
 
-- Add commander library to enable lassiejs commands
-- Add build script
-- Code refactor
-- Unit tests
-- Package as library
-- Create more default ui components and layout
+- [ ] Add commander library to enable lassiejs commands
+- [ ] Add build script
+- [ ] Code refactor
+- [ ] Unit tests
+- [ ] Package as library
+- [ ] Create more default ui components and layout
 
 # Contributors
 
