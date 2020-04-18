@@ -1,22 +1,22 @@
 const fileUtils = require('fs')
 const DependencyInjection = require('../../../../org/autumnframework/context/DependencyInjection.js')
-const LassieLoaderCommon = require('./LassieLoaderCommon.js');
+const LinksStartWebpackLoaderCommon = require('./LinksStartWebpackLoaderCommon.js');
 const cheerio = require('cheerio')
 
-function AutoConfigurationModuleCompletion() {
+function EntrypointModuleCreation() {
 
   var _this = this;
 
   var requireTemplate = `const @dependencyClassName = require('@dependencyLocation');`;
   var instantiateModuleTemplate = `_this.context["@dependencyName"] = new @dependencyClassName();`;
   var injectionTemplate = `_this.context["@dependencyName"].@autowireName = _this.context["@autowireName"];`;
-  var fragmentMappingTemplate = `_this.listenersByFragmentUrlId["@fragmentUrlId"] = _this.context["@dependencyName"];`;
+  var fragmentMappingTemplate = `_this.listenersByFragmentUrlId["@route"] = _this.context["@dependencyName"];`;
 
   var flashBootApplicationTemplate = `
 
   import './styles/index.scss'
 
-  function FlashBootApplication() {
+  function LinkStartApplication() {
 
     var _this = this;
     _this.context = {};
@@ -28,8 +28,8 @@ function AutoConfigurationModuleCompletion() {
   var linkStartFunctionTemplate = `
 
   function linkStart(){
-    let flashBootApplication = new FlashBootApplication();
-    flashBootApplication.start();
+    let linkStartApplication = new LinkStartApplication();
+    linkStartApplication.start();
   }
 
   `;
@@ -52,8 +52,8 @@ function AutoConfigurationModuleCompletion() {
 
   //TODO: how initialize onclick before dom insertion
   var routeFunctionTemplate = `
-  _this.route = function (fragmentUrlId) {
-    var pageListener = _this.listenersByFragmentUrlId[fragmentUrlId];
+  _this.route = function (route) {
+    var pageListener = _this.listenersByFragmentUrlId[route];
     var element = pageListener.render();
     document.getElementById("root").innerHTML = '';
     document.getElementById("root").appendChild(element);
@@ -76,7 +76,7 @@ function AutoConfigurationModuleCompletion() {
   `;
 
   var globalAttributesTemplate = `
-  _this.entrypointFragmentUrlId = "@fragmentUrlId";
+  _this.entrypointFragmentUrlId = "@route";
   `;
 
   var instantiateVariableTemplate = `
@@ -98,24 +98,23 @@ function AutoConfigurationModuleCompletion() {
 
   _this.createModule = function(options, content) {
 
-    LassieLoaderCommon.logDebug("autoConfigurationLocation:" + options.autoConfigurationLocation);
-    LassieLoaderCommon.logDebug("srcLocation:" + options.srcLocation);
-    var dependencies = DependencyInjection.getDependecies(options.srcLocation, [".js", ".html"]);
+    LinksStartWebpackLoaderCommon.logDebug("srcLocation:" + options.srcLocation);
+    var dependencies = DependencyInjection.getDependecies(options.srcLocation, [".js", ".html"], ["src/index.js", "src/index.html"]);
 
-    LassieLoaderCommon.logDebug("dependencies");
-    LassieLoaderCommon.logDebug(dependencies);
+    LinksStartWebpackLoaderCommon.logDebug("\nNormalized dependencies");
+    LinksStartWebpackLoaderCommon.logDebug(dependencies);
 
-    LassieLoaderCommon.logDebug("\nPerform instantation...");
+    LinksStartWebpackLoaderCommon.logDebug("\nPerform instantation...");
     var requires = "";
     var instantiates = "";
     var fragmentListeners = "";
     var entrypointFragmentUrlId;
     for (dependency of dependencies) {
-      var dependencyClassName = LassieLoaderCommon.capitalize(dependency.arguments.name);
+      var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.arguments.name);
 
-      if (dependency.type == "Template") {
-        var rawStringTemplate = LassieLoaderCommon.getHtmlTemplateAsString(dependency.location);
-        var fixedHtmlTemplate = LassieLoaderCommon.fixString(rawStringTemplate);
+      if (dependency.type == "Page") {
+        var rawStringTemplate = LinksStartWebpackLoaderCommon.getHtmlTemplateAsString(dependency.location);
+        var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString(rawStringTemplate);
 
         var actionableElementEntries = "";
 
@@ -139,7 +138,7 @@ function AutoConfigurationModuleCompletion() {
           .replace("@actionableElementEntries", actionableElementEntries);
 
         instantiates = instantiates.concat("\n").concat(instantiateSentence);
-      } else {
+      } else { //default is PageAction
         //get require
         var requireSentence = requireTemplate
           .replace("@dependencyClassName", dependencyClassName)
@@ -151,9 +150,9 @@ function AutoConfigurationModuleCompletion() {
           .replace("@dependencyName", dependency.arguments.name);
         instantiates = instantiates.concat("\n").concat(instantiateSentence);
 
-        if (dependency.arguments.fragmentUrlId) {
+        if (dependency.arguments.route) {
           var fragmentMappingSentence = fragmentMappingTemplate
-            .replace("@fragmentUrlId", dependency.arguments.fragmentUrlId)
+            .replace("@route", dependency.arguments.route)
             .replace("@dependencyName", dependency.arguments.name);
           fragmentListeners = fragmentListeners.concat("\n").concat(fragmentMappingSentence);
         }
@@ -163,13 +162,13 @@ function AutoConfigurationModuleCompletion() {
 
       //lookup default entry point
       if (dependency.arguments.entrypoint == "true") {
-        if (dependency.arguments.fragmentUrlId) {
-          entrypointFragmentUrlId = dependency.arguments.fragmentUrlId;
+        if (dependency.arguments.route) {
+          entrypointFragmentUrlId = dependency.arguments.route;
         }
       }
     }
 
-    LassieLoaderCommon.logDebug("\nPerform injection...");
+    LinksStartWebpackLoaderCommon.logDebug("\nPerform injection...");
     var injections = "";
     for (dependency of dependencies) {
 
@@ -193,22 +192,23 @@ function AutoConfigurationModuleCompletion() {
     var mainPageAttribute;
     if (entrypointFragmentUrlId) {
       mainPageAttribute = globalAttributesTemplate
-        .replace("@fragmentUrlId", entrypointFragmentUrlId);
+        .replace("@route", entrypointFragmentUrlId);
     } else {
-      mainPageAttribute =  "console.log('There are not any @PageListener defined as entrypoint')";
+      mainPageAttribute =  "console.log('There are not any @PageAction defined as entrypoint')";
     }
 
 
     //create start function
-    var readyModule = LassieLoaderCommon.addNotParametrizableTemplateFunction(flashBootApplicationTemplate, stringStartFunction);
-    readyModule = LassieLoaderCommon.addNotParametrizableTemplateFunction(readyModule, routeFunctionTemplate);
-    readyModule = LassieLoaderCommon.addNotParametrizableTemplateFunction(readyModule, locationHashChangedFunctionTemplate);
-    readyModule = LassieLoaderCommon.addNotParametrizableTemplateFunction(readyModule, mainPageAttribute);
+    var readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(flashBootApplicationTemplate, stringStartFunction);
+    readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, routeFunctionTemplate);
+    readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, locationHashChangedFunctionTemplate);
+    readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, mainPageAttribute);
 
     readyModule = readyModule.concat("\n").concat(linkStartFunctionTemplate);
     content = readyModule.concat("\n").concat(content);
 
-    LassieLoaderCommon.logDebug(content);
+    LinksStartWebpackLoaderCommon.logDebug("\nentrypoint is ready!!\n\n");
+    LinksStartWebpackLoaderCommon.logDebug(content);
 
     return content;
 
@@ -216,4 +216,4 @@ function AutoConfigurationModuleCompletion() {
 }
 
 
-module.exports = AutoConfigurationModuleCompletion;
+module.exports = EntrypointModuleCreation;

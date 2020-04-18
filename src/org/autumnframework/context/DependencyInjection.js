@@ -6,13 +6,19 @@ function DependencyInjection() {
 
 }
 
-DependencyInjection.getDependecies = function(rootPath, expectedExtensions) {
+DependencyInjection.getDependecies = function(rootPath, expectedExtensions, excludes) {
+
+  console.log("dependencyRootPath: "+rootPath);
 
   var files = [];
   var dependencies = [];
-  getJsFiles(rootPath, files, expectedExtensions)
+  getJsFiles(rootPath, files, expectedExtensions, excludes)
+
+  console.log("\nRaw dependencies");
+
   for (var key in files) {
     var file = files[key];
+    console.log("file:"+file);
     var contents = fs.readFileSync(file, 'utf8');
     var dependencyMetadata = detectAdvancedJockers(contents,file);
     if(dependencyMetadata){
@@ -71,7 +77,8 @@ var detectAdvancedJockers = function(fileContent, file) {
   var dependency = {};
 
   //lookup @Dependency annotations : /@Dependency\("\w+"\)/g
-  var dependencyMatchs = fileContent.match(new RegExp('@Template\\(.+\\)|@PageListener\\(.+\\)', "g"));
+  var dependencyMatchs = fileContent.match(new RegExp('@Page\\(.+\\)|@Action\\(.+\\)', "g"));
+  console.log("Detected annotations: "+dependencyMatchs);
   if(dependencyMatchs && dependencyMatchs.length == 1){
     dependency.type = getDependecyType(dependencyMatchs[0]);
     dependency.location = file;
@@ -97,12 +104,6 @@ var detectAdvancedJockers = function(fileContent, file) {
   }
 
   dependency.variablesToInject = variablesToInject;
-
-  //lookup @DefaultEntryPointView annotation
-  // var defaultEntryPointViewMatchs = fileContent.match(new RegExp('@DefaultEntryPointView', "g"));
-  // if(defaultEntryPointViewMatchs && defaultEntryPointViewMatchs.length == 1){
-  //   dependency.isDefaultEntryPointView = true;
-  // }
 
   return dependency;
 }
@@ -164,8 +165,8 @@ input: @Dependency("Properties")
 output: Properties
 */
 var getAnnotationPayload = function(stringAnnotationRawData) {
-  var annotationPayload =  stringAnnotationRawData.replace("@Template(","")
-  .replace("@PageListener(","")
+  var annotationPayload =  stringAnnotationRawData.replace("@Page(","")
+  .replace("@Action(","")
   .replace(")","").replace(")","")
   return annotationPayload;
 }
@@ -175,17 +176,18 @@ Get list of js files in the main project, without excludes
 input: main path
 output: string[]
 */
-var getJsFiles = function(path, files, expectedExtensions) {
+var getJsFiles = function(path, files, expectedExtensions, excludes) {
+
   fs.readdirSync(path).forEach(function(file) {
-    var subpath = path + '/' + file;
-    if (fs.lstatSync(subpath).isDirectory()) {
-      if (subpath.includes("node_modules") || subpath.includes(".git")) {
+    var absolutePath = path + '/' + file;
+    if (fs.lstatSync(absolutePath).isDirectory()) {
+      if (absolutePath.includes("node_modules") || absolutePath.includes(".git")) {
         return;
       }
-      getJsFiles(subpath, files, expectedExtensions);
+      getJsFiles(absolutePath, files, expectedExtensions, excludes);
     } else {
       var ext = pathUtil.extname(file);
-      if ((expectedExtensions.indexOf(ext) < 0) || file.endsWith("DependencyInjection.js") || file.endsWith("-loader.js")) {
+      if ((expectedExtensions.indexOf(ext) < 0) || isExcludeFile(absolutePath, excludes)) {
         return;
       }
       files.push(path + '/' + file);
@@ -207,6 +209,22 @@ function getLine(fileContent, line) {
     }
 
     return lines[+line];
+}
+
+/*
+Get line of file using number
+input: string content of file, line to lookup
+output: string line
+*/
+function isExcludeFile(file, excludes) {
+
+  for(let key in excludes){
+    if(file.endsWith(excludes[key])){
+      return true;
+    }
+  }
+
+  return false;
 }
 
 

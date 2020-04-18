@@ -11,17 +11,19 @@ LinkStart.js applications are built by composing a series of simple html page te
 
 # Features
 
+- Pure html. Forgot alien tags or attributes:
+  - `<App> <MuiThemeProvider> <app-navigation> *ngIf="!authService.isLoggedIn()" <Drawer open containerStyle={{ position: null }}>`
+- Just your web code. Forgot alien files `.babelrc .eslintrc tslint.json .etc`
 - @Annotattions like java
-- Dependency Injection
-- Template Engine with pure html. Forgot strange <tags>
-- Automatic onclick bindings
+- Dependency Injection like java
+- Automatic actionable elements detection
 - Automatic router binding
 
 # Demo
 
 Check the first demo:
 
-- https://github.com/lassiejs/lassiejs-demo-1-wizard
+- https://github.com/linkstartjs/linkstartjs-demos
 
 # How it works?
 
@@ -30,7 +32,8 @@ Check the first demo:
 
 # Road map
 
-- [ ] Add commander library to enable lassiejs commands
+- [ ] Add LinkStartHelper for final apps
+- [ ] Add build option in bin file
 - [ ] Add build script
 - [ ] Code refactor
 - [ ] Unit tests
@@ -49,3 +52,6 @@ Check the first demo:
     </td>    
   </tbody>
 </table>
+
+# Since
+- 2018

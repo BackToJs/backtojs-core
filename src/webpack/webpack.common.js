@@ -88,7 +88,7 @@ module.exports = {
               configFile: paths.lassiejsHomePath+'/.eslintrc'
             }
           },
-          { loader: paths.lassiejsHomePath+'/src/org/lassiejs/webpack/loader/autumn-loader.js',
+          { loader: paths.lassiejsHomePath+'/src/org/linkstartjs/webpack/loader/linkstartjs-loader.js',
             options: {
               srcLocation: paths.src,
               logLevel:"debug"
