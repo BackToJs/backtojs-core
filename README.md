@@ -33,6 +33,7 @@ Check the first demo:
 # Road map
 
 - [ ] Add LinkStartHelper for final apps
+- [ ] Add hot reload for html modifications
 - [ ] Add build option in bin file
 - [ ] Add build script
 - [ ] Code refactor

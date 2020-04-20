@@ -80,15 +80,15 @@ module.exports = {
         use: [
           { loader: require.resolve('babel-loader'),
             options: {
-              configFile: paths.lassiejsHomePath+'/.babelrc'
+              configFile: paths.linkStartJsHomePath+'/.babelrc'
             }
           },
           { loader: require.resolve('eslint-loader'),
             options: {
-              configFile: paths.lassiejsHomePath+'/.eslintrc'
+              configFile: paths.linkStartJsHomePath+'/.eslintrc'
             }
           },
-          { loader: paths.lassiejsHomePath+'/src/org/linkstartjs/webpack/loader/linkstartjs-loader.js',
+          { loader: paths.linkStartJsHomePath+'/src/org/linkstartjs/webpack/loader/linkstartjs-loader.js',
             options: {
               srcLocation: paths.src,
               logLevel:"debug"

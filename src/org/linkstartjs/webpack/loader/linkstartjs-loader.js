@@ -1,6 +1,6 @@
 const loaderUtils = require("loader-utils");
 const pathUtils = require('path');
-const EntrypointModuleCreation = require('./EntrypointModuleCreation.js');
+const EntrypointModuleCreator = require('./EntrypointModuleCreator.js');
 
 var debug;
 
@@ -15,8 +15,8 @@ function loader(content) {
   if(this.resourcePath.startsWith(options.srcLocation+"/index.js")){
     console.log("entry point was found: "+this.resourcePath);
     console.log("Link Start!!!");
-    var entrypointModuleCreation = new EntrypointModuleCreation();
-    return entrypointModuleCreation.createModule(options, content);
+    var entrypointModuleCreator = new EntrypointModuleCreator();
+    return entrypointModuleCreator.createModule(options, content);
   }else{
     return content;
   }

@@ -3,7 +3,7 @@ const DependencyInjection = require('../../../../org/autumnframework/context/Dep
 const LinksStartWebpackLoaderCommon = require('./LinksStartWebpackLoaderCommon.js');
 const cheerio = require('cheerio')
 
-function EntrypointModuleCreation() {
+function EntrypointModuleCreator() {
 
   var _this = this;
 
@@ -86,6 +86,11 @@ function EntrypointModuleCreation() {
       @actionableElementEntries
       return actionableElements;
     },
+    getModelElements : function() {
+      var modelElements = [];
+      @modelElementEntries
+      return modelElements;
+    },
     getHtml : function() {
       return "@templateRawValue";
     }
@@ -93,7 +98,17 @@ function EntrypointModuleCreation() {
   `;
 
   var actionableElementEntryTemplate = `
-  actionableElements.push("@htmlObjectId");
+  actionableElements.push({
+    "tagId":"@htmlObjectId",
+    "lsId":"@lsId",
+  });
+  `;
+
+  var modelElementEntryTemplate = `
+  modelElements.push({
+    "tagId":"@htmlObjectId",
+    "lsId":"@lsId",
+  });
   `;
 
   _this.createModule = function(options, content) {
@@ -114,28 +129,42 @@ function EntrypointModuleCreation() {
 
       if (dependency.type == "Page") {
         var rawStringTemplate = LinksStartWebpackLoaderCommon.getHtmlTemplateAsString(dependency.location);
-        var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString(rawStringTemplate);
-
         var actionableElementEntries = "";
+        var modelElementEntries = "";
 
-        const $=cheerio.load(rawStringTemplate);
-        $('button, select').each(function (index, element) {
-          if($(element)){
-            if($(element).attr('ls-actionable')==="true"){
+        const $ = cheerio.load(rawStringTemplate);
+        $('button, select, input').each(function(index, element) {
+          if ($(element)) {
+            if ($(element).attr('ls-actionable') === "true") {
               var htmlObjectId = $(element).attr('id');
-              if(htmlObjectId){
-                var entry = actionableElementEntryTemplate.replace("@htmlObjectId",htmlObjectId);
+              if (htmlObjectId) {
+                let uniqueId = Math.floor(Math.random() * 100001);
+                var entry = actionableElementEntryTemplate.replace("@htmlObjectId", htmlObjectId);
+                entry = entry.replace("@lsId", uniqueId);
                 actionableElementEntries = actionableElementEntries.concat("\n").concat(entry);
+                $(element).attr("ls-id", uniqueId);
+              }
+            } else if ($(element).attr('ls-model') === "true") {
+              var htmlObjectId = $(element).attr('id');
+              if (htmlObjectId) {
+                let uniqueId = Math.floor(Math.random() * 100001);
+                var entry = modelElementEntryTemplate.replace("@htmlObjectId", htmlObjectId);
+                entry = entry.replace("@lsId", uniqueId);
+                modelElementEntries = modelElementEntries.concat("\n").concat(entry);
+                $(element).attr("ls-id", uniqueId);
               }
             }
           }
         });
 
+        var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString($.html());
+
         //instantiate
         var instantiateSentence = instantiateVariableTemplate
           .replace("@dependencyName", dependency.arguments.name)
           .replace("@templateRawValue", fixedHtmlTemplate)
-          .replace("@actionableElementEntries", actionableElementEntries);
+          .replace("@actionableElementEntries", actionableElementEntries)
+          .replace("@modelElementEntries", modelElementEntries);
 
         instantiates = instantiates.concat("\n").concat(instantiateSentence);
       } else { //default is PageAction
@@ -194,7 +223,7 @@ function EntrypointModuleCreation() {
       mainPageAttribute = globalAttributesTemplate
         .replace("@route", entrypointFragmentUrlId);
     } else {
-      mainPageAttribute =  "console.log('There are not any @PageAction defined as entrypoint')";
+      mainPageAttribute = "console.log('There are not any @PageAction defined as entrypoint')";
     }
 
 
@@ -216,4 +245,4 @@ function EntrypointModuleCreation() {
 }
 
 
-module.exports = EntrypointModuleCreation;
+module.exports = EntrypointModuleCreator;
