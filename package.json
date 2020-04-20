@@ -20,6 +20,10 @@
   "author": "JRichardsz <jrichardsz.java@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "line-number": "^0.1.0",
     "@babel/core": "7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.8.4",
@@ -49,10 +53,6 @@
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3",
-    "webpack-merge": "^4.2.2"
-  },
-  "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
-    "line-number": "^0.1.0"
+    "webpack-merge": "^4.2.2"    
   }
 }
