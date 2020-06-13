@@ -42,10 +42,10 @@ function EntrypointModuleCreator() {
     @fragmentListeners
 
     if(_this.entrypointFragmentUrlId && _this.listenersByFragmentUrlId[_this.entrypointFragmentUrlId]){
-      console.log("default:"+_this.entrypointFragmentUrlId);
+      console.log("default route:"+_this.entrypointFragmentUrlId);
       _this.route(_this.entrypointFragmentUrlId);
     }else{
-      console.log('There are not any @PageListener defined as entrypoint');
+      console.log('There are not any @Action defined as entrypoint');
     }
   };
   `;
@@ -67,7 +67,7 @@ function EntrypointModuleCreator() {
     console.log(location.hash);
     var fragment = location.hash.replace("#","");
     if(!_this.listenersByFragmentUrlId[fragment]){
-      console.log("There are not any page with name: "+fragment);
+      console.log("There are not any @Action asociated to this route: "+fragment);
       return;
     }
     _this.route(fragment);
@@ -133,7 +133,7 @@ function EntrypointModuleCreator() {
         var modelElementEntries = "";
 
         const $ = cheerio.load(rawStringTemplate);
-        $('button, select, input').each(function(index, element) {
+        $('*').each(function(index, element) {
           if ($(element)) {
             if ($(element).attr('ls-actionable') === "true") {
               var htmlObjectId = $(element).attr('id');
@@ -223,7 +223,7 @@ function EntrypointModuleCreator() {
       mainPageAttribute = globalAttributesTemplate
         .replace("@route", entrypointFragmentUrlId);
     } else {
-      mainPageAttribute = "console.log('There are not any @PageAction defined as entrypoint')";
+      mainPageAttribute = "console.log('There are not any @Action defined as entrypoint')";
     }
 
 
