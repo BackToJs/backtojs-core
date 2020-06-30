@@ -8,6 +8,15 @@ function DependencyInjection() {
 
 DependencyInjection.getDependecies = function(rootPath, expectedExtensions, excludes) {
 
+  var dependencyAnnotations = ["Page","Action"]
+  var internalAnnotations = ["Autowire","DomElement","Render"]
+
+  var dependencyRegexString=createRegexFromAnnotations(dependencyAnnotations)
+  var internalRegexString=createRegexFromAnnotations(internalAnnotations)
+
+  console.log(dependencyRegexString);
+
+
   console.log("dependencyRootPath: "+rootPath);
 
   var files = [];
@@ -20,7 +29,7 @@ DependencyInjection.getDependecies = function(rootPath, expectedExtensions, excl
     var file = files[key];
     console.log("file:"+file);
     var contents = fs.readFileSync(file, 'utf8');
-    var dependencyMetadata = detectAdvancedJockers(contents,file);
+    var dependencyMetadata = getDependencyAndItsAnnotations(contents,file,dependencyRegexString, internalRegexString);
     if(dependencyMetadata){
       dependencies.push(dependencyMetadata);
     }
@@ -72,12 +81,13 @@ var performDependencyInjetion = function(dependencies) {
 
 }
 
-var detectAdvancedJockers = function(fileContent, file) {
+var getDependencyAndItsAnnotations = function(fileContent, file, dependencyRegexString, internalAnnotationsRegexString) {
 
   var dependency = {};
 
-  //lookup @Dependency annotations : /@Dependency\("\w+"\)/g
-  var dependencyMatchs = fileContent.match(new RegExp('@Page\\(.+\\)|@Action\\(.+\\)', "g"));
+  //lookup @Page @Action annotations
+  // var dependencyMatchs = fileContent.match(new RegExp('@Page\\(.+\\)|@Action\\(.+\\)', "g"));
+  var dependencyMatchs = fileContent.match(new RegExp(dependencyRegexString, "g"));
   console.log("Detected annotations: "+dependencyMatchs);
   if(dependencyMatchs && dependencyMatchs.length == 1){
     dependency.type = getDependecyType(dependencyMatchs[0]);
@@ -92,12 +102,14 @@ var detectAdvancedJockers = function(fileContent, file) {
 
   //lookup @Autowire annotations
   var re = /@Autowire/g;
-  var autowireMatchs = lineNumber(fileContent, re);
+  var autowireMatchs = lineNumber(fileContent, re);//get regex matches and its line number starting in 1
   var variablesToInject = [];
   if(autowireMatchs){
     for(autowire of autowireMatchs){
       if(autowire.number >= 0){
-        var rawLine = getLine(fileContent, autowire.number);
+        //line detect by lineNumber is by position
+        //we assume that variable data is just the next line to @Autowire
+        var rawLine = getLine(fileContent, autowire.number, internalAnnotationsRegexString);
         variablesToInject.push(parseAutowireAnnotation(rawLine));
       }
     }
@@ -200,15 +212,24 @@ Get line of file using number
 input: string content of file, line to lookup
 output: string line
 */
-function getLine(fileContent, line) {
-
+function getLine(fileContent, line, internalAnnotations) {
+    console.log("get line");
     var lines = fileContent.split("\n");
-
-    if(+line > lines.length){
+    if(line >= lines.length){
       throw new Error('File end reached without finding line');
     }
+    //TODO volver a llamar a egtLIne +1
+    console.log(internalAnnotations);
+    console.log(lines[line]);
+    var annotationsMatchs = lines[line].match(new RegExp(internalAnnotations, "g"));
+    console.log(annotationsMatchs);
+    if(annotationsMatchs && annotationsMatchs.length > 0){
+      console.log(annotationsMatchs);
+      return getLine(fileContent, line+1, internalAnnotations)
+    }else{
+      return lines[line];
+    }
 
-    return lines[+line];
 }
 
 /*
@@ -225,6 +246,22 @@ function isExcludeFile(file, excludes) {
   }
 
   return false;
+}
+
+/*
+Get line of file using number
+input: string content of file, line to lookup
+output: string line
+*/
+function createRegexFromAnnotations(annotationsArray) {
+  var regexString="";
+  for(let i=0;i<annotationsArray.length;i++){
+    regexString+="@"+annotationsArray[i]+"\\(.+\\)"
+    if(i<annotationsArray.length-1){
+      regexString+="|"
+    }
+  }
+  return regexString;
 }
 
 
