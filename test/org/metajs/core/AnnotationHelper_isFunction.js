@@ -13,7 +13,7 @@ describe('AnnotationHelper: isFunction', function() {
     expect(isFunction).to.equal(true);
   });
   it('is a simple arrow function with one argument', function() {
-    var isFunction = AnnotationHelper.isFunction("const displayQuote = (aaa) => {");
+    var isFunction = AnnotationHelper.isFunction("const displayQuote = (a) => {");
     expect(isFunction).to.equal(true);
   });
   it('is a simple arrow function with one argument and spaces', function() {

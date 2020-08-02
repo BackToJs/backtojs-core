@@ -70,6 +70,7 @@ AnnotationHelper.getAnnotationsByVariableFromFile = function(fileLines, internal
   var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotationsArray);
 
   var variables = {};
+  var functions = {};
 
   for(var i=0; i<fileLines.length; i++){
     var line = fileLines[i];
@@ -94,19 +95,34 @@ AnnotationHelper.getAnnotationsByVariableFromFile = function(fileLines, internal
           parsedAnnotations.push(annotationMetadata);
         });
         variables[variableName] = parsedAnnotations;
+      }else if(AnnotationHelper.isFunction(rawLine)){
+        var functionName = AnnotationHelper.getFunctionNameFromRawLine(rawLine);
+        console.log("function is : "+functionName);
+        var rawAnnotations = AnnotationHelper.getRawAnnotationsOfSingleVarLineIndex(fileLines, rawLineData.index, internalAnnotationsRegexString);
+        console.log("raw annotations");
+        console.log(rawAnnotations);
+        var parsedAnnotations = [];
+        rawAnnotations.forEach(function(rawAnnotation, i){
+          console.log("analizing:"+rawAnnotation);
+          var annotationMetadata = AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine(rawAnnotation);
+          console.log(annotationMetadata);
+          parsedAnnotations.push(annotationMetadata);
+        });
+
+        functions[functionName] = parsedAnnotations;
       }
     }else{
       console.log("is not an annotation");
     }
   }
 
-  return variables;
+  return {variables:variables,functions:functions};
 
 };
 
 AnnotationHelper.getRawAnnotationsOfSingleVarLineIndex = function(fileLines, rawVarLineIndex, internalAnnotationsRegexString) {
 
-  console.log("getting annotations of this raw var:"+fileLines[rawVarLineIndex]);
+  console.log("getting annotations of this raw var/function:"+fileLines[rawVarLineIndex]);
   console.log("in this line:"+rawVarLineIndex);
   console.log("file content is");
   console.log(JSON.stringify(fileLines, null, 4));
@@ -182,7 +198,7 @@ AnnotationHelper.isVariable = function(line) {
 };
 
 AnnotationHelper.isFunction = function(line) {
-  var regexMatches = line.match(new RegExp('\\s*const\\s*[a-zA-Z][\\w_]+\\s+[=]\\s+\\((\\s*[a-zA-Z][\\w_]+\\s*,?\s*)*\\)\\s+[=][>]\\s+{\\s*', "g"));
+  var regexMatches = line.match(new RegExp('\\s*const\\s*[a-zA-Z][\\w_]+\\s+[=]\\s+\\((\\s*[a-zA-Z][\\w_]*\\s*,?\s*)*\\)\\s+[=][>]\\s+{\\s*', "g"));
   if(regexMatches && regexMatches.length > 0){
     return true;
   }else{

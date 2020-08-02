@@ -6,47 +6,125 @@ var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
 
 var file1 =
 `function ClickCounterAction() {
-  var $ = this;
 
   //@Autowire(name="example")
   var liveExample;
-
-  function dummy(){};`;
+`;
 
 var file2 =
 `function ClickCounterAction() {
-  var $ = this;
 
-  //@Autowire(name="name")
-  //@Render(name="name")
-  var liveExample;
+  //@Autowire(name="homePageTemplate")
+  //@Render(required="true")
+  var homePage;
 
-  function dummy(){};`;
+`;
 
 var file3 =
 `function ClickCounterAction() {
-  var $ = this;
 
-  //@Autowire(name="name")
-  //@Render(name="name")
-  //@ActionListener(name="name")
-  var template;
+  //@Render(required="true")
+  var homePage;
 
-  function dummy(){};`;
+  //@Autowire(name="anotherAction")
+  var anotherAction;
+
+`;
+
+var file4 =
+`function ClickCounterAction() {
+
+  //@ActionListener(tagId="clickButton")
+  const displayQuote = (aaa) => {
+    return x * y
+  };
+`;
+
+var file5 =
+`function ClickCounterAction() {
+
+  //@Autowire(name="displayQuote")
+  //@ActionListener(tagId="clickButton")
+  const displayQuote = (x, y) => {
+    return x * y
+  };
+`;
+
+var filex =
+`function ClickCounterAction() {
+
+  //@ActionListener("typeFunction"="onclick")
+  const multiplyES6 = (x, y) => {
+    return x * y
+  };
+`;
 
 describe('AnnotationHelper: getAnnotationsByVariableFromFile', function() {
-  it('var has one annotation', function() {
+  it('file has one variable with one annotation', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file1.split("\n");
     var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
     assert(foundAnnotations);
-    assert(foundAnnotations.liveExample);
-    expect(foundAnnotations.liveExample.length).to.equal(1);
-    expect(foundAnnotations.liveExample[0].name).to.equal("Autowire");
-    expect(foundAnnotations.liveExample[0].arguments.name).to.equal("example");
+    assert(foundAnnotations.variables.liveExample);
+    expect(foundAnnotations.variables.liveExample.length).to.equal(1);
+    expect(foundAnnotations.variables.liveExample[0].name).to.equal("Autowire");
+    expect(foundAnnotations.variables.liveExample[0].arguments.name).to.equal("example");
   });
-
+  it('file has one variable with two annotations', function() {
+    var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
+    var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
+    var lines = file2.split("\n");
+    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    assert(foundAnnotations);
+    assert(foundAnnotations.variables.homePage);
+    expect(foundAnnotations.variables.homePage.length).to.equal(2);
+    expect(foundAnnotations.variables.homePage[0].name).to.equal("Render");
+    expect(foundAnnotations.variables.homePage[0].arguments.required).to.equal("true");
+    expect(foundAnnotations.variables.homePage[1].name).to.equal("Autowire");
+    expect(foundAnnotations.variables.homePage[1].arguments.name).to.equal("homePageTemplate");
+  });
+  it('file has 2 variables with one annotation each one', function() {
+    var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
+    var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
+    var lines = file3.split("\n");
+    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    assert(foundAnnotations);
+    assert(foundAnnotations.variables.homePage);
+    expect(foundAnnotations.variables.homePage.length).to.equal(1);
+    expect(foundAnnotations.variables.homePage[0].name).to.equal("Render");
+    expect(foundAnnotations.variables.homePage[0].arguments.required).to.equal("true");
+    assert(foundAnnotations.variables.anotherAction);
+    expect(foundAnnotations.variables.anotherAction.length).to.equal(1);
+    expect(foundAnnotations.variables.anotherAction[0].name).to.equal("Autowire");
+    expect(foundAnnotations.variables.anotherAction[0].arguments.name).to.equal("anotherAction");
+  });
+  it('file has one function with one annotation', function() {
+    var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
+    var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
+    var lines = file4.split("\n");
+    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    assert(foundAnnotations);
+    console.log(JSON.stringify(foundAnnotations, null, 4));
+    assert(foundAnnotations.functions.displayQuote);
+    expect(foundAnnotations.functions.displayQuote.length).to.equal(1);
+    expect(foundAnnotations.functions.displayQuote[0].name).to.equal("ActionListener");
+    expect(foundAnnotations.functions.displayQuote[0].arguments.tagId).to.equal("clickButton");
+  });
+  it('file has one function with two annotations', function() {
+    var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
+    var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
+    var lines = file5.split("\n");
+    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    assert(foundAnnotations);
+    console.log(JSON.stringify(foundAnnotations, null, 4));
+    assert(foundAnnotations.functions.displayQuote);
+    expect(foundAnnotations.functions.displayQuote.length).to.equal(2);
+    expect(foundAnnotations.functions.displayQuote[0].name).to.equal("ActionListener");
+    expect(foundAnnotations.functions.displayQuote[0].arguments.tagId).to.equal("clickButton");
+    expect(foundAnnotations.functions.displayQuote[1].name).to.equal("Autowire");
+    expect(foundAnnotations.functions.displayQuote[1].arguments.name).to.equal("displayQuote");
+  });
 
   let output;
   const originalLogFunction = console.log;
