@@ -6,69 +6,7 @@ function AnnotationHelper() {
 
 }
 
-//deprecated
-AnnotationHelper.getLine = function(fileContent, line, internalAnnotations) {
-  var lines = fileContent.split("\n");
-  console.log("getting var of annotation");
-  console.log("file content");
-  console.log(lines);
-  console.log("anottation initial line:"+line);
-  if(line >= lines.length){
-    throw new Error('File end reached without finding line');
-  }
-  //TODO volver a llamar a egtLIne +1
-  console.log("internalAnnotations:"+internalAnnotations);
-  console.log("line:"+lines[line+1]);
-  var annotationsMatchs = AnnotationHelper.regex(internalAnnotations, lines[line+1]);
-  console.log("annotationsMatchs:"+annotationsMatchs);
-  if(annotationsMatchs && annotationsMatchs.length > 0){
-    console.log("line is not a var, is an annotation");
-    return AnnotationHelper.getLine(fileContent, line+2, internalAnnotations)
-  }else{
-    return lines[line+1];
-  }
-};
-
-AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine = function(lines, line, internalAnnotationsRegexString) {
-
-  console.log("getting var/function of annotation");
-  console.log("file content is");
-  console.log(JSON.stringify(lines, null, 4));
-  console.log("lines:"+lines.length);
-  console.log("annotation is in index line:"+line);
-  if(line >= lines.length){
-    throw new Error('File end reached without finding line');
-  }
-
-  console.log("regex to determine if this line is an annotation:"+internalAnnotationsRegexString);
-  console.log("line index to analize is +1:"+line+1);
-  console.log("line to analize is:"+lines[line+1]);
-  // var annotationsMatchs = AnnotationHelper.createRegexFromAnnotations(internalAnnotations, lines[line+1]);
-  var annotationsMatchs = lines[line+1].match(new RegExp(internalAnnotationsRegexString, "g"));
-  console.log("line contains or is an annotation?:"+annotationsMatchs);
-  //if this line is an annotation, execute again with next line
-  if(annotationsMatchs && annotationsMatchs.length > 0){
-    console.log("line is not a var/function, is an annotation. Recursive starts");
-    return AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine(lines, line+1, internalAnnotationsRegexString)
-  }else{
-    //return raw line var
-    return {
-      line: lines[line+1],
-      index:line+1
-    };
-  }
-};
-
-//deprecated
-AnnotationHelper.getLineNumbersOfRegexInContent = function(regex, fileContent) {
-  var annotationMatchs = lineNumber(fileContent, new RegExp(regex, "g"));
-  return annotationMatchs;
-};
-
-
-AnnotationHelper.getAnnotationsByVariableFromFile = function(fileLines, internalAnnotationsArray) {
-  var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotationsArray);
-
+AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction = function(fileLines, internalAnnotationsRegexString) {
   var variables = {};
   var functions = {};
 
@@ -120,6 +58,37 @@ AnnotationHelper.getAnnotationsByVariableFromFile = function(fileLines, internal
 
 };
 
+AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine = function(lines, line, internalAnnotationsRegexString) {
+
+  console.log("getting var/function of annotation");
+  console.log("file content is");
+  console.log(JSON.stringify(lines, null, 4));
+  console.log("lines:"+lines.length);
+  console.log("annotation is in index line:"+line);
+  if(line >= lines.length){
+    throw new Error('File end reached without finding line');
+  }
+
+  console.log("regex to determine if this line is an annotation:"+internalAnnotationsRegexString);
+  console.log("line index to analize is +1:"+line+1);
+  console.log("line to analize is:"+lines[line+1]);
+  // var annotationsMatchs = AnnotationHelper.createRegexFromAnnotations(internalAnnotations, lines[line+1]);
+  var annotationsMatchs = lines[line+1].match(new RegExp(internalAnnotationsRegexString, "g"));
+  console.log("line contains or is an annotation?:"+annotationsMatchs);
+  //if this line is an annotation, execute again with next line
+  if(annotationsMatchs && annotationsMatchs.length > 0){
+    console.log("line is not a var/function, is an annotation. Recursive starts");
+    return AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine(lines, line+1, internalAnnotationsRegexString)
+  }else{
+    //return raw line var
+    return {
+      line: lines[line+1],
+      index:line+1
+    };
+  }
+};
+
+
 AnnotationHelper.getRawAnnotationsOfSingleVarLineIndex = function(fileLines, rawVarLineIndex, internalAnnotationsRegexString) {
 
   console.log("getting annotations of this raw var/function:"+fileLines[rawVarLineIndex]);
@@ -163,6 +132,7 @@ Get line of file using number
 input: string content of file, line to lookup
 output: string line
 */
+/*not tested*/
 AnnotationHelper.createRegexFromAnnotations = function(annotationsArray) {
   var regexString="";
   for(let i=0;i<annotationsArray.length;i++){
@@ -175,16 +145,11 @@ AnnotationHelper.createRegexFromAnnotations = function(annotationsArray) {
 }
 
 
-AnnotationHelper.haveHeadAnnotation = function(fileContent, headAnnotations) {
-  var stringRegex = AnnotationHelper.createRegexFromAnnotations(headAnnotations);
-  console.log("regex:"+stringRegex);
-  var regexMatches = fileContent.match(new RegExp(stringRegex, "g"));
+AnnotationHelper.getHeadAnnotationMetadata = function(fileContent, headAnnotationsStringRegex) {
+  var regexMatches = fileContent.match(new RegExp(headAnnotationsStringRegex, "g"));
   console.log("Detected head annotations: "+regexMatches);
-  if(!regexMatches || regexMatches.length == 0){
-    console.log("Does not have any of header annotations");
-    return false;
-  }else{
-    return true;
+  if(regexMatches && regexMatches.length > 0){
+    return AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine(regexMatches[0]);
   }
 };
 

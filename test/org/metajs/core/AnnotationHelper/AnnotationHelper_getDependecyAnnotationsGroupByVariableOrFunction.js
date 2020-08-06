@@ -59,12 +59,12 @@ var filex =
   };
 `;
 
-describe('AnnotationHelper: getAnnotationsByVariableFromFile', function() {
+describe('AnnotationHelper: getDependecyAnnotationsGroupByVariableOrFunction', function() {
   it('file has one variable with one annotation', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file1.split("\n");
-    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsRegexString);
     assert(foundAnnotations);
     assert(foundAnnotations.variables.liveExample);
     expect(foundAnnotations.variables.liveExample.length).to.equal(1);
@@ -75,7 +75,7 @@ describe('AnnotationHelper: getAnnotationsByVariableFromFile', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file2.split("\n");
-    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsRegexString);
     assert(foundAnnotations);
     assert(foundAnnotations.variables.homePage);
     expect(foundAnnotations.variables.homePage.length).to.equal(2);
@@ -88,7 +88,7 @@ describe('AnnotationHelper: getAnnotationsByVariableFromFile', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file3.split("\n");
-    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsRegexString);
     assert(foundAnnotations);
     assert(foundAnnotations.variables.homePage);
     expect(foundAnnotations.variables.homePage.length).to.equal(1);
@@ -103,7 +103,7 @@ describe('AnnotationHelper: getAnnotationsByVariableFromFile', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file4.split("\n");
-    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsRegexString);
     assert(foundAnnotations);
     console.log(JSON.stringify(foundAnnotations, null, 4));
     assert(foundAnnotations.functions.displayQuote);
@@ -115,7 +115,7 @@ describe('AnnotationHelper: getAnnotationsByVariableFromFile', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file5.split("\n");
-    var foundAnnotations = AnnotationHelper.getAnnotationsByVariableFromFile(lines, internalAnnotations);
+    var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsRegexString);
     assert(foundAnnotations);
     console.log(JSON.stringify(foundAnnotations, null, 4));
     assert(foundAnnotations.functions.displayQuote);

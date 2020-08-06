@@ -16,7 +16,6 @@ DependencyInjection.getDependecies = function(rootPath, expectedExtensions, excl
 
   console.log(dependencyRegexString);
 
-
   console.log("dependencyRootPath: "+rootPath);
 
   var files = [];

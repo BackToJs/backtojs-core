@@ -3,10 +3,12 @@ process.env.NODE_ENV = 'test';
 require('nodejs-import-helper');
 var chai = require('chai');
 var expect = chai.expect;
+var assert = chai.assert;
 var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
 
 var file1 =
-  `//@Page(name="name")
+`
+//@DefaultAction(name="acmeAction")
 function AcmeAction() {
   var $ = this;
 
@@ -16,17 +18,8 @@ function AcmeAction() {
   function dummy(){};`;
 
 var file2 =
-  `//@Action(name="name")
-function AcmeAction() {
-  var $ = this;
-
-  //@Autowire
-  var liveExample;
-
-  function dummy(){};`;
-
-var file3 =
-  `//@Dummy(name="name")
+`
+//@Dummy(name="name")
 function AcmeAction() {
   var $ = this;
 
@@ -38,18 +31,18 @@ function AcmeAction() {
 //TODO: add extra validation to ensure that these head anottations
 // are in the top of the file
 describe('detect head annotations ', function() {
-  var headAnnotations = ["Page", "Action"]
-  it('must have @Page annotation', function() {
-    var haveHeadAnnotation = AnnotationHelper.haveHeadAnnotation(file1, headAnnotations);
-    expect(haveHeadAnnotation).to.equal(true);
-  });
-  it('must have @Action annotation', function() {
-    var haveHeadAnnotation = AnnotationHelper.haveHeadAnnotation(file2, headAnnotations);
-    expect(haveHeadAnnotation).to.equal(true);
+  var headAnnotations = ["DefaultAction"]
+  var stringRegex = AnnotationHelper.createRegexFromAnnotations(headAnnotations);
+
+  it('must have @DefaultAction annotation', function() {
+    var haveHeadAnnotation = AnnotationHelper.getHeadAnnotationMetadata(file1, stringRegex);
+    assert(haveHeadAnnotation);
+    expect(haveHeadAnnotation.name).to.equal("DefaultAction");
+    expect(haveHeadAnnotation.arguments.name).to.equal("acmeAction");
   });
   it('has not any known annotation', function() {
-    var haveHeadAnnotation = AnnotationHelper.haveHeadAnnotation(file3, headAnnotations);
-    expect(haveHeadAnnotation).to.equal(false);
+    var haveHeadAnnotation = AnnotationHelper.getHeadAnnotationMetadata(file2, stringRegex);
+    assert(!haveHeadAnnotation);
   });
 
   let output;
