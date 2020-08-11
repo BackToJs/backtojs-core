@@ -8,7 +8,7 @@ var file1 =
 `function ClickCounterAction() {
 
   //@Autowire(name="example")
-  var liveExample;
+  this.liveExample;
 `;
 
 var file2 =
@@ -16,7 +16,7 @@ var file2 =
 
   //@Autowire(name="homePageTemplate")
   //@Render(required="true")
-  var homePage;
+  this.homePage;
 
 `;
 
@@ -24,10 +24,10 @@ var file3 =
 `function ClickCounterAction() {
 
   //@Render(required="true")
-  var homePage;
+  this.homePage;
 
   //@Autowire(name="anotherAction")
-  var anotherAction;
+  this.anotherAction;
 
 `;
 
@@ -65,7 +65,7 @@ describe('AnnotationHelper: getDependecyAnnotationsGroupByVariableOrFunction', f
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file1.split("\n");
     var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsRegexString);
-    assert(foundAnnotations);
+    assert(foundAnnotations);console.log(JSON.stringify(foundAnnotations));
     assert(foundAnnotations.variables.liveExample);
     expect(foundAnnotations.variables.liveExample.length).to.equal(1);
     expect(foundAnnotations.variables.liveExample[0].name).to.equal("Autowire");

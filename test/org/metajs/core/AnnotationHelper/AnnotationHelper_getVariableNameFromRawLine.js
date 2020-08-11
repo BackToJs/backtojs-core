@@ -5,12 +5,12 @@ var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
 
 describe('AnnotationHelper: getVariableNameFromRawLine', function() {
   it('get simple variable name', function() {
-    var variableName = AnnotationHelper.getVariableNameFromRawLine("var duke;");
+    var variableName = AnnotationHelper.getVariableNameFromRawLine("this.duke;");
     expect(variableName).to.equal("duke");
   });
   it('get simple variable name with spaces', function() {
-    var variableName = AnnotationHelper.getVariableNameFromRawLine("  var  duke   ;   ");
-    expect(variableName).to.equal("duke");
+    var variableName = AnnotationHelper.getVariableNameFromRawLine("  this.jane   ;   ");
+    expect(variableName).to.equal("jane");
   });
 
   let output;

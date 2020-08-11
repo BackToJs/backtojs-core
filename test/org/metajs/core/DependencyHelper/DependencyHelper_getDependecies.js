@@ -12,13 +12,11 @@ describe('DependencyHelper: getDependecies', function() {
     var headAnnotations = ["DefaultAction"];
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"];
 
-    var headAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(headAnnotations)
-    var internalAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(internalAnnotations)
-
     var src = path.resolve(__filename,'..')+'/test1/src';
 
     var dependencies = DependencyHelper.getDependecies(src, [".js", ".html"], ["src/index.js", "src/index.html"],
-    headAnnotationsStringRegex, internalAnnotationsStringRegex);
+    headAnnotations, internalAnnotations);
+    
     assert(dependencies);
     expect(dependencies.length).to.equal(1);
     expect(dependencies[0].meta.name).to.equal("DefaultAction");
@@ -32,13 +30,10 @@ describe('DependencyHelper: getDependecies', function() {
     var headAnnotations = ["DefaultAction"];
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"];
 
-    var headAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(headAnnotations)
-    var internalAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(internalAnnotations)
-
     var src = path.resolve(__filename,'..')+'/test2/src';
 
     var dependencies = DependencyHelper.getDependecies(src, [".js", ".html"], ["src/index.js", "src/index.html"],
-    headAnnotationsStringRegex, internalAnnotationsStringRegex);
+    headAnnotations, internalAnnotations);
     assert(dependencies);
     expect(dependencies.length).to.equal(1);
     expect(dependencies[0].meta.name).to.equal("DefaultAction");
@@ -60,13 +55,11 @@ describe('DependencyHelper: getDependecies', function() {
     var headAnnotations = ["DefaultAction"];
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"];
 
-    var headAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(headAnnotations)
-    var internalAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(internalAnnotations)
-
     var src = path.resolve(__filename,'..')+'/test3/src';
 
     var dependencies = DependencyHelper.getDependecies(src, [".js", ".html"], ["src/index.js", "src/index.html"],
-    headAnnotationsStringRegex, internalAnnotationsStringRegex);
+    headAnnotations, internalAnnotations);
+
     assert(dependencies);
     expect(dependencies.length).to.equal(1);
     expect(dependencies[0].meta.name).to.equal("DefaultAction");
@@ -89,13 +82,11 @@ describe('DependencyHelper: getDependecies', function() {
     var headAnnotations = ["DefaultAction"];
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"];
 
-    var headAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(headAnnotations)
-    var internalAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(internalAnnotations)
-
     var src = path.resolve(__filename,'..')+'/test4/src';
 
     var dependencies = DependencyHelper.getDependecies(src, [".js", ".html"], ["src/index.js", "src/index.html"],
-    headAnnotationsStringRegex, internalAnnotationsStringRegex);
+    headAnnotations, internalAnnotations);
+
     assert(dependencies);
     expect(dependencies.length).to.equal(1);
     expect(dependencies[0].meta.name).to.equal("DefaultAction");

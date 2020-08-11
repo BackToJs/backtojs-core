@@ -1,7 +1,8 @@
 require('nodejs-import-helper');
 
 //tests
-include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_isVariable.js');
+include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_isClassicVariable.js');
+include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_isModuleVariable.js');
 include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_isFunction.js');
 include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_isEmptyLine.js');
 include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_getHeadAnnotationMetadata.js');
@@ -14,3 +15,5 @@ include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_getAnnotationNam
 include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_getDependecyAnnotationsGroupByVariableOrFunction.js');
 
 include('test/org/metajs/core/DependencyHelper/DependencyHelper_getDependecies.js');
+
+include('test/org/linkstartjs/webpack/loader/EntrypointModuleCreator/EntrypointModuleCreator_createModule.js');

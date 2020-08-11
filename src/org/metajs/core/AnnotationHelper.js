@@ -20,7 +20,7 @@ AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction = function(fil
       var rawLineData = AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine(fileLines, i, internalAnnotationsRegexString);
       var rawLine = rawLineData.line;
       console.log("var or function raw line is:"+rawLine);
-      if(AnnotationHelper.isVariable(rawLine)){
+      if(AnnotationHelper.isModuleVariable(rawLine)){
         var variableName = AnnotationHelper.getVariableNameFromRawLine(rawLine);
         console.log("var is : "+variableName);
         var rawAnnotations = AnnotationHelper.getRawAnnotationsOfSingleVarLineIndex(fileLines, rawLineData.index, internalAnnotationsRegexString);
@@ -153,8 +153,17 @@ AnnotationHelper.getHeadAnnotationMetadata = function(fileContent, headAnnotatio
   }
 };
 
-AnnotationHelper.isVariable = function(line) {
+AnnotationHelper.isClassicVariable = function(line) {
   var regexMatches = line.match(new RegExp('\\s*var\\s+[a-zA-Z][\\w_]+\\s*\\;', "g"));
+  if(regexMatches && regexMatches.length > 0){
+    return true;
+  }else{
+    return false;
+  }
+};
+
+AnnotationHelper.isModuleVariable = function(line) {
+  var regexMatches = line.match(new RegExp('\\s*this\\.[a-zA-Z][\\w_]+\\s*\\;', "g"));
   if(regexMatches && regexMatches.length > 0){
     return true;
   }else{
@@ -176,8 +185,8 @@ AnnotationHelper.isEmptyLine = function(line) {
 };
 
 AnnotationHelper.getVariableNameFromRawLine = function(line) {
-   var regexMatches = line.match(new RegExp('\\s*var\\s+[a-zA-Z][\\w_]+', "g"));
-   return regexMatches[0].replace("var","").replace(/ /g,'');
+   var regexMatches = line.match(new RegExp('\\s*this\\.[a-zA-Z][\\w_]+', "g"));
+   return regexMatches[0].replace("this.","").replace(/ /g,'');
 };
 
 AnnotationHelper.getFunctionNameFromRawLine = function(line) {

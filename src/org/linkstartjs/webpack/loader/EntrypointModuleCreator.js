@@ -1,5 +1,7 @@
+require('nodejs-import-helper');
 const fileUtils = require('fs')
-const DependencyInjection = require('../../../../org/autumnframework/context/DependencyInjection.js')
+var path = require("path");
+const DependencyHelper = include('src/org/metajs/core/DependencyHelper.js')
 const LinksStartWebpackLoaderCommon = require('./LinksStartWebpackLoaderCommon.js');
 const cheerio = require('cheerio')
 
@@ -7,10 +9,13 @@ function EntrypointModuleCreator() {
 
   var _this = this;
 
+  var entrypointTemplatePath = path.resolve(__filename,'..')+'/LinkstartTemplate.js';
+  var entrypointTemplate = fileUtils.readFileSync(entrypointTemplatePath, 'utf8');
+
   var requireTemplate = `const @dependencyClassName = require('@dependencyLocation');`;
   var instantiateModuleTemplate = `_this.context["@dependencyName"] = new @dependencyClassName();`;
   var injectionTemplate = `_this.context["@dependencyName"].@autowireName = _this.context["@autowireName"];`;
-  var fragmentMappingTemplate = `_this.listenersByFragmentUrlId["@route"] = _this.context["@dependencyName"];`;
+  var fragmentMappingTemplate = `_this.actionsByFragmentUrlRoute["@route"] = _this.context["@dependencyName"];`;
 
   var flashBootApplicationTemplate = `
 
@@ -20,7 +25,7 @@ function EntrypointModuleCreator() {
 
     var _this = this;
     _this.context = {};
-    _this.listenersByFragmentUrlId = {};
+    _this.actionsByFragmentUrlRoute = {};
 
   }
 
@@ -41,9 +46,9 @@ function EntrypointModuleCreator() {
     @injection
     @fragmentListeners
 
-    if(_this.entrypointFragmentUrlId && _this.listenersByFragmentUrlId[_this.entrypointFragmentUrlId]){
-      console.log("default route detected: "+_this.entrypointFragmentUrlId);
-      _this.route(_this.entrypointFragmentUrlId);
+    if(_this.defaultFragmentUrlRoute && _this.actionsByFragmentUrlRoute[_this.defaultFragmentUrlRoute]){
+      console.log("default route detected: "+_this.defaultFragmentUrlRoute);
+      _this.route(_this.defaultFragmentUrlRoute);
     }else{
       console.log('There are not any @Action defined as entrypoint');
     }
@@ -130,7 +135,7 @@ function EntrypointModuleCreator() {
   var routeFunctionTemplate = `
   _this.route = function (route) {
     console.log("route is starting");
-    var pageListener = _this.listenersByFragmentUrlId[route];
+    var pageListener = _this.actionsByFragmentUrlRoute[route];
 
     var htmlToRender;
     if (typeof pageListener.render !== "undefined" && typeof pageListener.render === "function") {
@@ -163,7 +168,7 @@ function EntrypointModuleCreator() {
   function locationHashChanged() {
     console.log(location.hash);
     var fragment = location.hash.replace("#","");
-    if(!_this.listenersByFragmentUrlId[fragment]){
+    if(!_this.actionsByFragmentUrlRoute[fragment]){
       console.log("There are not any @Action asociated to this route: "+fragment);
       return;
     }
@@ -173,7 +178,7 @@ function EntrypointModuleCreator() {
   `;
 
   var globalAttributesTemplate = `
-  _this.entrypointFragmentUrlId = "@route";
+  _this.defaultFragmentUrlRoute = "@route";
   `;
 
   var instantiateVariableTemplate = `
@@ -210,8 +215,12 @@ function EntrypointModuleCreator() {
 
   _this.createModule = function(options, content) {
 
+    var headAnnotations = ["DefaultAction"];
+    var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"];
+
     LinksStartWebpackLoaderCommon.logDebug("srcLocation:" + options.srcLocation);
-    var dependencies = DependencyInjection.getDependecies(options.srcLocation, [".js", ".html"], ["src/index.js", "src/index.html"]);
+    var dependencies = DependencyHelper.getDependecies(options.srcLocation, [".js", ".html"], ["src/index.js", "src/index.html"],
+    headAnnotations, internalAnnotations);
 
     LinksStartWebpackLoaderCommon.logDebug("\nNormalized dependencies");
     LinksStartWebpackLoaderCommon.logDebug(dependencies);
@@ -220,11 +229,11 @@ function EntrypointModuleCreator() {
     var requires = "";
     var instantiates = "";
     var fragmentListeners = "";
-    var entrypointFragmentUrlId;
+    var defaultFragmentUrlRoute;
     for (dependency of dependencies) {
-      var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.arguments.name);
+      var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.meta.arguments.name);
 
-      if (dependency.type == "Page") {
+      if (dependency.meta.name == "Page") {
         var rawStringTemplate = LinksStartWebpackLoaderCommon.getHtmlTemplateAsString(dependency.location);
         var actionableElementEntries = "";
         var modelElementEntries = "";
@@ -268,70 +277,71 @@ function EntrypointModuleCreator() {
         //get require
         var requireSentence = requireTemplate
           .replace("@dependencyClassName", dependencyClassName)
-          .replace("@dependencyLocation", dependency.location);
+          .replace("@dependencyLocation", dependency.meta.location.replace(options.srcLocation,"."));
         requires = requires.concat("\n").concat(requireSentence);
         //instantiate
         var instantiateSentence = instantiateModuleTemplate
           .replace("@dependencyClassName", dependencyClassName)
-          .replace("@dependencyName", dependency.arguments.name);
+          .replace("@dependencyName", dependency.meta.arguments.name);
         instantiates = instantiates.concat("\n").concat(instantiateSentence);
 
-        if (dependency.arguments.route) {
+        if (dependency.meta.arguments.route) {
           var fragmentMappingSentence = fragmentMappingTemplate
-            .replace("@route", dependency.arguments.route)
-            .replace("@dependencyName", dependency.arguments.name);
+            .replace("@route", dependency.meta.arguments.route)
+            .replace("@dependencyName", dependency.meta.arguments.name);
           fragmentListeners = fragmentListeners.concat("\n").concat(fragmentMappingSentence);
         }
-      }
 
-      //custom configurations
-
-      //lookup default entry point
-      if (dependency.arguments.entrypoint == "true") {
-        if (dependency.arguments.route) {
-          entrypointFragmentUrlId = dependency.arguments.route;
+        //lookup default entry point
+        if (dependency.meta.arguments.entrypoint == "true") {
+          if (dependency.meta.arguments.route) {
+            defaultFragmentUrlRoute = dependency.meta.arguments.route;
+          }
         }
       }
-    }
-
-    LinksStartWebpackLoaderCommon.logDebug("\nPerform injection...");
-    var injections = "";
-    for (dependency of dependencies) {
-
-      var variablesToInject = dependency.variablesToInject;
-
-      for (variableToInject of variablesToInject) {
-        var injectionSentence = injectionTemplate
-          .replace(new RegExp("@dependencyName", 'g'), dependency.arguments.name)
-          .replace(new RegExp("@autowireName", 'g'), variableToInject);
-        injections = injections.concat("\n").concat(injectionSentence);
-      }
 
     }
 
-    var stringStartFunction = startFunctionTemplate
+    // LinksStartWebpackLoaderCommon.logDebug("\nPerform injection...");
+    // var injections = "";
+    // for (dependency of dependencies) {
+    //
+    //   var variablesToInject = dependency.variablesToInject;
+    //
+    //   for (variableToInject of variablesToInject) {
+    //     var injectionSentence = injectionTemplate
+    //       .replace(new RegExp("@dependencyName", 'g'), dependency.arguments.name)
+    //       .replace(new RegExp("@autowireName", 'g'), variableToInject);
+    //     injections = injections.concat("\n").concat(injectionSentence);
+    //   }
+    //
+    // }
+
+    var defaultFragmentUrlSentence;
+    if (defaultFragmentUrlRoute) {
+      defaultFragmentUrlSentence = globalAttributesTemplate
+      .replace("@route", defaultFragmentUrlRoute);
+    } else {
+      defaultFragmentUrlSentence = "console.log('There are not any @Action defined as entrypoint')";
+    }
+
+    var entrypointModule = entrypointTemplate
+      .replace("@defaultFragmentUrlSentence", defaultFragmentUrlSentence)
       .replace("@require", requires)
       .replace("@instantiate", instantiates)
-      .replace("@injection", injections)
+      // .replace("@injection", injections)
       .replace("@fragmentListeners", (fragmentListeners.length > 0 ? fragmentListeners : ""));
 
-    var mainPageAttribute;
-    if (entrypointFragmentUrlId) {
-      mainPageAttribute = globalAttributesTemplate
-        .replace("@route", entrypointFragmentUrlId);
-    } else {
-      mainPageAttribute = "console.log('There are not any @Action defined as entrypoint')";
-    }
 
 
     //create start function
-    var readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(flashBootApplicationTemplate, stringStartFunction);
-    readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, routeFunctionTemplate);
-    readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, locationHashChangedFunctionTemplate);
-    readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, mainPageAttribute);
+    // var readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(flashBootApplicationTemplate, stringStartFunction);
+    // readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, routeFunctionTemplate);
+    // readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, locationHashChangedFunctionTemplate);
+    // readyModule = LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction(readyModule, mainPageAttribute);
 
-    readyModule = readyModule.concat("\n").concat(linkStartFunctionTemplate);
-    content = readyModule.concat("\n").concat(content);
+    // readyModule = readyModule.concat("\n").concat(linkStartFunctionTemplate);
+    content = entrypointModule.concat("\n").concat(content);
 
     LinksStartWebpackLoaderCommon.logDebug("\nentrypoint is ready!!\n\n");
     LinksStartWebpackLoaderCommon.logDebug(content);

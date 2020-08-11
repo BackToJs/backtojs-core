@@ -8,7 +8,7 @@ var file1 =
   var $ = this;
 
   //@Autowire
-  var liveExample;
+  this.liveExample;
 
   function dummy(){};`;
 
@@ -18,7 +18,7 @@ var file2 =
 
   //@Autowire(name="name")
   //@Render(name="name")
-  var liveExample;
+  this.liveExample;
 
   function dummy(){};`;
 
@@ -29,7 +29,7 @@ var file3 =
   //@Autowire(name="name")
   //@Render(name="name")
   //@ActionListener(name="name")
-  var template;
+  this.template;
 
   function dummy(){};`;
 
@@ -39,7 +39,7 @@ describe('AnnotationHelper getVarOrFunctionLineOfAnnotationInThisIndexLine', fun
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file1.split("\n");
     var data = AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine(lines, 3, internalAnnotationsRegexString);
-    expect(data.line).to.equal("  var liveExample;");
+    expect(data.line).to.equal("  this.liveExample;");
     expect(data.index).to.equal(4);
   });
   it('#2 if var has two annotations should get the real var', function() {
@@ -47,7 +47,7 @@ describe('AnnotationHelper getVarOrFunctionLineOfAnnotationInThisIndexLine', fun
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file2.split("\n");
     var data = AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine(lines, 3, internalAnnotationsRegexString);
-    expect(data.line).to.equal("  var liveExample;");
+    expect(data.line).to.equal("  this.liveExample;");
     expect(data.index).to.equal(5);
   });
 
@@ -56,7 +56,7 @@ describe('AnnotationHelper getVarOrFunctionLineOfAnnotationInThisIndexLine', fun
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
     var lines = file3.split("\n");
     var data = AnnotationHelper.getVarOrFunctionLineOfAnnotationInThisIndexLine(lines, 3, internalAnnotationsRegexString);
-    expect(data.line).to.equal("  var template;");
+    expect(data.line).to.equal("  this.template;");
     expect(data.index).to.equal(6);
   });
 

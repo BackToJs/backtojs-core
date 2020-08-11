@@ -13,7 +13,7 @@ function AcmeAction() {
   var $ = this;
 
   //@Autowire
-  var liveExample;
+  this.liveExample;
 
   function dummy(){};`;
 
@@ -21,10 +21,9 @@ var file2 =
 `
 //@Dummy(name="name")
 function AcmeAction() {
-  var $ = this;
 
   //@Autowire
-  var liveExample;
+  this.liveExample;
 
   function dummy(){};`;
 

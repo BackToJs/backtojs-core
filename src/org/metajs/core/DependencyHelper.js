@@ -10,9 +10,13 @@ function DependencyHelper() {
 }
 
 DependencyHelper.getDependecies = function(rootPath, expectedExtensions, fileExclusions,
-                                           headAnnotationsStringRegex, internalAnnotationsStringRegex) {
+                                           headAnnotations, internalAnnotations) {
 
   console.log("dependencyRootPath: "+rootPath);
+
+  var headAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(headAnnotations)
+  var internalAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(internalAnnotations)
+
 
   var files = [];
   var dependencies = [];

@@ -3,22 +3,26 @@ var chai = require('chai');
 var expect = chai.expect;
 var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
 
-describe('AnnotationHelper: isVariable', function() {
+describe('AnnotationHelper: isModuleVariable', function() {
   it('is a simple variable at the left', function() {
-    var isVariable = AnnotationHelper.isVariable("var duke;");
-    expect(isVariable).to.equal(true);
+    var isVariableWithThis = AnnotationHelper.isModuleVariable("this.field;");
+    expect(isVariableWithThis).to.equal(true);
   });
   it('is a simple variable with spaces at the start', function() {
-    var isVariable = AnnotationHelper.isVariable("   var duke;");
-    expect(isVariable).to.equal(true);
+    var isVariableWithThis = AnnotationHelper.isModuleVariable("   this.field;");
+    expect(isVariableWithThis).to.equal(true);
   });
   it('is a simple variable with spaces after name', function() {
-    var isVariable = AnnotationHelper.isVariable("   var duke  ;");
-    expect(isVariable).to.equal(true);
+    var isVariableWithThis = AnnotationHelper.isModuleVariable("   this.field  ;");
+    expect(isVariableWithThis).to.equal(true);
   });
   it('is not a variable declaration', function() {
-    var isVariable = AnnotationHelper.isVariable("   var _duke  ;");
-    expect(isVariable).to.equal(false);
+    var isVariableWithThis = AnnotationHelper.isModuleVariable("   var field  ;");
+    expect(isVariableWithThis).to.equal(false);
+  });
+  it('if variables will be autowired, initial value is not allowed', function() {
+    var isVariableWithThis = AnnotationHelper.isModuleVariable("this.field = 5 ;");
+    expect(isVariableWithThis).to.equal(false);
   });
 
   let output;

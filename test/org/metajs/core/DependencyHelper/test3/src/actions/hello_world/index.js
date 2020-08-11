@@ -5,7 +5,7 @@ function HelloWorldAction() {
 
   @Render(required="true")
   @Autowire(location="pages/helloWorld")
-  var helloWorldPage;
+  this.helloWorldPage;
 
 }
 

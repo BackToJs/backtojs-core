@@ -6,20 +6,20 @@ var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
 
 var file1 =
 `function ClickCounterAction() {
-  var $ = this;
+  var _this = this;
 
   //@Autowire(name="name")
-  var liveExample;
+  this.liveExample;
 
   function dummy(){};`;
 
 var file2 =
 `function ClickCounterAction() {
-  var $ = this;
+  var _self = this;
 
   //@Autowire(name="name")
   //@Render(name="name")
-  var liveExample;
+  this.liveExample;
 
   function dummy(){};`;
 
@@ -30,7 +30,7 @@ var file3 =
   //@Autowire(name="name")
   //@Render(name="name")
   //@ActionListener(name="name")
-  var template;
+  this.template;
 
   function dummy(){};`;
 
