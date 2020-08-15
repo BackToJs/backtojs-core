@@ -15,5 +15,3 @@ include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_getAnnotationNam
 include('test/org/metajs/core/AnnotationHelper/AnnotationHelper_getDependecyAnnotationsGroupByVariableOrFunction.js');
 
 include('test/org/metajs/core/DependencyHelper/DependencyHelper_getDependecies.js');
-
-include('test/org/linkstartjs/webpack/loader/EntrypointModuleCreator/EntrypointModuleCreator_createModule.js');

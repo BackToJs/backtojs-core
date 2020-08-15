@@ -64,6 +64,8 @@ function LinkStartApplication() {
     _this.invokeActionByFragmentUrl(fragment);
   }
 
+  //TODO: how initialize onclick before dom insertion
+
   window.onhashchange = _this.locationHashChanged;
 
   @defaultFragmentUrlSentence

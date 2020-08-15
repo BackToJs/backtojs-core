@@ -43,6 +43,10 @@ LinksStartWebpackLoaderCommon.capitalize = function(word){
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
+LinksStartWebpackLoaderCommon.replaceAll = function(str, find, replace){
+    return str.replace(new RegExp(find, 'g'), replace);
+}
+
 function isPage(fileContent){
   var matchs = fileContent.match(new RegExp('@Page\\(.+\\)', "g"));
   return (matchs && matchs.length == 1);

@@ -11,13 +11,16 @@ function loader(content) {
   global.linkStartLoaderLogLevel = logLevel;
 
   console.log("LinkStart Webpack Loader is looking for entrypoint");
+  var entrypointModuleCreator = new EntrypointModuleCreator();
 
   if(this.resourcePath.startsWith(options.srcLocation+"/index.js")){
     console.log("entry point was found: "+this.resourcePath);
     console.log("Link Start!!!");
-    var entrypointModuleCreator = new EntrypointModuleCreator();
     return entrypointModuleCreator.createModule(options, content);
   }else{
+    console.log("not entrypoint:"+this.resourcePath);
+    //hide annotations
+    content = entrypointModuleCreator.removeCommentModule(content);
     return content;
   }
 }
