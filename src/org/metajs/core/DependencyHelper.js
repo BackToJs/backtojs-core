@@ -3,7 +3,7 @@ const fs = require('fs');
 const pathUtil = require('path');
 var lineNumber = require('line-number');
 var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
-
+var Logger = include('src/org/metajs/core/Logger.js')
 
 function DependencyHelper() {
 
@@ -12,7 +12,7 @@ function DependencyHelper() {
 DependencyHelper.getDependecies = function(rootPath, expectedExtensions, fileExclusions,
                                            headAnnotations, internalAnnotations) {
 
-  console.log("dependencyRootPath: "+rootPath);
+  Logger.info("dependencyRootPath: "+rootPath);
 
   var headAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(headAnnotations)
   var internalAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(internalAnnotations)
@@ -22,14 +22,14 @@ DependencyHelper.getDependecies = function(rootPath, expectedExtensions, fileExc
   var dependencies = [];
   DependencyHelper.getJsFiles(rootPath, files, expectedExtensions, fileExclusions)
 
-  console.log("\nRaw dependencies");
+  Logger.info("\nRaw dependencies");
 
   for (var key in files) {
     var file = files[key];
-    console.log("file:"+file);
+    Logger.info("file:"+file);
     var contents = fs.readFileSync(file, 'utf8');
     var headAnnotationMetadata = AnnotationHelper.getHeadAnnotationMetadata(contents, headAnnotationsStringRegex);
-    console.log(headAnnotationMetadata);
+    Logger.debug(headAnnotationMetadata);
     if(typeof headAnnotationMetadata !== 'undefined'){
       var lines = contents.split("\n");
       var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsStringRegex);
@@ -85,6 +85,10 @@ DependencyHelper.isExcludeFile = function(file, excludes) {
   }
 
   return false;
+}
+
+function replaceAll(str, find, replace){
+    return str.replace(new RegExp(find, 'g'), replace);
 }
 
 

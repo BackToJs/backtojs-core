@@ -13,7 +13,7 @@ function LinkStartApplication() {
   }
 
   _this.performInjection = function() {
-
+    @injection
   }
 
   _this.registerDependenciesByUrlFragment = function() {

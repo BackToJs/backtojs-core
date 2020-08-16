@@ -23,6 +23,10 @@ LinksStartWebpackLoaderCommon.fixString = function(string){
   return string.replace(/\"/g,"\\\"").replace(/(\r\n|\n|\r)/gm, "");
 }
 
+LinksStartWebpackLoaderCommon.removeCheerioBody = function(string){
+  return string.replace("<html><head></head><body>","").replace("</body></html>","");
+}
+
 LinksStartWebpackLoaderCommon.addNotParametrizableTemplateFunction = function(content, stringTemplate){
   return LinksStartWebpackLoaderCommon.replaceLast(content, "}", stringTemplate+"\n}");
 }
@@ -33,23 +37,12 @@ LinksStartWebpackLoaderCommon.replaceLast = function(x, y, z){
   return a.join("");
 }
 
-LinksStartWebpackLoaderCommon.logDebug = function(string){
-  if(linkStartLoaderLogLevel==="debug"){
-    console.log(string);
-  }
-}
-
 LinksStartWebpackLoaderCommon.capitalize = function(word){
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 LinksStartWebpackLoaderCommon.replaceAll = function(str, find, replace){
     return str.replace(new RegExp(find, 'g'), replace);
-}
-
-function isPage(fileContent){
-  var matchs = fileContent.match(new RegExp('@Page\\(.+\\)', "g"));
-  return (matchs && matchs.length == 1);
 }
 
 module.exports = LinksStartWebpackLoaderCommon;
