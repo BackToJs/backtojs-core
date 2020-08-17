@@ -3,6 +3,8 @@ const pathUtils = require('path');
 const EntrypointModuleCreator = require('./EntrypointModuleCreator.js');
 const Logger = include('src/org/linkstartjs/logger/Logger.js')
 
+Logger.info("LinkStart Webpack Loader is looking for entrypoint");
+
 function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
 
@@ -14,15 +16,14 @@ function loader(content) {
     global.metaJsLogLevel = metaJsLogLevel;
   }
 
-  Logger.info("LinkStart Webpack Loader is looking for entrypoint");
   var entrypointModuleCreator = new EntrypointModuleCreator();
 
   if(this.resourcePath.startsWith(options.srcLocation+"/index.js")){
-    Logger.info("entrypoint was found: "+this.resourcePath);
-    Logger.info("Link Start!!!");
+    Logger.info("entrypoint soul was found: "+this.resourcePath);
+    Logger.info("Link Start!!!\n\n");
     return entrypointModuleCreator.createModule(options, content);
   }else{
-    Logger.info("not entrypoint:"+this.resourcePath);
+    Logger.debug("not entrypoint:"+this.resourcePath);
     //hide annotations
     content = entrypointModuleCreator.removeAnnotationInModule(content);
     return content;

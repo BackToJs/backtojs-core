@@ -29,7 +29,7 @@ function AcmeAction() {
 
 //TODO: add extra validation to ensure that these head anottations
 // are in the top of the file
-describe('detect head annotations ', function() {
+describe('AnnotationHelper: getHeadAnnotationMetadata', function() {
   var headAnnotations = ["DefaultAction"]
   var stringRegex = AnnotationHelper.createRegexFromAnnotations(headAnnotations);
 

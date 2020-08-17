@@ -3,7 +3,8 @@
 function LinkStartApplication() {
 
   var _this = this;
-  _this.context = {};
+  _this.dependecyContext = {};
+  _this.metaContext = {};
   _this.actionsByFragmentUrlRoute = {};
 
 
@@ -20,11 +21,16 @@ function LinkStartApplication() {
     @fragmentListeners
   }
 
+  _this.registerMetadataByDependency = function() {
+    @metadataByDependency
+  }
+
 
   _this.start = function() {
 
     _this.registerDependenciesInContext();
     _this.performInjection();
+    _this.registerMetadataByDependency();
     _this.registerDependenciesByUrlFragment();
 
 
@@ -42,7 +48,7 @@ function LinkStartApplication() {
 
     console.log(action);
 
-    if(typeof action === 'undefined'){
+    if (typeof action === 'undefined') {
       console.log(`route ${route} has a wrong or undefined action`);
       return;
     }
@@ -50,8 +56,27 @@ function LinkStartApplication() {
     if (typeof action.onLoad !== "undefined" && typeof action.onLoad === "function") {
       action.onLoad();
     } else {
-        console.log("Action does not have onLoad() method");
+      console.log("Action does not have onLoad() method");
+    }
+    //TODO: ensure render is executed after onLoad
+    if (typeof action.render !== "undefined" && typeof action.render === "function") {
+      throw new Error("Render function execution is not supported yet");
+    } else {
+      //search if exist @Render annotation which indicate us that is an alternative
+      //to render() method
+      console.log(action._ls_name);
+      console.log(_this.metaContext[action._ls_name]);
+      var variableToUseAsRender = _this.searchAtLeastOneVariableToRender(_this.metaContext[action._ls_name].variables, action._ls_name);
+
+      if(typeof variableToUseAsRender === 'undefined' || variableToUseAsRender == null){
+        console.log(action._ls_name+" action does not have render() method nor @Render annotation");
+        return;
       }
+
+      var htmlToRender = document.createRange().createContextualFragment(action[variableToUseAsRender].getHtml());
+      document.getElementById("root").innerHTML = '';
+      document.getElementById("root").appendChild(htmlToRender);
+    }
   };
 
   _this.locationHashChanged = function() {
@@ -62,6 +87,31 @@ function LinkStartApplication() {
       return;
     }
     _this.invokeActionByFragmentUrl(fragment);
+  }
+
+  _this.searchAtLeastOneVariableToRender = function(variables, actionName) {
+    var renderCount = 0;
+    var renderVariableName;
+    for(var i in variables){
+      for(var a in variables[i]){
+        var annotation = variables[i][a];
+        if(annotation.name == 'Render'){
+          renderCount ++;
+          renderVariableName = i;
+        }
+      }
+    }
+
+    if(renderCount == 0){
+      console.log(actionName+" action does not have any @Render annotation");
+      return;
+    }
+    if(renderCount>1){
+      console.log(actionName+" action has more than one @Render annotation. Just one is allowed.");
+      return;
+    }
+
+    return renderVariableName;
   }
 
   //TODO: how initialize onclick before dom insertion

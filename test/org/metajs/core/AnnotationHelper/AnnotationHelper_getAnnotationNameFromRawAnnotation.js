@@ -9,6 +9,10 @@ describe('AnnotationHelper: getAnnotationNameFromRawAnnotation', function() {
     var name = AnnotationHelper.getAnnotationNameFromRawAnnotation('  //@Autowire(name="util")');
     expect(name).to.equal("Autowire");
   });
+  it('empty argument', function() {
+    var name = AnnotationHelper.getAnnotationNameFromRawAnnotation('  //@Render');
+    expect(name).to.equal("Render");
+  });
 
   let output;
   const originalLogFunction = console.log;

@@ -33,7 +33,7 @@ var file3 =
 
   function dummy(){};`;
 
-describe('AnnotationHelper getVarOrFunctionLineOfAnnotationInThisIndexLine', function() {
+describe('AnnotationHelper: getVarOrFunctionLineOfAnnotationInThisIndexLine', function() {
   it('#1 if var has one annotation should get the real var', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);

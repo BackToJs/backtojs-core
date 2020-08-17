@@ -34,7 +34,16 @@ var file3 =
 
   function dummy(){};`;
 
-describe('Get annotations of var', function() {
+var file4 =
+`function ClickCounterAction() {
+  var _this = this;
+
+  //@Autowire
+  this.liveExample;
+
+  function dummy(){};`;
+
+describe('AnnotationHelper: getRawAnnotationsOfSingleVarLineIndex', function() {
   it('var has one annotation', function() {
     var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
     var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
@@ -64,6 +73,15 @@ describe('Get annotations of var', function() {
     expect(foundRawAnnotations[0]).to.equal('  //@ActionListener(name="name")');
     expect(foundRawAnnotations[1]).to.equal('  //@Render(name="name")');
     expect(foundRawAnnotations[2]).to.equal('  //@Autowire(name="name")');
+  });
+  it('var has one empty annotation', function() {
+    var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"]
+    var internalAnnotationsRegexString = AnnotationHelper.createRegexFromAnnotations(internalAnnotations);
+    var lines = file4.split("\n");
+    var foundRawAnnotations = AnnotationHelper.getRawAnnotationsOfSingleVarLineIndex(lines, 4, internalAnnotationsRegexString);
+    assert(foundRawAnnotations);
+    expect(foundRawAnnotations.length).to.equal(1);
+    expect(foundRawAnnotations[0]).to.equal('  //@Autowire');
   });
 
   let output;

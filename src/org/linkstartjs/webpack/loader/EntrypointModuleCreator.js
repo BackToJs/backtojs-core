@@ -19,10 +19,12 @@ function EntrypointModuleCreator() {
   var allAnnotations = headAnnotations.concat(internalAnnotations);
 
   var requireTemplate = `const @dependencyClassName = require('@dependencyLocation');`;
-  var instantiateModuleTemplate = `_this.context["@dependencyName"] = new @dependencyClassName();`;
-  var injectionTemplate = `_this.context["@dependencyName"].@variable = _this.context["@variableToAutowire"];`;
-  var fragmentMappingTemplate = `_this.actionsByFragmentUrlRoute["@route"] = _this.context["@dependencyName"];`;
+  var instantiateModuleTemplate = `_this.dependecyContext["@dependencyName"] = new @dependencyClassName();`;
+  var injectionTemplate = `_this.dependecyContext["@dependencyName"].@variable = _this.dependecyContext["@variableToAutowire"];`;
+  var metadataMappingTemplate = `_this.metaContext["@dependencyName"] = @metadataForAction;`;
+  var fragmentMappingTemplate = `_this.actionsByFragmentUrlRoute["@route"] = _this.dependecyContext["@dependencyName"];`;
   var globalAttributesTemplate = `_this.defaultFragmentUrlRoute = "@route";`;
+  var injectionNameTemplate = `_this.dependecyContext["@dependencyName"]._ls_name = "@dependencyName";`;
 
   var modelElementEntryTemplate = `
   domElements.push({
@@ -32,7 +34,7 @@ function EntrypointModuleCreator() {
   `;
 
   var instantiatePageTemplate = `
-  _this.context["@dependencyName"] = {
+  _this.dependecyContext["@dependencyName"] = {
     getDomElements : function() {
       var domElements = [];
       @domElementsEntries
@@ -57,6 +59,7 @@ function EntrypointModuleCreator() {
     var requires = "";
     var instantiates = "";
     var fragmentListeners = "";
+    var metadataByDependency = "";
     var defaultFragmentUrlRoute;
     for (dependency of dependencies) {
 
@@ -101,7 +104,6 @@ function EntrypointModuleCreator() {
         var requireSentence = requireTemplate
           .replace("@dependencyClassName", dependencyClassName)
           .replace("@dependencyLocation", dependency.meta.location);
-          // .replace("@dependencyLocation", dependency.meta.location.replace(options.srcLocation,"."));
         requires = requires.concat("\n").concat(requireSentence);
         //instantiate
         var instantiateSentence = instantiateModuleTemplate
@@ -109,6 +111,17 @@ function EntrypointModuleCreator() {
           .replace("@dependencyName", dependency.meta.arguments.name);
         instantiates = instantiates.concat("\n").concat(instantiateSentence);
 
+        //set metadata by dependency name
+        var metadata = {};
+        metadata.variables = dependency.variables;
+        metadata.functions = dependency.functions;
+
+        metadataMappingSentence = metadataMappingTemplate
+        .replace("@metadataForAction", JSON.stringify(metadata))
+        .replace("@dependencyName", dependency.meta.arguments.name);
+        metadataByDependency = metadataByDependency.concat("\n").concat(metadataMappingSentence);
+
+        //set actions by fragment url
         if (dependency.meta.arguments.route) {
           var fragmentMappingSentence = fragmentMappingTemplate
             .replace("@route", dependency.meta.arguments.route)
@@ -158,7 +171,10 @@ function EntrypointModuleCreator() {
               .replace(new RegExp("@dependencyName", 'g'), dependencyName)
               .replace(new RegExp("@variableToAutowire", 'g'), annotation.arguments.name)
               .replace(new RegExp("@variable", 'g'), variableName);
-            injections = injections.concat("\n").concat(injectionSentence);
+
+            var injectionName = injectionNameTemplate.replace(new RegExp("@dependencyName", 'g'),dependencyName);
+
+            injections = injections.concat("\n").concat(injectionSentence).concat("\n").concat(injectionName);
           }
         }
       }
@@ -177,6 +193,7 @@ function EntrypointModuleCreator() {
       .replace("@require", requires)
       .replace("@instantiate", instantiates)
       .replace("@injection", injections)
+      .replace("@metadataByDependency", metadataByDependency)
       .replace("@fragmentListeners", (fragmentListeners.length > 0 ? fragmentListeners : ""));
 
 
