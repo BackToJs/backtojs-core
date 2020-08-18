@@ -1,4 +1,5 @@
 //import './styles/index.scss'
+// import '/home/jarvis/Github/linkstart-demos/hello_world_render/src/pages/hello_world/index.html'
 
 function LinkStartApplication() {
 
@@ -64,8 +65,16 @@ function LinkStartApplication() {
     } else {
       //search if exist @Render annotation which indicate us that is an alternative
       //to render() method
-      console.log(action._ls_name);
-      console.log(_this.metaContext[action._ls_name]);
+      if(typeof action._ls_name === 'undefined' || action._ls_name == null){
+        console.log("Something is wrong with this action. _ls_name is undefined");
+        return;
+      }
+
+      if(typeof _this.metaContext[action._ls_name] === 'undefined' || _this.metaContext[action._ls_name] == null){
+        console.log("Something is wrong with this action. there is not exist in metaContext");
+        return;
+      }
+
       var variableToUseAsRender = _this.searchAtLeastOneVariableToRender(_this.metaContext[action._ls_name].variables, action._ls_name);
 
       if(typeof variableToUseAsRender === 'undefined' || variableToUseAsRender == null){

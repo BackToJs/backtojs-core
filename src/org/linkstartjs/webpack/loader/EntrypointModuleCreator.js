@@ -201,6 +201,7 @@ function EntrypointModuleCreator() {
 
     Logger.debug("\nentrypoint is ready!!\n\n");
     Logger.debug(content);
+    Logger.debug("Cardinal system is ready");
 
     return content;
 
