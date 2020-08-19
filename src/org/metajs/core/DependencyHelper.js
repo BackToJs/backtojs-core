@@ -29,10 +29,11 @@ DependencyHelper.getDependecies = function(rootPath, expectedExtensions, fileExc
     Logger.info("file:"+file);
     var contents = fs.readFileSync(file, 'utf8');
     var headAnnotationMetadata = AnnotationHelper.getHeadAnnotationMetadata(contents, headAnnotationsStringRegex);
-    Logger.debug(headAnnotationMetadata);
+    Logger.info(headAnnotationMetadata);
     if(typeof headAnnotationMetadata !== 'undefined'){
       var lines = contents.split("\n");
       var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsStringRegex);
+      Logger.info(foundAnnotations);
       if(foundAnnotations){
         headAnnotationMetadata.location = file;
         foundAnnotations.meta = headAnnotationMetadata;

@@ -4,7 +4,7 @@ var LinksStartJsDomUtil = require('linkstartjs-nerve-utils').LinksStartJsDomUtil
 function HelloWorldAction() {
 
   @ActionListener(htmlId="resetButton", typeFunction="onclick")
-  const clickOnSomeHtmlElement = (e) => {
+  this.clickOnSomeHtmlElement = (e) => {
     return x * y
   };
 

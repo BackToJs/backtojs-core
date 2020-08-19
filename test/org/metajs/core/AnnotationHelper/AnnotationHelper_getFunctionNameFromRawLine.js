@@ -3,14 +3,14 @@ var chai = require('chai');
 var expect = chai.expect;
 var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
 
-describe('AnnotationHelper: getFunctionNameFromRawLine', function() {
+describe('AnnotationHelper: getModuleFunctionNameFromRawLine', function() {
   it('get simple function name', function() {
-    var variableName = AnnotationHelper.getFunctionNameFromRawLine("const displayQuote = () => {");
+    var variableName = AnnotationHelper.getModuleFunctionNameFromRawLine("this.displayQuote = () => {");
     expect(variableName).to.equal("displayQuote");
   });
   it('get simple function name with spaces', function() {
-    var variableName = AnnotationHelper.getFunctionNameFromRawLine("const   displayQuote   = () => {");
-    expect(variableName).to.equal("displayQuote");
+    var variableName = AnnotationHelper.getModuleFunctionNameFromRawLine("this.sayHello   = () => {");
+    expect(variableName).to.equal("sayHello");
   });
 
   let output;

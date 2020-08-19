@@ -35,7 +35,7 @@ var file4 =
 `function ClickCounterAction() {
 
   //@ActionListener(tagId="clickButton")
-  const displayQuote = (aaa) => {
+  this.displayQuote = (aaa) => {
     return x * y
   };
 `;
@@ -45,16 +45,7 @@ var file5 =
 
   //@Autowire(name="displayQuote")
   //@ActionListener(tagId="clickButton")
-  const displayQuote = (x, y) => {
-    return x * y
-  };
-`;
-
-var filex =
-`function ClickCounterAction() {
-
-  //@ActionListener("typeFunction"="onclick")
-  const multiplyES6 = (x, y) => {
+  this.displayQuote = (x, y) => {
     return x * y
   };
 `;

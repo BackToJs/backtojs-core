@@ -34,8 +34,8 @@ AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction = function(fil
           parsedAnnotations.push(annotationMetadata);
         });
         variables[variableName] = parsedAnnotations;
-      } else if (AnnotationHelper.isFunction(rawLine)) {
-        var functionName = AnnotationHelper.getFunctionNameFromRawLine(rawLine);
+      } else if (AnnotationHelper.isModuleFunction(rawLine)) {
+        var functionName = AnnotationHelper.getModuleFunctionNameFromRawLine(rawLine);
         Logger.debug("function is : " + functionName);
         var rawAnnotations = AnnotationHelper.getRawAnnotationsOfSingleVarLineIndex(fileLines, rawLineData.index, internalAnnotationsRegexString);
         Logger.debug("raw annotations");
@@ -174,8 +174,17 @@ AnnotationHelper.isModuleVariable = function(line) {
   }
 };
 
-AnnotationHelper.isFunction = function(line) {
+AnnotationHelper.isModuleFunction = function(line) {
   var regexMatches = line.match(new RegExp('\\s*const\\s*[a-zA-Z][\\w_]+\\s+[=]\\s+\\((\\s*[a-zA-Z][\\w_]*\\s*,?\s*)*\\)\\s+[=][>]\\s+{\\s*', "g"));
+  if (regexMatches && regexMatches.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+AnnotationHelper.isModuleFunction = function(line) {
+  var regexMatches = line.match(new RegExp('\\s*this\\.[a-zA-Z][\\w_]+\\s+[=]\\s+\\((\\s*[a-zA-Z][\\w_]*\\s*,?\s*)*\\)\\s+[=][>]\\s+{\\s*', "g"));
   if (regexMatches && regexMatches.length > 0) {
     return true;
   } else {
@@ -195,6 +204,11 @@ AnnotationHelper.getVariableNameFromRawLine = function(line) {
 AnnotationHelper.getFunctionNameFromRawLine = function(line) {
   var regexMatches = line.match(new RegExp('\\s*const\\s*[a-zA-Z][\\w_]+', "g"));
   return regexMatches[0].replace("const", "").replace(/ /g, '');
+};
+
+AnnotationHelper.getModuleFunctionNameFromRawLine = function(line) {
+  var regexMatches = line.match(new RegExp('\\s*this\\.[a-zA-Z][\\w_]+', "g"));
+  return regexMatches[0].replace("this.", "").replace(/ /g, '');
 };
 
 AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine = function(line) {
