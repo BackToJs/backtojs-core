@@ -35,6 +35,14 @@ describe('AnnotationHelper: getAnnotationMetadataFromRawAnnotationLine', functio
     expect(annotationMetadata.arguments.location).to.equal("src");
   });
 
+  it('one argument with numbers in value', function() {
+    var annotationMetadata = AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine('@ActionListener(tagId="clickMeButton2", type="onclick")');
+    assert(annotationMetadata);
+    expect(annotationMetadata.name).to.equal("ActionListener");
+    expect(annotationMetadata.arguments.tagId).to.equal("clickMeButton2");
+    expect(annotationMetadata.arguments.type).to.equal("onclick");
+  });
+
   let output;
   const originalLogFunction = console.log;
   beforeEach(function() {

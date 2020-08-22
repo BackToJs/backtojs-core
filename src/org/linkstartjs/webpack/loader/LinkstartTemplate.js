@@ -47,8 +47,6 @@ function LinkStartApplication() {
 
     var action = _this.actionsByFragmentUrlRoute[route];
 
-    console.log(action);
-
     if (typeof action === 'undefined') {
       console.log(`route ${route} has a wrong or undefined action`);
       return;
@@ -85,6 +83,10 @@ function LinkStartApplication() {
       var htmlToRender = document.createRange().createContextualFragment(action[variableToUseAsRender].getHtml());
       document.getElementById("root").innerHTML = '';
       document.getElementById("root").appendChild(htmlToRender);
+
+      //html dom is ready, bind variables and ActionListeners will be start
+
+      _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action, action[variableToUseAsRender].getDomElements());
     }
   };
 
@@ -122,6 +124,66 @@ function LinkStartApplication() {
 
     return renderVariableName;
   }
+
+  _this.applyActionListenersAutoBinding = function(functions, action, registeredDomElementsInPage) {
+    for(var internalActionFunctionName in functions){
+      for(var a in functions[internalActionFunctionName]){
+        var annotation = functions[internalActionFunctionName][a];
+        if(annotation.name == 'ActionListener'){
+          if (typeof action[internalActionFunctionName] !== "undefined" && typeof action[internalActionFunctionName] === "function") {
+            var functionInstance = action[internalActionFunctionName];
+            var tagNativeId = annotation.arguments.tagId;
+            var eventType = annotation.arguments.type;
+
+            var lsId = _this.searchLinkStartIdInRegisteredDomElements(registeredDomElementsInPage, annotation.arguments.tagId);
+
+            if(typeof lsId === 'undefined'){
+              console.log(`lsId for this element ${annotation.arguments.tagId} is undefined. Did you register the dom element with ls-element=true ?`);
+              continue;
+            }
+            var domElement = _this.getElementByLsId(lsId);
+            if(typeof domElement !== 'undefined'){
+              if(eventType === "onclick"){
+                domElement.onclick = functionInstance;
+              }else{
+                console.log("type function not implemented yet: "+eventType);
+              }
+            }else{
+              console.log("expected element was not found in html dom");
+            }
+          }
+        }
+      }
+    }
+  }
+
+  _this.searchLinkStartIdInRegisteredDomElements = function (registeredDomElementsInPage, tagId) {
+    for(var d in registeredDomElementsInPage){
+
+      if(typeof registeredDomElementsInPage[d] === 'undefined'){
+        continue;
+      }
+
+      if(typeof registeredDomElementsInPage[d].tagId === 'undefined'){
+        continue;
+      }
+
+      if(registeredDomElementsInPage[d].tagId == tagId){
+        return registeredDomElementsInPage[d].lsId
+      }
+    }
+  };
+
+  _this.getElementByLsId = function (lsId) {
+    let list = document.querySelectorAll('[ls-id="' + lsId + '"]');
+    if (list.length == 0) {
+      console.log("There are not any element with lsId:" + lsId);
+    }else if (list.length == 1) {
+      return list[0];
+    } else {
+      console.log("There are more than one element with this lsId:" + lsId);
+    }
+  };
 
   //TODO: how initialize onclick before dom insertion
 

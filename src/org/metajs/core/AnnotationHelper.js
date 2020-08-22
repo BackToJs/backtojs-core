@@ -212,7 +212,7 @@ AnnotationHelper.getModuleFunctionNameFromRawLine = function(line) {
 };
 
 AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine = function(line) {
-  var rawArguments = line.match(new RegExp('[a-zA-Z]+=\\"[a-zA-Z/_-]+\\"', "g"));
+  var rawArguments = line.match(new RegExp('[a-zA-Z]+=\\"[a-zA-Z/_-\\d]+\\"', "g"));
   var annotationArguments = {};
   var name = AnnotationHelper.getAnnotationNameFromRawAnnotation(line);
   if (typeof rawArguments === 'undefined' || rawArguments == null || rawArguments.length == 0) {
