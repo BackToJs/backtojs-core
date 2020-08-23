@@ -15,7 +15,7 @@ function EntrypointModuleCreator() {
   var entrypointTemplate = fileUtils.readFileSync(entrypointTemplatePath, 'utf8');
 
   var headAnnotations = ["DefaultAction", "Page"];
-  var internalAnnotations = ["Autowire","DomElement","Render","ActionListener"];
+  var internalAnnotations = ["Autowire","HtmlElement","Render","ActionListener","HtmlElementsAllForOne"];
   var allAnnotations = headAnnotations.concat(internalAnnotations);
 
   var requireTemplate = `const @dependencyClassName = require('@dependencyLocation');`;
