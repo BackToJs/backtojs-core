@@ -1,7 +1,7 @@
 require('nodejs-import-helper');
 const fs = require('fs');
 const pathUtil = require('path');
-var lineNumber = require('line-number');
+// var lineNumber = require('line-number');
 var AnnotationHelper = include('src/org/metajs/core/AnnotationHelper.js');
 var Logger = include('src/org/metajs/core/Logger.js')
 

@@ -1,4 +1,5 @@
 import './styles/index.scss'
+// require('./styles/index.scss')
 
 function LinkStartApplication() {
 
