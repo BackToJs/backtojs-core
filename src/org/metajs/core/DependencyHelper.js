@@ -22,18 +22,18 @@ DependencyHelper.getDependecies = function(rootPath, expectedExtensions, fileExc
   var dependencies = [];
   DependencyHelper.getJsFiles(rootPath, files, expectedExtensions, fileExclusions)
 
-  Logger.info("\nRaw dependencies");
+  Logger.debug("\nRaw dependencies");
 
   for (var key in files) {
     var file = files[key];
-    Logger.info("file:"+file);
+    Logger.debug("file:"+file);
     var contents = fs.readFileSync(file, 'utf8');
     var headAnnotationMetadata = AnnotationHelper.getHeadAnnotationMetadata(contents, headAnnotationsStringRegex);
-    Logger.info(headAnnotationMetadata);
+    Logger.debug(headAnnotationMetadata);
     if(typeof headAnnotationMetadata !== 'undefined'){
       var lines = contents.split("\n");
       var foundAnnotations = AnnotationHelper.getDependecyAnnotationsGroupByVariableOrFunction(lines, internalAnnotationsStringRegex);
-      Logger.info(foundAnnotations);
+      Logger.debug(foundAnnotations);
       if(foundAnnotations){
         headAnnotationMetadata.location = file;
         foundAnnotations.meta = headAnnotationMetadata;

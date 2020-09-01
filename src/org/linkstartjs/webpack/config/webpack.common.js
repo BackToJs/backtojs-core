@@ -8,7 +8,7 @@ global.LinkStartPaths = {
   app: appPath, // source files
   src: appPath + '/src', // source files
   build: appPath + '/dist', // production build files
-  public: appPath + '/public', // static files to copy to build folder
+  public: appPath + '/src/public', // static files to copy to build folder
   home: path.resolve(__dirname, '..', '..', '..', '..', '..') // production build files
 }
 
