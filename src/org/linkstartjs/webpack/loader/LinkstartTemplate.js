@@ -1,5 +1,4 @@
 import './styles/index.scss'
-// require('./styles/index.scss')
 
 function LinkStartApplication() {
 
@@ -190,8 +189,14 @@ function LinkStartApplication() {
     let domElements = page.getDomElements();
     var variablesAnnotatedWithDomElement = _this.searchVariablesAnnotatedWith(variables, "HtmlElementsAllForOne");
 
-    if(variablesAnnotatedWithDomElement.lenght >1){
-      console.log(`${action._ls_name} has more than one @HtmlElementsAllForOne`);
+    //TODO: debug
+    if(variablesAnnotatedWithDomElement.length == 0){
+      //console.log(`${action._ls_name} does not have any @HtmlElementsAllForOne annotation`);
+      return;
+    }
+
+    if(variablesAnnotatedWithDomElement.length >1){
+      console.log(`${action._ls_name} has more than one @HtmlElementsAllForOne. Just one is allowed`);
       return;
     }
 

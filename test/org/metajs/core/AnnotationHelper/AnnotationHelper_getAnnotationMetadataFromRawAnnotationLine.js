@@ -11,6 +11,12 @@ describe('AnnotationHelper: getAnnotationMetadataFromRawAnnotationLine', functio
     expect(annotationMetadata.name).to.equal("Autowire");
     expect(annotationMetadata.arguments.name).to.equal("util");
   });
+  it('one argument with spaces', function() {
+    var annotationMetadata = AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine('  //@Autowire(name = "util")');
+    assert(annotationMetadata);
+    expect(annotationMetadata.name).to.equal("Autowire");
+    expect(annotationMetadata.arguments.name).to.equal("util");
+  });
   it('two arguments', function() {
     var annotationMetadata = AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine('  //@Render(name="util",location="src")');
     assert(annotationMetadata);

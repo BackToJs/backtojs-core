@@ -43,7 +43,8 @@ module.exports = merge(common, {
           { loader: LinkStartPaths.home+'/src/org/linkstartjs/webpack/loader/linkstartjs-loader.js',
             options: {
               srcLocation: LinkStartPaths.src,
-              logLevel:"debug"
+              linkstartJsLogLevel:"info" || process.env.LINK_START_LOG_LEVEL,
+              metaJsLogLevel:"info" || process.env.META_JS_LOG_LEVEL
             }
           }
         ],

@@ -212,7 +212,7 @@ AnnotationHelper.getModuleFunctionNameFromRawLine = function(line) {
 };
 
 AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine = function(line) {
-  var rawArguments = line.match(new RegExp('[a-zA-Z]+=\\"[a-zA-Z/_-\\d]+\\"', "g"));
+  var rawArguments = line.match(new RegExp('[a-zA-Z]+\\s*=\\s*\\"[a-zA-Z/_-\\d]+\\"', "g"));
   var annotationArguments = {};
   var name = AnnotationHelper.getAnnotationNameFromRawAnnotation(line);
   if (typeof rawArguments === 'undefined' || rawArguments == null || rawArguments.length == 0) {
@@ -223,8 +223,8 @@ AnnotationHelper.getAnnotationMetadataFromRawAnnotationLine = function(line) {
 
   rawArguments.forEach(function(rawArgument) {
     var argumentArray = rawArgument.split("=");
-    var key = argumentArray[0];
-    var value = argumentArray[1].replace(new RegExp("\"", 'g'), "");
+    var key = argumentArray[0].trim();
+    var value = argumentArray[1].trim().replace(new RegExp("\"", 'g'), "");
     annotationArguments[key] = value;
   });
   return {
