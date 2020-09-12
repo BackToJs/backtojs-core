@@ -93,6 +93,13 @@ function LinkStartApplication() {
       //allForOne
       _this.bindDomElementAllForOne(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
     }
+
+    if (typeof action.afterRender !== "undefined" && typeof action.afterRender === "function") {
+      action.afterRender();
+    } else {
+      console.log("Action does not have afterRender() method");
+    }
+
   };
 
   _this.locationHashChanged = function() {
