@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config src/webpack/webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config src/webpack/webpack.prod.js",
-    "test": "mocha ./test/tests.js --exit"
+    "test": "mocha ./src/test/index.js --exit"
   },
   "bin": {
-    "linkstart": "src/index.js"
+    "linkstart": "src/main/index.js"
   },
   "keywords": [
     "webpack",
@@ -51,7 +51,7 @@
     "chai": "4.2.0",
     "core-js": "3.6.5",
     "mocha": "8.1.3",
-    "nodejs-import-helper": "jrichardsz/nodejs-import-helper#master",
+    "nodejs-require-enhancer": "jrichardsz/nodejs-require-enhancer#master",
     "rimraf": "3.0.2",
     "supervisor": "0.12.0"
   }
