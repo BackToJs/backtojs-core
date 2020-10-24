@@ -91,6 +91,7 @@ function LinkStartApplication() {
       }
 
       var htmlToRender = document.createRange().createContextualFragment(action[variableToUseAsRender].getHtml());
+      //@TODO: debug here
       document.getElementById(renderizationTargetHtmlId).innerHTML = '';
       document.getElementById(renderizationTargetHtmlId).appendChild(htmlToRender);
 
