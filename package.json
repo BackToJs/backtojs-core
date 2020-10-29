@@ -54,6 +54,7 @@
     "nodejs-require-enhancer": "jrichardsz/nodejs-require-enhancer#master",
     "meta-js": "jrichardsz/meta-js#1.0.0-pre-alpha",
     "rimraf": "3.0.2",
-    "supervisor": "0.12.0"
+    "supervisor": "0.12.0",
+    "webpack-merge-and-include-globally": "^2.1.26"
   }
 }

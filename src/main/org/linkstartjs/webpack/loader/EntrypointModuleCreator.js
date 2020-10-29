@@ -144,8 +144,9 @@ function EntrypointModuleCreator() {
     var injections = "";
     for (dependency of dependencies) {
 
-      var dependencyName = dependency.meta.arguments.name;
       Logger.debug(dependency);
+      var dependencyName = dependency.meta.arguments.name;
+      Logger.debug(`dependencyName: ${dependencyName}`);
       for (var variableName in dependency.variables) {
         Logger.debug(variableName);
         var annotations = dependency.variables[variableName];
@@ -172,12 +173,13 @@ function EntrypointModuleCreator() {
               .replace(new RegExp("@variableToAutowire", 'g'), annotation.arguments.name)
               .replace(new RegExp("@variable", 'g'), variableName);
 
-            var injectionName = injectionNameTemplate.replace(new RegExp("@dependencyName", 'g'),dependencyName);
-
-            injections = injections.concat("\n").concat(injectionSentence).concat("\n").concat(injectionName);
+            injections = injections.concat("\n").concat(injectionSentence);
           }
         }
       }
+
+      var injectionName = injectionNameTemplate.replace(new RegExp("@dependencyName", 'g'),dependencyName);
+      injections = injections.concat("\n").concat(injectionName);
     }
 
     var defaultFragmentUrlSentence;

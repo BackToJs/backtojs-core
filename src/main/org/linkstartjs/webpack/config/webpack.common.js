@@ -1,7 +1,10 @@
+const path = require('path');
+const fs = require('fs');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const path = require('path');
+const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
+const WebpackUtil = require('../util/WebpackUtil.js');
 const appPath = process.cwd();
 
 global.LinkStartPaths = {
@@ -10,6 +13,12 @@ global.LinkStartPaths = {
   public: appPath + '/src/public', // static files to copy to build folder
   home: path.resolve(__dirname, '..', '..', '..', '..', '..', '..') // linkstart home
 }
+
+var options = WebpackUtil.getLinkStartOptions(LinkStartPaths.src + '/index.js')
+console.log(options);
+
+var dynamicPugins = WebpackUtil.createMergeIntoSingleFilePlugin(options, LinkStartPaths.src);
+//use this https://stackoverflow.com/a/54523021/3957754 to add head or body chunks
 
 console.log("\nPaths:");
 console.log(LinkStartPaths);
@@ -31,12 +40,24 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new CopyWebpackPlugin({ patterns: [{ from: LinkStartPaths.public, to: 'public' }] }),
+    new CopyWebpackPlugin({
+        patterns: [{
+            from: LinkStartPaths.src,
+            globOptions: {
+                ignore: [
+                    '/**/index.js',
+                    '/**/actions',
+                    '/**/styles',
+                    '/**/pages'
+                ]
+            }
+        }]
+    }),
     new HtmlWebpackPlugin({
       favicon: LinkStartPaths.src + '/images/favicon.png',
       template: LinkStartPaths.src + '/index.html' // template file
-    }),
-  ],
+    })
+  ].concat(dynamicPugins),
   resolve: {
     alias: {
       '~': LinkStartPaths.src,

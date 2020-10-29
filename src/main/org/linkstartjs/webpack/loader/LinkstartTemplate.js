@@ -77,6 +77,7 @@ function LinkStartApplication() {
 
     Logger.debug(`triggering action by route: ${route}`);
     var action = _this.actionsByFragmentUrlRoute[route];
+    Logger.debug(`ls_name: ${action._ls_name}`);
 
     if (typeof action === 'undefined') {
       Logger.debug(`route ${route} has a wrong or undefined action`);
@@ -118,6 +119,12 @@ function LinkStartApplication() {
       }
 
       var variableToUseAsRenderData = _this.searchOneVariableByAnnotationName(_this.metaContext[action._ls_name].variables, action._ls_name, "Render");
+
+      if (typeof variableToUseAsRenderData === 'undefined' || variableToUseAsRenderData == null) {
+        Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
+        return;
+      }
+      
       var variableToUseAsRender = variableToUseAsRenderData.name;
 
       if (typeof variableToUseAsRender === 'undefined' || variableToUseAsRender == null) {

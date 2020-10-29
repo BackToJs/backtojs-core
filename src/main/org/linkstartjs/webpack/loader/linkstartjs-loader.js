@@ -8,6 +8,8 @@ Logger.info("\nLinkStart Webpack Loader is looking for entrypoint");
 
 function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
+  Logger.info("Link Start Options\n\n");
+  Logger.info(options);
 
   if(typeof options.linkstartJsLogLevel !== 'undefined'){
     global.linkstartJsLogLevel = options.linkstartJsLogLevel;
