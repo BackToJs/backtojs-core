@@ -14,7 +14,7 @@ function EntrypointModuleCreator() {
   var entrypointTemplatePath = path.resolve(__filename,'..')+'/LinkstartTemplate.js';
   var entrypointTemplate = fileUtils.readFileSync(entrypointTemplatePath, 'utf8');
 
-  var headAnnotations = ["DefaultAction", "Page"];
+  var headAnnotations = ["DefaultAction", "Page", "Module"];
   var internalAnnotations = ["Autowire","HtmlElement","Render","ActionListener","HtmlElementsAllForOne","Async"];
   var allAnnotations = headAnnotations.concat(internalAnnotations);
 
@@ -135,7 +135,19 @@ function EntrypointModuleCreator() {
             defaultFragmentUrlRoute = dependency.meta.arguments.route;
           }
         }
-      }else{
+      }else if (dependency.meta.name == "Module") {
+				var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.meta.arguments.name);
+				//get require
+				var requireSentence = requireTemplate
+					.replace("@dependencyClassName", dependencyClassName)
+					.replace("@dependencyLocation", dependency.meta.location);
+				requires = requires.concat("\n").concat(requireSentence);
+				//instantiate
+				var instantiateSentence = instantiateModuleTemplate
+					.replace("@dependencyClassName", dependencyClassName)
+					.replace("@dependencyName", dependency.meta.arguments.name);
+				instantiates = instantiates.concat("\n").concat(instantiateSentence);
+			}else{
         Logger.debug(dependency.meta.name+" is not a LinkStart.js annotation");
       }
     }

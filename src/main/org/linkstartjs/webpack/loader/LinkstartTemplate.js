@@ -23,7 +23,7 @@ Logger.info = function(message){
 function LinkStartRoute(){}
 
 LinkStartRoute.goTo = function(hashFragmentRoute){
-  window.location.href = "#"
+  // window.location.href = "#"
   window.location.href = `#${hashFragmentRoute}`
 }
 
@@ -87,10 +87,12 @@ function LinkStartApplication() {
     if (typeof action.onLoad !== "undefined" && typeof action.onLoad === "function") {
       var isLoadAsync = _this.isFunctionAnnotatedWith(_this.metaContext[action._ls_name], "onLoad", "Async");
       if(isLoadAsync){//onLoad is async
+        Logger.debug("onLoad is Async");
         action.onLoad(function(){
           _this.performRender(action);
         });
       }else{
+        Logger.debug("onLoad is not Async");
         action.onLoad();
         _this.performRender(action);
       }
@@ -102,9 +104,16 @@ function LinkStartApplication() {
   };
 
   _this.performRender = function(action) {
+    var isRenderAnAnnotation=false;
     //TODO: ensure render is executed after onLoad
     if (typeof action.render !== "undefined" && typeof action.render === "function") {
-      throw new Error("Render function execution is not supported yet");
+      // throw new Error("Render function execution is not supported yet");
+      var htmlAsString = action.render();
+      var htmlToRender = document.createRange().createContextualFragment(htmlAsString);
+      document.getElementById("root").innerHTML = '';
+      document.getElementById("root").appendChild(htmlToRender);
+      //html dom is ready
+      //bind dom onclick events to action methods
     } else {
       //search if exist @Render annotation which indicate us that is an alternative
       //to render() method
@@ -124,7 +133,7 @@ function LinkStartApplication() {
         Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
         return;
       }
-      
+
       var variableToUseAsRender = variableToUseAsRenderData.name;
 
       if (typeof variableToUseAsRender === 'undefined' || variableToUseAsRender == null) {
@@ -143,20 +152,21 @@ function LinkStartApplication() {
       }
 
       var htmlToRender = document.createRange().createContextualFragment(action[variableToUseAsRender].getHtml());
-      //@TODO: debug here
       document.getElementById(renderizationTargetHtmlId).innerHTML = '';
       document.getElementById(renderizationTargetHtmlId).appendChild(htmlToRender);
-
-      //html dom is ready
-      //bind dom onclick events to action methods
-      _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action, action[variableToUseAsRender].getDomElements());
-
-      //bind dom variables to action variables
-      _this.applyDomElemensAutoBinding(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
-
-      //allForOne
-      _this.bindDomElementAllForOne(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
+      isRenderAnAnnotation = true;
     }
+
+    //html dom is ready
+
+    //bind dom onclick events to action methods
+    _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action, (isRenderAnAnnotation===true)?action[variableToUseAsRender].getDomElements():null);
+
+    //bind dom variables to action variables
+    _this.applyDomElemensAutoBinding(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
+
+    //allForOne
+    _this.bindDomElementAllForOne(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
   }
 
   _this.locationHashChanged = function() {
@@ -197,30 +207,35 @@ function LinkStartApplication() {
   }
 
   _this.applyActionListenersAutoBinding = function(functions, action, registeredDomElementsInPage) {
+    Logger.debug("applying actionListeners auto binding for this action: "+action._ls_name)
     for (var internalActionFunctionName in functions) {
       for (var a in functions[internalActionFunctionName]) {
         var annotation = functions[internalActionFunctionName][a];
         if (annotation.name == 'ActionListener') {
           if (typeof action[internalActionFunctionName] !== "undefined" && typeof action[internalActionFunctionName] === "function") {
+            Logger.debug("actionListener to be binded was found: "+internalActionFunctionName)
             var functionInstance = action[internalActionFunctionName];
             var tagNativeId = annotation.arguments.tagId;
             var eventType = annotation.arguments.type;
 
             var lsId = _this.searchLinkStartIdInRegisteredDomElements(registeredDomElementsInPage, annotation.arguments.tagId);
-
+            var domElement;
             if (typeof lsId === 'undefined') {
-              Logger.debug(`lsId for this element ${annotation.arguments.tagId} is undefined. Did you register the dom element with ls-element=true ?`);
-              continue;
+              Logger.debug(`lsId for this actionListener ${annotation.arguments.tagId} is undefined. Did you register the dom element with ls-element=true ?`);
+              Logger.debug(`${annotation.arguments.tagId} will be searched directly in html dom`);
+              domElement = document.getElementById(annotation.arguments.tagId);
+            }else{
+              domElement = _this.getElementByLsId(lsId);
             }
-            var domElement = _this.getElementByLsId(lsId);
-            if (typeof domElement !== 'undefined') {
+            Logger.debug("actionListener object:"+domElement)
+            if (typeof domElement !== 'undefined' && domElement != null) {
               if (eventType === "onclick") {
                 domElement.onclick = functionInstance;
               } else {
                 Logger.debug("type function not implemented yet: " + eventType);
               }
             } else {
-              Logger.debug("expected element was not found in html dom");
+              Logger.debug(`ActionListener with html tag id: ${annotation.arguments.tagId} was not found in html dom`);
             }
           }
         }
@@ -228,20 +243,37 @@ function LinkStartApplication() {
     }
   }
 
-  _this.applyDomElemensAutoBinding = function(action, page, variables) {
+  _this.applyDomElemensAutoBinding = function(action, pageInstanceToRender, variables) {
 
-    let domElements = page.getDomElements();
+    Logger.debug("apply dom elements auto binding for this action: "+action._ls_name);
+
     var variablesAnnotatedWithDomElement = _this.searchVariablesAnnotatedWith(variables, "HtmlElement");
+    // let domElements = page.getDomElements();
 
+    //iterate every @HtmlElement and perform the binding with real html dom element
     variablesAnnotatedWithDomElement.forEach(function(variable, i) {
 
-      var elementDomId = variable.annotationArguments.id;
+      var htmlTagId = variable.annotationArguments.id;
       if (typeof elementDomId !== 'undefined') {
-        for (var elementInDom of domElements) {
-          var tagId = elementInDom.tagId;
-          var lsId = elementInDom.lsId;
-          if ((tagId && lsId) && tagId === elementDomId) {
-            action[variable.variableName] = _this.getElementByLsId(lsId);
+        Logger.debug(`Searching ${htmlTagId} html element`)
+        // for (var elementInDom of domElements) {
+        //   var tagId = elementInDom.tagId;
+        //   var lsId = elementInDom.lsId;
+        //   if ((tagId && lsId) && tagId === elementDomId) {
+        //     action[variable.variableName] = _this.getElementByLsId(lsId);
+        //   }
+        // }
+        var searchedHtmlDomElement = _this.getElementInPageRegisteredElements(pageInstanceToRender, htmlTagId, variable.variableName);
+        if (typeof searchedHtmlDomElement !== 'undefined') {
+          action[variable.variableName] = searchedHtmlDomElement;
+        }else{
+          Logger.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered elements`);
+          searchedHtmlDomElement = document.getElementById(htmlTagId);
+          if (typeof searchedHtmlDomElement !== 'undefined') {
+            //@TODO: show warning if there are several matches
+            action[variable.variableName] = searchedHtmlDomElement;
+          }else{
+            Logger.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered element nor html dom elements`);
           }
         }
       } else {
@@ -354,7 +386,7 @@ function LinkStartApplication() {
     var functions = actionAnnotationInfo.functions;
 
     if(typeof functions[functionName]==='undefined'){
-      Logger.debug(`${functionName} function does not exist in this action`);
+      Logger.debug(`${functionName} function does not exist in this action as annotated function`);
       return false;
     }
 
@@ -393,6 +425,20 @@ function LinkStartApplication() {
     } else {
       Logger.debug("There are more than one element with this lsId:" + lsId);
     }
+  };
+
+  _this.getElementInPageRegisteredElements = function(pageInstanceToRender, htmlTagId, variableNameToBind) {
+    let domElements = pageInstanceToRender.getDomElements();
+    var searchedHtmlDomElement;
+    for (var elementInDom of domElements) {
+      var tagId = elementInDom.tagId;
+      var lsId = elementInDom.lsId;
+      if ((tagId && lsId) && tagId === htmlTagId) {
+        searchedHtmlDomElement = _this.getElementByLsId(lsId);
+        break;
+      }
+    }
+    return searchedHtmlDomElement;
   };
 
   _this.getDefaultRadioValue = function(radioElement) {
