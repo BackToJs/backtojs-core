@@ -1,8 +1,8 @@
-const include = require('nodejs-require-enhancer');
+require('nodejs-require-enhancer');
 const loaderUtils = require("loader-utils");
 const pathUtils = require('path');
 const EntrypointModuleCreator = require('./EntrypointModuleCreator.js');
-const Logger = include('org/linkstartjs/logger/Logger.js')
+const Logger = require('org/linkstartjs/logger/Logger.js')
 
 Logger.info("\nLinkStart Webpack Loader is looking for entrypoint");
 

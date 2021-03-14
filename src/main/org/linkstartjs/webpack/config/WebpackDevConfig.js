@@ -1,6 +1,7 @@
+require('nodejs-require-enhancer');
 const Webpack = require('webpack');
 const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
+const common = require('org/linkstartjs/webpack/config/WebpackCommonConfig.js');
 
 module.exports = merge(common, {
   mode: 'development',
@@ -40,7 +41,7 @@ module.exports = merge(common, {
               configFile: LinkStartPaths.home+'/.eslintrc'
             }
           },
-          { loader: LinkStartPaths.home+'/src/main/org/linkstartjs/webpack/loader/linkstartjs-loader.js',
+          { loader: LinkStartPaths.home+'/src/main/org/linkstartjs/webpack/loader/LinkstartjsLoader.js',
             options: {
               srcLocation: LinkStartPaths.src,
               linkstartJsLogLevel:process.env.LINK_START_LOG_LEVEL  || "info" ,

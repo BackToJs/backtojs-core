@@ -1,10 +1,11 @@
+require('nodejs-require-enhancer');
 const path = require('path');
 const fs = require('fs');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
-const WebpackUtil = require('../util/WebpackUtil.js');
+const WebpackUtil = require('org/linkstartjs/webpack/util/WebpackUtil.js');
 const appPath = process.cwd();
 
 global.LinkStartPaths = {
@@ -15,6 +16,7 @@ global.LinkStartPaths = {
 }
 
 var options = WebpackUtil.getLinkStartOptions(LinkStartPaths.src + '/index.js')
+console.log("\nOptions:");
 console.log(options);
 
 var dynamicPugins = WebpackUtil.createMergeIntoSingleFilePlugin(options, LinkStartPaths.src);

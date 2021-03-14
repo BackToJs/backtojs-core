@@ -1,6 +1,6 @@
-const include = require('nodejs-require-enhancer');
+require('nodejs-require-enhancer');
 const supervisor = require('supervisor');
-const Logger = include("org/linkstartjs/logger/Logger.js")
+const Logger = require("org/linkstartjs/logger/Logger.js")
 
 function WebpackDev () {
 

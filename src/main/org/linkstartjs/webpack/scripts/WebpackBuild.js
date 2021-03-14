@@ -1,10 +1,10 @@
-const include = require('nodejs-require-enhancer');
+require('nodejs-require-enhancer');
 const webpack = require('webpack')
 const rimraf = require('rimraf')
 const path = require('path')
 const fs = require('fs')
-const config = include('org/linkstartjs/webpack/config/webpack.prod.js');
-const Logger = include("org/linkstartjs/logger/Logger.js")
+const config = require('org/linkstartjs/webpack/config/WebpackProdConfig.js');
+const Logger = require("org/linkstartjs/logger/Logger.js")
 
 function WebpackBuild() {
 

@@ -1,11 +1,11 @@
-const include = require('nodejs-require-enhancer');
+require('nodejs-require-enhancer');
 const fileUtils = require('fs')
 const path = require("path");
 const DependencyHelper = require('meta-js').DependencyHelper;
 const AnnotationHelper = require('meta-js').AnnotationHelper;
 const LinksStartWebpackLoaderCommon = require('./LinksStartWebpackLoaderCommon.js');
 const cheerio = require('cheerio')
-const Logger = include('org/linkstartjs/logger/Logger.js')
+const Logger = require('org/linkstartjs/logger/Logger.js')
 
 function EntrypointModuleCreator() {
 

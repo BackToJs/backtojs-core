@@ -1,7 +1,7 @@
 const Webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const common = require('./webpack.common.js');
+const common = require('org/linkstartjs/webpack/config/WebpackCommonConfig.js');
 
 module.exports = merge(common, {
   mode: 'production',
@@ -44,7 +44,7 @@ module.exports = merge(common, {
               configFile: LinkStartPaths.home+'/.eslintrc'
             }
           },
-          { loader: LinkStartPaths.home+'/src/main/org/linkstartjs/webpack/loader/linkstartjs-loader.js',
+          { loader: LinkStartPaths.home+'/src/main/org/linkstartjs/webpack/loader/LinkstartjsLoader.js',
             options: {
               srcLocation: LinkStartPaths.src,
               linkstartJsLogLevel:"info" || process.env.LINK_START_LOG_LEVEL,
