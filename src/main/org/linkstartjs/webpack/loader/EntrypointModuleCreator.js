@@ -6,6 +6,7 @@ const AnnotationHelper = require('meta-js').AnnotationHelper;
 const LinksStartWebpackLoaderCommon = require('./LinksStartWebpackLoaderCommon.js');
 const cheerio = require('cheerio')
 const Logger = require('org/linkstartjs/logger/Logger.js')
+const WebpackUtil = require('org/linkstartjs/webpack/util/WebpackUtil.js');
 
 function EntrypointModuleCreator() {
 
@@ -48,14 +49,16 @@ function EntrypointModuleCreator() {
 
   _this.createModule = function(options, content) {
 
+    var linksStartCustomOptions = WebpackUtil.getLinkStartOptionsFromFileContent(content);
+
     Logger.debug("srcLocation:" + options.srcLocation);
     var dependencies = DependencyHelper.getDependecies(options.srcLocation, [".js", ".html"], ["src/index.js", "src/index.html"],
     headAnnotations, internalAnnotations);
 
-    Logger.info("\nNormalized dependencies");
-    Logger.info(dependencies);
+    Logger.debug("Dependencies found:");
+    Logger.debug(dependencies);
 
-    Logger.debug("\nPerform instantation...");
+    Logger.debug("Perform instantation...");
     var requires = "";
     var instantiates = "";
     var fragmentListeners = "";
@@ -152,7 +155,8 @@ function EntrypointModuleCreator() {
       }
     }
 
-    Logger.info("\nPerform injection...");
+    Logger.info("Success instantation");
+    Logger.debug("Perform injection...");
     var injections = "";
     for (dependency of dependencies) {
 
@@ -194,6 +198,8 @@ function EntrypointModuleCreator() {
       injections = injections.concat("\n").concat(injectionName);
     }
 
+    Logger.info("Success dependency injection");
+
     var defaultFragmentUrlSentence;
     if (defaultFragmentUrlRoute) {
       defaultFragmentUrlSentence = globalAttributesTemplate
@@ -202,7 +208,23 @@ function EntrypointModuleCreator() {
       defaultFragmentUrlSentence = "Logger.debug('There are not any @Action defined as entrypoint')";
     }
 
+    //import './styles/index.scss'
+    var importCssSentence;
+    Logger.debug("EntrypointModuleCreator options:"+JSON.stringify(linksStartCustomOptions));
+    if(typeof linksStartCustomOptions.importCssFiles === 'undefined' || linksStartCustomOptions.importCssFiles.length === 0){
+      var scssFile = WebpackUtil.smartUniqueFileLocator(options.srcLocation, 'index.scss');
+      if(scssFile){
+        scssFile = scssFile.replace("/src",".");
+        importCssSentence = `import '${scssFile}'`;
+      }else{
+        importCssSentence = "";
+      }
+    }else{
+      importCssSentence = WebpackUtil.filesToCssImporSentence(linksStartCustomOptions.importCssFiles);
+    }
+
     var entrypointModule = entrypointTemplate
+      .replace("@importCssFilesSentence", importCssSentence)
       .replace("@defaultFragmentUrlSentence", defaultFragmentUrlSentence)
       .replace("@require", requires)
       .replace("@instantiate", instantiates)

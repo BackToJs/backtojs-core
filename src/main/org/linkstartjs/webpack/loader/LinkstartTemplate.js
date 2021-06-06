@@ -1,4 +1,4 @@
-import './styles/index.scss'
+@importCssFilesSentence
 
 function Logger(){}
 
@@ -166,7 +166,7 @@ function LinkStartApplication() {
     _this.applyDomElemensAutoBinding(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
 
     //allForOne
-    _this.bindDomElementAllForOne(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
+    _this.bindDomElementAllForOne(action, variableToUseAsRender, _this.metaContext[action._ls_name].variables);
   }
 
   _this.locationHashChanged = function() {
@@ -282,8 +282,13 @@ function LinkStartApplication() {
     });
   };
 
-  _this.bindDomElementAllForOne = function(action, page, variables) {
+  _this.bindDomElementAllForOne = function(action, variableToUseAsRender, variables) {
 
+    if(typeof variableToUseAsRender === 'undefined' || variableToUseAsRender == null){
+      return;
+    }
+
+    var page = action[variableToUseAsRender];
     let domElements = page.getDomElements();
     var variablesAnnotatedWithDomElement = _this.searchVariablesAnnotatedWith(variables, "HtmlElementsAllForOne");
 

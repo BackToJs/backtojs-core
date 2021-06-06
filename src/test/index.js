@@ -1,17 +1,45 @@
-const include = require('nodejs-require-enhancer');
+require('nodejs-require-enhancer');
 
-//tests
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_isClassicVariable.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_isModuleVariable.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_isFunction.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_isEmptyLine.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getHeadAnnotationMetadata.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getRawAnnotationsOfSingleVarLineIndex.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getVariableNameFromRawLine.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getFunctionNameFromRawLine.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getAnnotationMetadataFromRawAnnotationLine.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getVarOrFunctionLineOfAnnotationInThisIndexLine.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getAnnotationNameFromRawAnnotation.js', 'test');
-include('org/metajs/core/AnnotationHelper/AnnotationHelper_getDependecyAnnotationsGroupByVariableOrFunction.js', 'test');
+var log = console.log;
 
-include('org/metajs/core/DependencyHelper/DependencyHelper_getDependecies.js', 'test');
+var tests = [
+  // 'org/linkstartjs/webpack/util/WebpackUtilTest.js',
+  'org/linkstartjs/webpack/scripts/WebpackBuildTestPupeter.js',
+];
+
+var testLog = "";
+// console.log = function(message) {
+//   // testLog = testLog.concat("\n").concat(message);
+//   log(message);
+// }
+
+for(test of tests){
+  try{
+    testLog = "";
+    let SomeTest = require(test);
+    let instancedTest = new SomeTest();
+    instancedTest.run();
+    // instancedTest.run(function(){
+    //   log('\x1b[32m', `✓\t${test}`);
+    //   log(testLog);
+    // });
+  }catch(err){
+    log('\x1b[31m', `x\t${test}`);
+    log(err);
+    log(testLog);
+  }
+}
+
+
+
+// process.env.LINK_START_LOG_LEVEL = 'debug'
+// // process.env.META_JS_LOG_LEVEL = 'debug'
+// process.env.NODE_ENV = 'production'
+// process.env.LINKS_START_TEST_PATH = __dirname+"/app"
+// const WebpackBuild = require('org/linkstartjs/webpack/scripts/WebpackBuild.js')
+// var webpackBuild = new WebpackBuild();
+// webpackBuild.run(function(){
+//   console.log("#######################");
+// });
+// //tests
+// require('org/metajs/core/AnnotationHelper/AnnotationHelper_isClassicVariable.js');

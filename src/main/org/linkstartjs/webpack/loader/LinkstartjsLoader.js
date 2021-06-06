@@ -8,8 +8,6 @@ Logger.info("\nLinkStart Webpack Loader is looking for entrypoint");
 
 function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
-  Logger.info("Link Start Options\n\n");
-  Logger.info(options);
 
   if(typeof options.linkstartJsLogLevel !== 'undefined'){
     global.linkstartJsLogLevel = options.linkstartJsLogLevel;
@@ -22,8 +20,9 @@ function loader(content) {
   var entrypointModuleCreator = new EntrypointModuleCreator();
 
   if(this.resourcePath.startsWith(options.srcLocation+"/index.js")){
-    Logger.info("entrypoint was found: "+this.resourcePath);
-    Logger.info("Link Start!!!\n\n");
+    Logger.info("Entrypoint was found: "+this.resourcePath+"\t. Link Start!!");
+    Logger.info("Link Start Webpack Loader Options:\n");
+    Logger.info(options);    
     return entrypointModuleCreator.createModule(options, content);
   }else{
     Logger.debug("not entrypoint:"+this.resourcePath);

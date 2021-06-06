@@ -37,7 +37,7 @@ Check the first demo:
 - [ ] Add build option in bin file
 - [ ] Add build script
 - [ ] Code refactor
-- [ ] Unit tests
+- [ ] Unit tests with (https://www.npmjs.com/package/assert-js)
 - [ ] Package as library
 - [ ] Create more default ui components and layout
 
