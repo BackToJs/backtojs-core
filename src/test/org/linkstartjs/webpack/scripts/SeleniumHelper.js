@@ -12,11 +12,6 @@ var app = express()
 process.env.NODE_ENV = 'production'
 process.env.LINKS_START_APP_PATH = rootPath+"/src/test/app"
 
-var tests = [
-  'org/linkstartjs/webpack/features/EntrypointTest.js',
-  // 'org/linkstartjs/webpack/features/OnloadTest.js'
-];
-
 const WebpackBuild = require('org/linkstartjs/webpack/scripts/WebpackBuild.js')
 var webpackBuild = new WebpackBuild();
 

@@ -8,19 +8,17 @@ const SeleniumHelper = require("org/linkstartjs/webpack/scripts/SeleniumHelper.j
 var seleniumHelper = new SeleniumHelper();
 
 const originalLogFunction = console.log;
-
 let output='';
 console.log= function(message){
   output += message + '\n';
 }
 
-describe('#getFoo', () => {
+describe('# org/linkstartjs/webpack/scripts/WebpackBuild.js', () => {
 
 
   var driver;
   var baseUrl;
   before(() => {
-    // console.log = function () {};
     return new Promise((resolve) => {
       seleniumHelper.run().then((serverForTest) => {
         driver = serverForTest.driver;
@@ -30,7 +28,7 @@ describe('#getFoo', () => {
     });
   });
 
-  it('resolves with foo', () => {
+  it('entrypoint', () => {
     return new Promise((resolve, reject) => {
       driver.get("http://www.google.com")
       .then(function() {
@@ -40,28 +38,15 @@ describe('#getFoo', () => {
         assert.equal("Google", title)
         resolve();
       }).catch(function(err){
-        console.log(err);
+        originalLogFunction("\nError:\n");
+        originalLogFunction(err);
+        originalLogFunction("\nPrevious Log:");
+        originalLogFunction(output);
+        output="";
         reject();
       });
     });
-
   })
-
-  // beforeEach(function() {
-  //   output = '';
-  //   console.log = (msg) => {
-  //     output += msg + '\n';
-  //   };
-  // });
-
-  // afterEach(function() {
-  //   console.log(this.currentTest.state);
-  //   // console.log = originalLogFunction; // undo dummy log function
-  //   // if (this.currentTest.state === 'failed') {
-  //   //   console.log("Log:");
-  //   //   console.log(output);
-  //   // }
-  // });
 })
 
 
