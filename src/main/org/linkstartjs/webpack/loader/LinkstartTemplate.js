@@ -22,6 +22,7 @@ Logger.info = function(message){
 
 function LinkStartRoute(){}
 
+//@Deprecated
 LinkStartRoute.goTo = function(hashFragmentRoute){
   // window.location.href = "#"
   window.location.href = `#${hashFragmentRoute}`
@@ -170,10 +171,14 @@ function LinkStartApplication() {
   }
 
   _this.locationHashChanged = function() {
-    Logger.debug(`url change: ${location.hash}`);
+    Logger.debug(`new hash fragment in url: ${location.hash}`);
     var fragment = location.hash.replace("#", "");
     if (!_this.actionsByFragmentUrlRoute[fragment]) {
-      Logger.debug("There are not any @Action asociated to this route: " + fragment);
+      //@TODO: what to do when route is not found: Show a message or nothing?
+      let messageToLog = "There are not any @DefaultAction asociated to this route: " + fragment;
+      Logger.debug(messageToLog);
+      document.getElementById("root").innerHTML = '';
+      document.getElementById("root").appendChild(messageToLog);
       return;
     }
     _this.invokeActionByFragmentUrl(fragment);

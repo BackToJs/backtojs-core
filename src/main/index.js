@@ -13,7 +13,9 @@ if(args[0] === 'dev'){
   process.env.NODE_ENV = 'production'
   const WebpackBuild = require('org/linkstartjs/webpack/scripts/WebpackBuild.js')
   var webpackBuild = new WebpackBuild();
-  webpackBuild.run();
+  webpackBuild.run().then(function(data) {
+    Logger.info(`Build content: `+data)
+  });
 }else{
   console.log("LinkStart.js does not support this argument:"+args[0]);
 }

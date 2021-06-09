@@ -5,69 +5,61 @@ const path = require('path')
 const fs = require('fs')
 const config = require('org/linkstartjs/webpack/config/WebpackProdConfig.js');
 const Logger = require("org/linkstartjs/logger/Logger.js")
+const util = require('util');
+const compiler = webpack(config);
+const webpackCompilerRunPromise = util.promisify(compiler.run);
+const rimrafPromise = util.promisify(rimraf);
+const fsStatPromise = util.promisify(fs.stat);
+const fsAccessPromise = util.promisify(fs.access);
+const fsReaddirPromise = util.promisify(fs.readdir);
 
 function WebpackBuild() {
 
-  this.run = function(callback) {
-    Logger.info("LinkStart build mode is starting...");
-
-    const compiler = webpack(config)
-    this.clean(LinkStartPaths.build).then(() => {
-      compiler.run((err, stats) => {
-
-        if (err) {
-          this.throwNewError(err,new Error("Webpack compiler encountered a fatal error"));
-        }
-
-        if (stats.hasErrors()) {
-          this.throwNewError(new Error(stats.compilation.errors),new Error("Webpack compiler encountered a fatal error"));
-        }
-
-        const jsonStats = stats.toJson()
-        Logger.debug(jsonStats);
-        Logger.info(`Webpack compilation completed successfully. Build folder ${LinkStartPaths.build}. Build content:`)
-
-        fs.readdir(LinkStartPaths.build, (err, files) => {
-          files.forEach(file => {
-            Logger.info("- "+file);
-          });
-          if(callback){
-            return callback();
+  this.run = () => {
+    return new Promise((resolve, reject) => {
+      this.clean(LinkStartPaths.build).then(function() {
+        compiler.run(function(err, stats) {
+          if (err) {
+            Logger.info("Webpack compiler encountered a fatal error");
+            Logger.info(err);
+            return reject();
           }
+          if (stats.hasErrors()) {
+            Logger.info("Webpack compiler encountered a fatal error");
+            Logger.info(stats.compilation.errors);
+            Logger.info(stats.toJson());
+            return reject()
+          }
+          
+          const jsonStats = stats.toJson()
+          Logger.debug(jsonStats);
+          Logger.info(`Webpack compilation completed successfully. Build folder ${LinkStartPaths.build}.`)
+
+          fs.readdir(LinkStartPaths.build, (err, files) => {
+            files.forEach(file => {
+              Logger.info("- " + file);
+            });
+            resolve();
+          });
+
         });
       })
-    })
+    });
   }
 
-  this.clean = function(dir) {
-
-    return new Promise((resolve) => {
-
-      fs.stat(dir, (fsErr, stats) => {
-
-        if (fsErr) {
-          return resolve()
+  this.clean = (dir) => {
+    return new Promise(function(resolve, reject) {
+      fs.access(dir, function(error) {
+        if (error) {
+          resolve();
+        } else {
+          rimraf(dir, function() {
+            resolve();
+          });
         }
-
-        rimraf(dir, (delErr) => {
-
-          if (delErr) {
-            console.log('Error deleting ' + dir)
-            console.log(delErr)
-          }
-          resolve()
-        })
       })
-    })
+    });
   }
-
-  this.throwNewError = function(previousError, newError) {
-    newError.original = previousError
-    newError.stack = newError.stack.split('\n').slice(0,2).join('\n') + '\n' +previousError.stack
-    throw newError
-  }
-
-
 
 }
 

@@ -41,6 +41,7 @@ module.exports = {
     filename: 'js/[name].js',
   },
   optimization: {
+    minimize: options.webpackMinimize || true,
     splitChunks: {
       chunks: 'all',
       name: false,

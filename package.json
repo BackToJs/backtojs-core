@@ -4,7 +4,8 @@
   "description": "linkstart.js framework",
   "main": "index.js",
   "scripts": {
-    "test": "node src/test/index.js",
+    "test2": "node src/test/index.js",
+    "test": "mocha --timeout 20000 ./src/test/index.js --exit",
     "test1": "node src/test/org/linkstartjs/webpack/scripts/WebpackBuild/WebpackBuild.js"
   },
   "bin": {
@@ -56,9 +57,11 @@
     "webpack-merge-and-include-globally": "^2.1.26"
   },
   "devDependencies": {
+    "chromedriver": "^91.0.0",
     "express": "^4.17.1",
     "phantom": "^6.3.0",
     "phantomjs": "^2.1.7",
+    "selenium-webdriver": "^4.0.0-beta.3",
     "serve-static": "^1.14.1"
   }
 }

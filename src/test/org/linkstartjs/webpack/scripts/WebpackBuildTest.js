@@ -1,31 +1,69 @@
 require('nodejs-require-enhancer');
-var express = require('express')
-var serveStatic = require('serve-static')
-var packageFinder = require('find-package-json');
-// var phantom = require('phantom');
-var path = require('path');
-var rootPath = path.dirname(packageFinder(__dirname).next().filename);
-// var app = express()
-const { JSDOM } = require('jsdom');
-const options = {
-  resources: 'usable',
-  runScripts: 'dangerously',
-};
+
+var chai = require('chai');
+var expect = chai.expect;
+var assert = chai.assert;
+
+const SeleniumHelper = require("org/linkstartjs/webpack/scripts/SeleniumHelper.js");
+var seleniumHelper = new SeleniumHelper();
+
+const originalLogFunction = console.log;
+
+let output='';
+console.log= function(message){
+  output += message + '\n';
+}
+
+describe('#getFoo', () => {
 
 
-// process.env.LINK_START_LOG_LEVEL = 'debug'
-// process.env.META_JS_LOG_LEVEL = 'debug'
-process.env.NODE_ENV = 'production'
-process.env.LINKS_START_APP_PATH = rootPath+"/src/test/app"
-const WebpackBuild = require('org/linkstartjs/webpack/scripts/WebpackBuild.js')
-var webpackBuild = new WebpackBuild();
-webpackBuild.run(function(){
-  console.log("linkstart unit test is starting");
-  JSDOM.fromFile(process.env.LINKS_START_APP_PATH+"/dist/index.html", options).then((dom) => {
-    console.log(dom.window.document.body.textContent.trim());
-
-    setTimeout(() => {
-      console.log(dom.window.document.body.textContent.trim());
-    }, 5000);
+  var driver;
+  var baseUrl;
+  before(() => {
+    // console.log = function () {};
+    return new Promise((resolve) => {
+      seleniumHelper.run().then((serverForTest) => {
+        driver = serverForTest.driver;
+        baseUrl = serverForTest.baseUrl;
+        resolve();
+      });
+    });
   });
-});
+
+  it('resolves with foo', () => {
+    return new Promise((resolve, reject) => {
+      driver.get("http://www.google.com")
+      .then(function() {
+        return driver.getTitle();
+      })
+      .then(function(title) {
+        assert.equal("Google", title)
+        resolve();
+      }).catch(function(err){
+        console.log(err);
+        reject();
+      });
+    });
+
+  })
+
+  // beforeEach(function() {
+  //   output = '';
+  //   console.log = (msg) => {
+  //     output += msg + '\n';
+  //   };
+  // });
+
+  // afterEach(function() {
+  //   console.log(this.currentTest.state);
+  //   // console.log = originalLogFunction; // undo dummy log function
+  //   // if (this.currentTest.state === 'failed') {
+  //   //   console.log("Log:");
+  //   //   console.log(output);
+  //   // }
+  // });
+})
+
+
+// https://docs.skuid.com/latest/en/skuid/testing/example-node/
+// https://examples.javacodegeeks.com/enterprise-java/selenium/selenium-nodejs-example/

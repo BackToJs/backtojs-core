@@ -1,1 +1,1 @@
-linkStart({"logLevel":"info"});
+linkStart({"logLevel":"debug", "webpackMinimize":true});

@@ -1,12 +1,15 @@
-@DefaultAction(name="helloWorldAction", entrypoint="true", route="hello"  )
+@DefaultAction(name="onLoadAction", entrypoint="true", route="onLoadAction"  )
 function HelloWorldAction() {
+
+  this.message;
 
   this.onLoad = () => {
     console.log("I'm the onLoad");
+    this.message = "I'm the onLoad";
   };
 
   this.render = () => {
-    return "<h3>Hello world with LinkStart</h3>";
+    return this.message;
   };
 
 }
