@@ -1,15 +1,26 @@
 require('nodejs-require-enhancer');
-const Assert = require('assert-js')
+var chai = require('chai');
+var expect = chai.expect;
+var assert = chai.assert;
+require('org/test/common/MochaAutoconfigurator.js');
 var WebpackUtil = require('org/linkstartjs/webpack/util/WebpackUtil.js');
 
-var cssFile = WebpackUtil.smartUniqueFileLocator(__dirname+'/WebpackUtilTest/folderWithOneCssFile',"index.scss");
-Assert.string(cssFile, "WebpackUtil.smartCssLocator should find exactly one css file");
-Assert.equal(cssFile,"/src/styles/bar/index.scss", `Expected /src/styles/bar/index.scss but got ${cssFile}`);
+describe('org/linkstartjs/webpack/util/WebpackUtil.js: smartUniqueFileLocator', function() {
+  it('one css file', function() {
+    var cssFile = WebpackUtil.smartUniqueFileLocator(__dirname+'/WebpackUtilTest/folderWithOneCssFile',"index.scss");
+    expect(cssFile).to.equal("/src/styles/bar/index.scss");
+  });
+  it('null css file', function() {
+    var nullCssFile = WebpackUtil.smartUniqueFileLocator(__dirname+'/WebpackUtilTest/folderWithoutCss', 'index.scss');
+    assert(!nullCssFile);
+  });
+});
 
-var nullCssFile = WebpackUtil.smartUniqueFileLocator(__dirname+'/WebpackUtilTest/folderWithoutCss', 'index.scss');
-Assert.true(nullCssFile == null, `Expected null variable but was ${nullCssFile}`);
-
-var filesToScssSentence = WebpackUtil.filesToCssImporSentence(["styles/main.scss","styles/index.scss","styles/import.scss"]);
-Assert.true(filesToScssSentence.includes(`import './styles/main.scss'`), `result string should contain import './styles/main.scss`);
-Assert.true(filesToScssSentence.includes(`import './styles/index.scss'`), `result string should contain import './styles/index.scss`);
-Assert.true(filesToScssSentence.includes(`import './styles/import.scss'`), `result string should contain import './styles/import.scss`);
+describe('org/linkstartjs/webpack/util/WebpackUtil.js: filesToCssImporSentence', function() {
+  it('several css files', function() {
+    var filesToScssSentence = WebpackUtil.filesToCssImporSentence(["styles/main.scss","styles/index.scss","styles/import.scss"]);
+    assert.ok(filesToScssSentence.includes(`import './styles/main.scss'`));
+    assert.ok(filesToScssSentence.includes(`import './styles/index.scss'`));
+    assert.ok(filesToScssSentence.includes(`import './styles/import.scss'`));
+  });
+});

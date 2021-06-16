@@ -2,7 +2,6 @@ require('nodejs-require-enhancer');
 var express = require('express')
 var serveStatic = require('serve-static')
 var packageFinder = require('find-package-json');
-var phantom = require('phantom');
 var path = require('path');
 var rootPath = path.dirname(packageFinder(__dirname).next().filename);
 var app = express()
@@ -17,15 +16,15 @@ var webpackBuild = new WebpackBuild();
 
 //https://stackoverflow.com/questions/44197253/headless-automation-with-nodejs-selenium-webdriver
 
-function SeleniumHelper(){
+function HtmlAutomation(){
 
-  this.run = function() {
+  this.buildAndServe = function() {
     return new Promise(function(resolve, reject) {
       webpackBuild.run().then(function() {
         app.use(serveStatic(process.env.LINKS_START_APP_PATH+"/dist", { 'index': ['index.html'] }))
           const server = app.listen(0, () => {
           var port = server.address().port;
-          console.log(`Test server listening on port:${port}`);
+          console.log(`\nTest server with webpack build output is listening on port: ${port}`);
           var baseUrl = `http://localhost:${port}`;
 
           var webdriver = require('selenium-webdriver'),
@@ -49,7 +48,7 @@ function SeleniumHelper(){
   };
 };
 
-module.exports = SeleniumHelper
+module.exports = HtmlAutomation
 
 
 // https://docs.skuid.com/latest/en/skuid/testing/example-node/

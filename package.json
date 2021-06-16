@@ -4,9 +4,7 @@
   "description": "linkstart.js framework",
   "main": "index.js",
   "scripts": {
-    "test2": "node src/test/index.js",
-    "test": "mocha --timeout 20000 ./src/test/index.js --exit",
-    "test1": "node src/test/org/linkstartjs/webpack/scripts/WebpackBuild/WebpackBuild.js"
+    "test": "node src/test/index.js"
   },
   "bin": {
     "linkstart": "src/main/index.js"

@@ -30,18 +30,18 @@ function WebpackBuild() {
             Logger.info(stats.toJson());
             return reject()
           }
-          
+
           const jsonStats = stats.toJson()
           Logger.debug(jsonStats);
-          Logger.info(`Webpack compilation completed successfully. Build folder ${LinkStartPaths.build}.`)
+          Logger.info(`Webpack compilation completed successfully. Build folder ${LinkStartPaths.build}:`)
 
           fs.readdir(LinkStartPaths.build, (err, files) => {
             files.forEach(file => {
               Logger.info("- " + file);
             });
+            Logger.info("LinkStart build has completed")
             resolve();
           });
-
         });
       })
     });
