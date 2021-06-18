@@ -9,6 +9,7 @@ var rootPath = path.dirname(packageFinder(__dirname).next().filename);
 
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/util/WebpackUtilTest.js')
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/scripts/WebpackBuildTest.js')
+mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/annotations/autowire/AutowireTest.js')
 
 const HtmlAutomation = require("org/test/common/HtmlAutomation.js");
 var htmlAutomation = new HtmlAutomation();
