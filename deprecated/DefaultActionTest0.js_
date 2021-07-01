@@ -20,7 +20,12 @@ describe('@DefaultAction', function() {
         return body.getText();
       })
       .then(function(bodyText) {
-        expect(bodyText).to.equal("I'm an action which is the entrypoint");
+        var bodyAsObject = JSON.parse(bodyText);
+        assert(bodyAsObject);
+        assert(bodyAsObject.lifeCycle);
+        expect(bodyAsObject.lifeCycle.length).to.equal(2);
+        expect(bodyAsObject.lifeCycle[0]).to.equal("onLoad");
+        expect(bodyAsObject.lifeCycle[1]).to.equal("render");
         resolve();
       }).catch(function(err){
         console.log(err);
@@ -39,7 +44,10 @@ describe('@DefaultAction', function() {
         return body.getText();
       })
       .then(function(bodyText) {
-        expect(bodyText).to.equal("I'm an action which is the entrypoint");
+        var bodyAsObject = JSON.parse(bodyText);
+        assert(bodyAsObject);
+        assert(bodyAsObject.lifeCycle);
+        expect(bodyAsObject.lifeCycle.length > 2).to.equal(true);
         resolve();
       }).catch(function(err){
         console.log(err);

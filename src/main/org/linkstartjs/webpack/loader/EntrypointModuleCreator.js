@@ -182,12 +182,18 @@ function EntrypointModuleCreator() {
             }
 
             Logger.debug("ready to inject:"+annotation.arguments.name);
-
-            //perform injection
-            var injectionSentence = injectionTemplate
+            var injectionSentence;
+            if(annotation.arguments.name==="linksStartContext"){
+              injectionSentence = `_this.dependecyContext["@dependencyName"].@variable = _this.linksStartContext;`
+                .replace(new RegExp("@dependencyName", 'g'), dependencyName)
+                .replace(new RegExp("@variableToAutowire", 'g'), annotation.arguments.name)
+                .replace(new RegExp("@variable", 'g'), variableName);
+            }else{
+              injectionSentence = injectionTemplate
               .replace(new RegExp("@dependencyName", 'g'), dependencyName)
               .replace(new RegExp("@variableToAutowire", 'g'), annotation.arguments.name)
               .replace(new RegExp("@variable", 'g'), variableName);
+            }
 
             injections = injections.concat("\n").concat(injectionSentence);
           }

@@ -37,6 +37,15 @@ function LinkStartApplication() {
   _this.metaContext = {};
   _this.actionsByFragmentUrlRoute = {};
 
+  _this.linksStartContext = {
+    getMetaContext : function() {
+      return _this.metaContext;
+    },
+    getDependecyContext : function() {
+      return _this.dependecyContext;
+    },
+  };
+
 
   _this.registerDependenciesInContext = function() {
     @require

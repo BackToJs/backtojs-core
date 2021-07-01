@@ -2,7 +2,7 @@
 function Module() {
 
   this.doSomething = () => {
-    return "doSomething";
+    return "I'm a function of Module";
   };
 }
 
