@@ -68,7 +68,13 @@ function LinkStartApplication() {
 
     if (_this.defaultFragmentUrlRoute && _this.actionsByFragmentUrlRoute[_this.defaultFragmentUrlRoute]) {
       Logger.debug("default action detected: " + _this.defaultFragmentUrlRoute);
-      _this.invokeActionByFragmentUrl(_this.defaultFragmentUrlRoute);
+      //validate if first request has a fragment
+      var fragment = location.hash.replace("#", "");
+      if(typeof fragment !== 'undefined' && fragment.length > 0){
+        _this.invokeActionByFragmentUrl(fragment);
+      }else{
+        _this.invokeActionByFragmentUrl(_this.defaultFragmentUrlRoute);
+      }
     } else {
       Logger.debug('There are not any @Action defined as entrypoint');
     }

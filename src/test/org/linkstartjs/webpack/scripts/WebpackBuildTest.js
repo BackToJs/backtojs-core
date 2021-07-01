@@ -1,17 +1,24 @@
 require('nodejs-require-enhancer');
 var chai = require('chai');
 require('org/test/common/MochaAutoconfigurator.js');
-var webdriver = require('selenium-webdriver');
-const By = webdriver.By;
-const until = webdriver.until;
 var expect = chai.expect;
 var assert = chai.assert;
-const util = require('util')
+const fs = require('fs');
 
-// console.log(util.inspect(body, {showHidden: false, depth: null}))
+var appDir = process.env.LINKS_START_APP_PATH;
 
 describe('org/linkstartjs/webpack/scripts/WebpackBuild.js : run', function() {
-  it('at least must contain the title', function() {
+  it('dist folder must exist and have 3 items: js/* favicon.ico index.html', function() {
+    fs.readdir(appDir+"/dist", (err, files) => {
+      assert.equal(files.length,3)
+    });
+  });
+  it('dist/js folder have 2 items: app.***.js app.***.js.map ', function() {
+    fs.readdir(appDir+"/dist/js", (err, files) => {
+      assert.equal(files.length,2)
+    });
+  });
+  it('served page at least must contain the title', function() {
     let driver = _liveHtmlDomTools.driver;
     return new Promise((resolve, reject) => {
       driver.get(_liveHtmlDomTools.baseUrl)
@@ -20,44 +27,6 @@ describe('org/linkstartjs/webpack/scripts/WebpackBuild.js : run', function() {
       })
       .then(function(title) {
         assert.equal("Link Start Js", title)
-        resolve();
-      }).catch(function(err){
-        console.log(err);
-        reject();
-      });
-    });
-  });
-  it('entrypoint onLoad()', function() {
-    let driver = _liveHtmlDomTools.driver;
-    return new Promise((resolve, reject) => {
-      driver.get(_liveHtmlDomTools.baseUrl)
-      .then(function() {
-        return driver.wait(until.elementLocated(By.id('root')));
-      })
-      .then(function(body) {
-        return body.getText();
-      })
-      .then(function(body) {
-        assert.equal("I'm the onLoad of the entrypoint action", body)
-        resolve();
-      }).catch(function(err){
-        console.log(err);
-        reject();
-      });
-    });
-  });
-  it('simple route', function() {
-    let driver = _liveHtmlDomTools.driver;
-    return new Promise((resolve, reject) => {
-      driver.get(_liveHtmlDomTools.baseUrl+"#entrypoint")
-      .then(function() {
-        return driver.wait(until.elementLocated(By.id('root')));
-      })
-      .then(function(body) {
-        return body.getText();
-      })
-      .then(function(body) {
-        assert.equal("I'm the onLoad of the entrypoint action", body)
         resolve();
       }).catch(function(err){
         console.log(err);
