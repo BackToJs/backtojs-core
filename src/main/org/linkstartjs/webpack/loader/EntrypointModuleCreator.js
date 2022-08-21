@@ -118,6 +118,7 @@ function EntrypointModuleCreator() {
         var metadata = {};
         metadata.variables = dependency.variables;
         metadata.functions = dependency.functions;
+        metadata.meta = dependency.meta;
 
         metadataMappingSentence = metadataMappingTemplate
         .replace("@metadataForAction", JSON.stringify(metadata))

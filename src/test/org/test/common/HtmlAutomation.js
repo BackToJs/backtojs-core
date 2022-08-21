@@ -35,9 +35,13 @@ function HtmlAutomation(){
           var path = require('chromedriver').path;
           var service = new chrome.ServiceBuilder(path).build();
               chrome.setDefaultService(service);
+          var pref = new webdriver.logging.Preferences();
+          pref.setLevel('browser', webdriver.logging.Level.ALL);
+          pref.setLevel('driver', webdriver.logging.Level.ALL);
           var driver = new webdriver.Builder()
               .forBrowser('chrome')
               .withCapabilities(webdriver.Capabilities.chrome())
+              .setLoggingPrefs(pref)
               .setChromeOptions(options)                         // note this
               .build();
 

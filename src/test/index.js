@@ -11,6 +11,7 @@ mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/util/WebpackUtilTest.j
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/scripts/WebpackBuildTest.js')
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/loader/EntrypointModuleCreatorAnnotations/DefaultActionTest.js')
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/loader/EntrypointModuleCreatorAnnotations/AutowireTest.js')
+mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/loader/EntrypointModuleCreatorAnnotations/HtmlElementTest.js')
 
 const HtmlAutomation = require("org/test/common/HtmlAutomation.js");
 var htmlAutomation = new HtmlAutomation();

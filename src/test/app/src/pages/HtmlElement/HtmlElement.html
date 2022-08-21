@@ -1,0 +1,29 @@
+@Page(name="htmlElement")
+<h1>Hello World Form</h1>
+<input type="text" id="firstName" name="firstName" ls-element=true ><br>
+
+
+<!--https://devdojo.com/guide/html/form-elements-->
+<form action="page.php" method="GET">
+  <label for="textbox">Text Box</label><br>
+  <input type="text" name="textbox" id="textbox" ls-element=true ><br><br>
+  <label for="password">Password Input</label><br>
+  <input type="password" name="password"><br><br>
+  <label for="textbox">Text Area</label><br>
+  <textarea name="textarea" id="textarea" ls-element=true ></textarea><br><br>
+  <label for="dropdown">Dropdown</label><br>
+  <select id="dropdown">
+    <option value="1">Option 1</option>
+    <option value="2">Option 2</option>
+    <option value="3">Option 3</option>
+  </select><br><br>
+  <label for="checkbox">Checkbox</label><br>
+  <input type="checkbox" name="checkbox"><br><br>
+  <label for="radio">Radio Select</label><br>
+  <input type="radio" name="radio">
+  <input type="radio" name="radio">
+  <input type="radio" name="radio"><br><br>
+  <label for="file">File</label><br>
+  <input type="file" name="file"><br><br>
+  <input type="submit" value="Submit Button">
+</form>

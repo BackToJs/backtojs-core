@@ -2,22 +2,24 @@
 
 function Logger(){}
 
+var originalConsoleLog = console.log
 Logger.debug = function(message){
   if(typeof LinkStartOptions !== 'undefined' && typeof LinkStartOptions.logLevel !== 'undefined' && LinkStartOptions.logLevel==="debug"){
-    if(typeof message === 'object'){
-      console.log(JSON.stringify(message, null, 4));
-    }else{
-      console.log(message);
-    }
+    // console.log(message);
+    // console.log.call(this, message)
+    // return Function.prototype.bind.call(console.log, console, message);
+    // var args = Array.prototype.slice.call(arguments);
+    // args.unshift(console);
+    // return Function.prototype.bind.apply(console.log, args);
+    // originalConsoleLog.call(console, message);
+    console.log(message);
   }
 }
 
 Logger.info = function(message){
-  if(typeof LinkStartOptions !== 'undefined' && typeof LinkStartOptions.logLevel !== 'undefined' && LinkStartOptions.logLevel==="debug"){
-    console.log(JSON.stringify(message, null, 4));
-  }else{
-    console.log(message);
-  }
+  // return Function.prototype.bind.call(console.log, console, message);
+  // originalConsoleLog.call(console, message);
+  console.log(message);
 }
 
 function LinkStartRoute(){}
@@ -110,17 +112,23 @@ function LinkStartApplication() {
       }else{
         Logger.debug("onLoad is not Async");
         action.onLoad();
-        _this.performRender(action);
+        var pageName = _this.performRender(action);
+        _this.performBinding(action, pageName);
       }
     } else {
       Logger.debug("Action does not have onLoad() method");
-      _this.performRender(action);
+      var pageName = _this.performRender(action);
+      _this.performBinding(action, pageName);
+      if (typeof action.postBinding !== "undefined" && typeof action.postBinding === "function"){
+        action.postBinding();
+      }
     }
 
   };
 
   _this.performRender = function(action) {
-    var isRenderAnAnnotation=false;
+    // var isRenderAnAnnotation=false;
+    var pageName;
     //TODO: ensure render is executed after onLoad
     if (typeof action.render !== "undefined" && typeof action.render === "function") {
       // throw new Error("Render function execution is not supported yet");
@@ -131,8 +139,8 @@ function LinkStartApplication() {
       //html dom is ready
       //bind dom onclick events to action methods
     } else {
-      //search if exist @Render annotation which indicate us that is an alternative
-      //to render() method
+      //search if exist action has page attribute
+
       if (typeof action._ls_name === 'undefined' || action._ls_name == null) {
         Logger.debug("Something is wrong with this action. _ls_name is undefined");
         return;
@@ -143,49 +151,61 @@ function LinkStartApplication() {
         return;
       }
 
-      var variableToUseAsRenderData = _this.searchOneVariableByAnnotationName(_this.metaContext[action._ls_name].variables, action._ls_name, "Render");
-
-      if (typeof variableToUseAsRenderData === 'undefined' || variableToUseAsRenderData == null) {
-        Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
+      pageName = _this.metaContext[action._ls_name].meta.arguments.page;
+      if (typeof pageName === 'undefined' || pageName == null) {
+        Logger.debug(action._ls_name + " action does not have render() method nor page attribute at @DefaultAction level");
         return;
       }
 
-      var variableToUseAsRender = variableToUseAsRenderData.name;
+      // var variableToUseAsRenderData = _this.searchOneVariableByAnnotationName(_this.metaContext[action._ls_name].variables, action._ls_name, "Render");
+      //
+      // if (typeof variableToUseAsRenderData === 'undefined' || variableToUseAsRenderData == null) {
+      //   Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
+      //   return;
+      // }
 
-      if (typeof variableToUseAsRender === 'undefined' || variableToUseAsRender == null) {
-        Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
-        return;
-      }
+      // var variableToUseAsRender = variableToUseAsRenderData.name;
+
+      // if (typeof pageName === 'undefined' || pageName == null) {
+      //   Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
+      //   return;
+      // }
 
       //get id to renderization target
-      var renderizationTargetHtmlId;
-      if(typeof variableToUseAsRenderData.meta === 'undefined' || typeof variableToUseAsRenderData.meta.arguments === 'undefined' ){
-        renderizationTargetHtmlId = "root";
-      }else if(typeof variableToUseAsRenderData.meta.arguments.id === 'undefined' ){
-        renderizationTargetHtmlId = "root";
-      }else{
-        renderizationTargetHtmlId = variableToUseAsRenderData.meta.arguments.id
-      }
+      var renderizationTargetHtmlId = "root";
+      // if(typeof variableToUseAsRenderData.meta === 'undefined' || typeof variableToUseAsRenderData.meta.arguments === 'undefined' ){
+      //   renderizationTargetHtmlId = "root";
+      // }else if(typeof variableToUseAsRenderData.meta.arguments.id === 'undefined' ){
+      //   renderizationTargetHtmlId = "root";
+      // }else{
+      //   renderizationTargetHtmlId = variableToUseAsRenderData.meta.arguments.id
+      // }
 
-      var htmlToRender = document.createRange().createContextualFragment(action[variableToUseAsRender].getHtml());
+      var htmlToRender = document.createRange().createContextualFragment(_this.dependecyContext[pageName].getHtml());
       document.getElementById(renderizationTargetHtmlId).innerHTML = '';
       document.getElementById(renderizationTargetHtmlId).appendChild(htmlToRender);
-      isRenderAnAnnotation = true;
+      // isRenderAnAnnotation = true;
     }
 
-    //html dom is ready
+    return pageName;
 
-    //bind dom onclick events to action methods
-    _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action, (isRenderAnAnnotation===true)?action[variableToUseAsRender].getDomElements():null);
-
-    //bind dom variables to action variables
-    _this.applyDomElemensAutoBinding(action, action[variableToUseAsRender], _this.metaContext[action._ls_name].variables);
-
-    //allForOne
-    _this.bindDomElementAllForOne(action, variableToUseAsRender, _this.metaContext[action._ls_name].variables);
   }
 
-  _this.locationHashChanged = function() {
+  _this.performBinding = function(action, pageName) {
+    //html dom is ready
+    Logger.debug(`performing bindings`);
+    //bind dom variables to action variables
+    _this.applyDomElemensAutoBinding(action, _this.dependecyContext[pageName], _this.metaContext[action._ls_name].variables);
+
+    //bind dom onclick events to action methods
+    // _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action, (isRenderAnAnnotation===true)?action[variableToUseAsRender].getDomElements():null);
+
+
+    //allForOne
+    // _this.bindDomElementAllForOne(action, variableToUseAsRender, _this.metaContext[action._ls_name].variables);
+  }
+
+  _this.locationHashChanged = function() {    
     Logger.debug(`new hash fragment in url: ${location.hash}`);
     var fragment = location.hash.replace("#", "");
     if (!_this.actionsByFragmentUrlRoute[fragment]) {
@@ -193,7 +213,7 @@ function LinkStartApplication() {
       let messageToLog = "There are not any @DefaultAction asociated to this route: " + fragment;
       Logger.debug(messageToLog);
       document.getElementById("root").innerHTML = '';
-      document.getElementById("root").appendChild(messageToLog);
+      document.getElementById("root").appendChild(document.createRange().createContextualFragment(messageToLog));
       return;
     }
     _this.invokeActionByFragmentUrl(fragment);
@@ -268,38 +288,35 @@ function LinkStartApplication() {
     Logger.debug("apply dom elements auto binding for this action: "+action._ls_name);
 
     var variablesAnnotatedWithDomElement = _this.searchVariablesAnnotatedWith(variables, "HtmlElement");
-    // let domElements = page.getDomElements();
 
     //iterate every @HtmlElement and perform the binding with real html dom element
     variablesAnnotatedWithDomElement.forEach(function(variable, i) {
 
       var htmlTagId = variable.annotationArguments.id;
-      if (typeof elementDomId !== 'undefined') {
+      if (typeof htmlTagId !== 'undefined') {
         Logger.debug(`Searching ${htmlTagId} html element`)
-        // for (var elementInDom of domElements) {
-        //   var tagId = elementInDom.tagId;
-        //   var lsId = elementInDom.lsId;
-        //   if ((tagId && lsId) && tagId === elementDomId) {
-        //     action[variable.variableName] = _this.getElementByLsId(lsId);
-        //   }
-        // }
         var searchedHtmlDomElement = _this.getElementInPageRegisteredElements(pageInstanceToRender, htmlTagId, variable.variableName);
         if (typeof searchedHtmlDomElement !== 'undefined') {
           action[variable.variableName] = searchedHtmlDomElement;
+          Logger.debug(`Html element with id ${htmlTagId} was binded to ${variable.variableName} on its action.`);
         }else{
           Logger.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered elements`);
           searchedHtmlDomElement = document.getElementById(htmlTagId);
           if (typeof searchedHtmlDomElement !== 'undefined') {
             //@TODO: show warning if there are several matches
             action[variable.variableName] = searchedHtmlDomElement;
+            Logger.debug(`Html element with id ${htmlTagId} was binded to ${variable.variableName} on its action. Id was obtained with document.getElementById`);
           }else{
             Logger.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered element nor html dom elements`);
           }
         }
       } else {
-        Logger.debug(`variable ${variable.variableName} annotated with @DomElement does no have [id] argument`);
+        Logger.debug(`variable ${variable.variableName} annotated with @HtmlElement does no have [id] argument`);
       }
     });
+    if(typeof variablesAnnotatedWithDomElement=== 'undefined' || variablesAnnotatedWithDomElement.length == 0){
+      Logger.debug(`this action ${action._ls_name} does not have @HtmlElement`);
+    }
   };
 
   _this.bindDomElementAllForOne = function(action, variableToUseAsRender, variables) {

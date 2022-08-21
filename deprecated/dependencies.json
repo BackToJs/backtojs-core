@@ -1,0 +1,40 @@
+{
+  "autowireDependencyContext": {
+    "linksStartContext": {},
+    "_ls_name": "autowireDependencyContext"
+  },
+  "autowireMetaContext": {
+    "linksStartContext": {},
+    "_ls_name": "autowireMetaContext"
+  },
+  "autowireModule": {
+    "module": {
+      "_ls_name": "module"
+    },
+    "_ls_name": "autowireModule"
+  },
+  "autowirePage": {
+    "page": {
+      "_ls_name": "simplePage"
+    },
+    "_ls_name": "autowirePage"
+  },
+  "defaultAction": {
+    "_ls_name": "defaultAction"
+  },
+  "defaultActionWithPage": {
+    "_ls_name": "defaultActionWithPage"
+  },
+  "module": {
+    "_ls_name": "module"
+  },
+  "simplePage": {
+    "_ls_name": "simplePage"
+  },
+  "pageForDefaultAction": {
+    "_ls_name": "pageForDefaultAction"
+  },
+  "htmlElement": {
+    "_ls_name": "htmlElement"
+  }
+}
