@@ -11,7 +11,7 @@ var app = express()
 process.env.NODE_ENV = 'production'
 process.env.LINKS_START_APP_PATH = rootPath+"/src/test/app"
 
-const WebpackBuild = require('org/linkstartjs/webpack/scripts/WebpackBuild.js')
+const WebpackBuild = require('$/src/main/org/linkstartjs/webpack/scripts/WebpackBuild.js')
 var webpackBuild = new WebpackBuild();
 
 //https://stackoverflow.com/questions/44197253/headless-automation-with-nodejs-selenium-webdriver

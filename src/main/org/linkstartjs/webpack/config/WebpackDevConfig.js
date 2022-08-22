@@ -1,17 +1,12 @@
-require('nodejs-require-enhancer');
 const Webpack = require('webpack');
-const { merge } = require('webpack-merge');
-const common = require('org/linkstartjs/webpack/config/WebpackCommonConfig.js');
+const {merge} = require('webpack-merge');
+const common = require('./WebpackCommonConfig.js');
 
 module.exports = merge(common, {
   mode: 'development',
-  devtool: 'cheap-eval-source-map',
+  devtool: 'source-map',
   output: {
     chunkFilename: 'js/[name].chunk.js'
-  },
-  devServer: {
-    inline: true,
-    hot: true
   },
   plugins: [
     new Webpack.DefinePlugin({

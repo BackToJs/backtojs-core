@@ -1,12 +1,11 @@
-require('nodejs-require-enhancer');
 const fileUtils = require('fs')
 const path = require("path");
 const DependencyHelper = require('meta-js').DependencyHelper;
 const AnnotationHelper = require('meta-js').AnnotationHelper;
 const LinksStartWebpackLoaderCommon = require('./LinksStartWebpackLoaderCommon.js');
 const cheerio = require('cheerio')
-const Logger = require('org/linkstartjs/logger/Logger.js')
-const WebpackUtil = require('org/linkstartjs/webpack/util/WebpackUtil.js');
+const Logger = require('../../logger/Logger.js')
+const WebpackUtil = require('../util/WebpackUtil.js');
 
 function EntrypointModuleCreator() {
 
@@ -67,7 +66,7 @@ function EntrypointModuleCreator() {
     for (dependency of dependencies) {
 
       if (dependency.meta.name == "Page") {
-        var rawStringTemplate = LinksStartWebpackLoaderCommon.getHtmlTemplateAsString(dependency.meta.location);
+        var rawStringTemplate = LinksStartWebpackLoaderCommon.getHtmlTemplateAsString(path.join(options.srcLocation, dependency.meta.location));
         rawStringTemplate = _this.removeAnnotationInPage(rawStringTemplate);
         Logger.debug("initial page:"+rawStringTemplate)
         var domElementsEntries = "";
@@ -106,7 +105,7 @@ function EntrypointModuleCreator() {
         //get require
         var requireSentence = requireTemplate
           .replace("@dependencyClassName", dependencyClassName)
-          .replace("@dependencyLocation", dependency.meta.location);
+          .replace("@dependencyLocation", "."+dependency.meta.location);
         requires = requires.concat("\n").concat(requireSentence);
         //instantiate
         var instantiateSentence = instantiateModuleTemplate
@@ -221,7 +220,7 @@ function EntrypointModuleCreator() {
     if(typeof linksStartCustomOptions.importCssFiles === 'undefined' || linksStartCustomOptions.importCssFiles.length === 0){
       var scssFile = WebpackUtil.smartUniqueFileLocator(options.srcLocation, 'index.scss');
       if(scssFile){
-        scssFile = scssFile.replace("/src",".");
+        scssFile = "."+scssFile
         importCssSentence = `import '${scssFile}'`;
       }else{
         importCssSentence = "";
@@ -229,6 +228,8 @@ function EntrypointModuleCreator() {
     }else{
       importCssSentence = WebpackUtil.filesToCssImporSentence(linksStartCustomOptions.importCssFiles);
     }
+
+    Logger.info("Style found: "+importCssSentence);
 
     var entrypointModule = entrypointTemplate
       .replace("@importCssFilesSentence", importCssSentence)
@@ -245,7 +246,6 @@ function EntrypointModuleCreator() {
     Logger.debug("\nentrypoint is ready!!\n\n");
     Logger.debug(content);
     Logger.debug("Cardinal system is ready");
-
     return content;
 
   }

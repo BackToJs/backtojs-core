@@ -1,13 +1,12 @@
-require('nodejs-require-enhancer');
 const path = require('path');
 const fs = require('fs');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
-const WebpackUtil = require('org/linkstartjs/webpack/util/WebpackUtil.js');
+const WebpackUtil = require('../util/WebpackUtil.js');
 const appPath = process.env.LINKS_START_APP_PATH || process.cwd();
-const Logger = require("org/linkstartjs/logger/Logger.js")
+const Logger = require("../../logger/Logger.js")
 
 global.LinkStartPaths = {
   src: appPath + '/src', // source files
@@ -54,6 +53,7 @@ module.exports = {
             from: LinkStartPaths.src,
             globOptions: {
                 ignore: [
+                    '/**/index.html',
                     '/**/index.js',
                     '/**/actions',
                     '/**/styles',

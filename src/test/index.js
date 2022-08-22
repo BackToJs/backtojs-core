@@ -6,6 +6,7 @@ var mocha = new Mocha({});
 var packageFinder = require('find-package-json');
 var path = require('path');
 var rootPath = path.dirname(packageFinder(__dirname).next().filename);
+console.log(rootPath)
 
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/util/WebpackUtilTest.js')
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/scripts/WebpackBuildTest.js')
@@ -13,7 +14,7 @@ mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/loader/EntrypointModul
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/loader/EntrypointModuleCreatorAnnotations/AutowireTest.js')
 mocha.addFile(rootPath+'/src/test/org/linkstartjs/webpack/loader/EntrypointModuleCreatorAnnotations/HtmlElementTest.js')
 
-const HtmlAutomation = require("org/test/common/HtmlAutomation.js");
+const HtmlAutomation = require("$/src/test/org/test/common/HtmlAutomation.js");
 var htmlAutomation = new HtmlAutomation();
 
 htmlAutomation.buildAndServe().then((liveHtmlDomTools) => {

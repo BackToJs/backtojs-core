@@ -131,6 +131,7 @@ function LinkStartApplication() {
     var pageName;
     //TODO: ensure render is executed after onLoad
     if (typeof action.render !== "undefined" && typeof action.render === "function") {
+      Logger.debug("render() was found");
       // throw new Error("Render function execution is not supported yet");
       var htmlAsString = action.render();
       var htmlToRender = document.createRange().createContextualFragment(htmlAsString);

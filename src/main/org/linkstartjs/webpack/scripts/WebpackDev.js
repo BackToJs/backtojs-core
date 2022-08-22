@@ -1,6 +1,5 @@
-require('nodejs-require-enhancer');
 const supervisor = require('supervisor');
-const Logger = require("org/linkstartjs/logger/Logger.js")
+const Logger = require("../../logger/Logger.js")
 
 function WebpackDev () {
 
