@@ -1,4 +1,5 @@
 @importCssFilesSentence
+@importTemplateEngineSentence
 
 function Logger(){}
 
@@ -103,6 +104,31 @@ function LinkStartApplication() {
     }
 
     if (typeof action.onLoad !== "undefined" && typeof action.onLoad === "function") {
+
+      const onLoadPromise = new Promise(action.onLoad);
+       
+      onLoadPromise.then((onloadResolveValue)=>{
+        
+        if (typeof action.render !== "undefined" && typeof action.render === "function") {
+           _this.performRender(action);
+           // var pageName = _this.metaContext[action._ls_name].meta.arguments.page;
+           // _this.performBinding(action, pageName);
+
+          if (typeof action.postRender !== "undefined" && typeof action.postRender === "function") {
+            action.postRender();
+          }
+
+        } else {
+          Logger.debug("Action does not have render() method");
+        }
+      });
+
+    } else {
+      Logger.debug("Action does not have onLoad() method");
+    }
+  
+
+    /*if (typeof action.onLoad !== "undefined" && typeof action.onLoad === "function") {
       var isLoadAsync = _this.isFunctionAnnotatedWith(_this.metaContext[action._ls_name], "onLoad", "Async");
       if(isLoadAsync){//onLoad is async
         Logger.debug("onLoad is Async");
@@ -122,73 +148,32 @@ function LinkStartApplication() {
       if (typeof action.postBinding !== "undefined" && typeof action.postBinding === "function"){
         action.postBinding();
       }
-    }
+    }*/
 
   };
 
-  _this.performRender = function(action) {
-    // var isRenderAnAnnotation=false;
-    var pageName;
-    //TODO: ensure render is executed after onLoad
-    if (typeof action.render !== "undefined" && typeof action.render === "function") {
+  _this.performRender = (action) =>{
+
       Logger.debug("render() was found");
       // throw new Error("Render function execution is not supported yet");
       var htmlAsString = action.render();
-      var htmlToRender = document.createRange().createContextualFragment(htmlAsString);
+
+      //bind action variables into html using ejs
+      var variablesToBindingInfo = 
+        _this.searchVariablesByAnnotationName(_this.metaContext[action._ls_name].variables, action._ls_name, "Binding");
+      //create ejs variables
+      var variablesToBinding = {}
+      for(let varToBindingInfo of variablesToBindingInfo){
+       variablesToBinding[varToBindingInfo.name] = action[varToBindingInfo.name]
+      }
+      
+      let htmlPopulated = ejs.render(htmlAsString, variablesToBinding);
+      
+      var htmlToRender = document.createRange().createContextualFragment(htmlPopulated);
       document.getElementById("root").innerHTML = '';
       document.getElementById("root").appendChild(htmlToRender);
       //html dom is ready
       //bind dom onclick events to action methods
-    } else {
-      //search if exist action has page attribute
-
-      if (typeof action._ls_name === 'undefined' || action._ls_name == null) {
-        Logger.debug("Something is wrong with this action. _ls_name is undefined");
-        return;
-      }
-
-      if (typeof _this.metaContext[action._ls_name] === 'undefined' || _this.metaContext[action._ls_name] == null) {
-        Logger.debug("Something is wrong with this action. there is not exist in metaContext");
-        return;
-      }
-
-      pageName = _this.metaContext[action._ls_name].meta.arguments.page;
-      if (typeof pageName === 'undefined' || pageName == null) {
-        Logger.debug(action._ls_name + " action does not have render() method nor page attribute at @DefaultAction level");
-        return;
-      }
-
-      // var variableToUseAsRenderData = _this.searchOneVariableByAnnotationName(_this.metaContext[action._ls_name].variables, action._ls_name, "Render");
-      //
-      // if (typeof variableToUseAsRenderData === 'undefined' || variableToUseAsRenderData == null) {
-      //   Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
-      //   return;
-      // }
-
-      // var variableToUseAsRender = variableToUseAsRenderData.name;
-
-      // if (typeof pageName === 'undefined' || pageName == null) {
-      //   Logger.debug(action._ls_name + " action does not have render() method nor @Render annotation");
-      //   return;
-      // }
-
-      //get id to renderization target
-      var renderizationTargetHtmlId = "root";
-      // if(typeof variableToUseAsRenderData.meta === 'undefined' || typeof variableToUseAsRenderData.meta.arguments === 'undefined' ){
-      //   renderizationTargetHtmlId = "root";
-      // }else if(typeof variableToUseAsRenderData.meta.arguments.id === 'undefined' ){
-      //   renderizationTargetHtmlId = "root";
-      // }else{
-      //   renderizationTargetHtmlId = variableToUseAsRenderData.meta.arguments.id
-      // }
-
-      var htmlToRender = document.createRange().createContextualFragment(_this.dependecyContext[pageName].getHtml());
-      document.getElementById(renderizationTargetHtmlId).innerHTML = '';
-      document.getElementById(renderizationTargetHtmlId).appendChild(htmlToRender);
-      // isRenderAnAnnotation = true;
-    }
-
-    return pageName;
 
   }
 
@@ -246,6 +231,22 @@ function LinkStartApplication() {
     }
     return renderVariable;
   }
+
+  _this.searchVariablesByAnnotationName = function(variables, actionName, annotationName) {
+    var renderVariables = [];
+    for (var i in variables) {
+      for (var a in variables[i]) {
+        var annotation = variables[i][a];
+        if (annotation.name == annotationName) {
+          renderVariables.push({
+            name:i,
+            meta:variables[i][a]
+          })
+        }
+      }
+    }
+    return renderVariables;
+  }  
 
   _this.applyActionListenersAutoBinding = function(functions, action, registeredDomElementsInPage) {
     Logger.debug("applying actionListeners auto binding for this action: "+action._ls_name)
@@ -508,9 +509,25 @@ function LinkStartApplication() {
     }
   }
 
+
+
   //TODO: how initialize onclick before dom insertion
 
   window.onhashchange = _this.locationHashChanged;
+
+  function eventRouter(e) {
+    console.log(e.detail.eventId);
+    if (typeof _this.dependecyContext[`${e.detail.eventId}EventListener`] !== 'undefined') {
+      var listener = _this.dependecyContext[`${e.detail.eventId}EventListener`];
+      var payload = e.detail.payload;
+      listener.execute(payload)
+    }
+  }   
+
+  document.addEventListener("DOMContentLoaded", function(event) {
+    //register global router
+    document.addEventListener("simple-event", eventRouter);
+  }); 
 
   @defaultFragmentUrlSentence
 

@@ -69,7 +69,7 @@ module.exports = {
   ].concat(dynamicPugins),
   resolve: {
     alias: {
-      '~': LinkStartPaths.src,
+      '~': LinkStartPaths.src
     },
   },
   module: {

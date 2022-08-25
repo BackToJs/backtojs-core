@@ -15,7 +15,7 @@ function EntrypointModuleCreator() {
   var entrypointTemplate = fileUtils.readFileSync(entrypointTemplatePath, 'utf8');
 
   var headAnnotations = ["DefaultAction", "Page", "Module"];
-  var internalAnnotations = ["Autowire","HtmlElement","Render","ActionListener","HtmlElementsAllForOne","Async"];
+  var internalAnnotations = ["Autowire","HtmlElement","Render","ActionListener","HtmlElementsAllForOne","Async","Binding"];
   var allAnnotations = headAnnotations.concat(internalAnnotations);
 
   var requireTemplate = `const @dependencyClassName = require('@dependencyLocation');`;
@@ -55,7 +55,7 @@ function EntrypointModuleCreator() {
     headAnnotations, internalAnnotations);
 
     Logger.debug("Dependencies found:");
-    Logger.debug(dependencies);
+    Logger.info(dependencies);
 
     Logger.debug("Perform instantation...");
     var requires = "";
@@ -71,7 +71,7 @@ function EntrypointModuleCreator() {
         Logger.debug("initial page:"+rawStringTemplate)
         var domElementsEntries = "";
 
-        const $ = cheerio.load(rawStringTemplate);
+        const $ = cheerio.load(rawStringTemplate, {decodeEntities: false});
         $('*').each(function(index, element) {
           if ($(element)) {
             if ($(element).attr('ls-element') === "true") {
@@ -88,7 +88,7 @@ function EntrypointModuleCreator() {
         });
 
         var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString($.html());
-        var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.removeCheerioBody(fixedHtmlTemplate);
+        fixedHtmlTemplate = LinksStartWebpackLoaderCommon.removeCheerioBody(fixedHtmlTemplate);
         Logger.debug(fixedHtmlTemplate)
 
         //instantiate
@@ -231,8 +231,14 @@ function EntrypointModuleCreator() {
 
     Logger.info("Style found: "+importCssSentence);
 
+    //TODO: support for other template engines like handlebars, pug, etc
+    var defaultTemplateEngineJsLocation = path.join(options.LinkStartHomeLocation, "node_modules/ejs/ejs.min.js");
+    var defaultTemplateEngineImportSentence = `import ejs from '${defaultTemplateEngineJsLocation}';`;
+
+
     var entrypointModule = entrypointTemplate
       .replace("@importCssFilesSentence", importCssSentence)
+      .replace("@importTemplateEngineSentence", defaultTemplateEngineImportSentence)
       .replace("@defaultFragmentUrlSentence", defaultFragmentUrlSentence)
       .replace("@require", requires)
       .replace("@instantiate", instantiates)
