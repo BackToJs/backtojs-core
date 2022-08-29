@@ -19,7 +19,8 @@ function loader(content) {
   var entrypointModuleCreator = new EntrypointModuleCreator();
 
   if(this.resourcePath.startsWith(options.srcLocation+"/index.js")){
-    Logger.info("Entrypoint was found: "+this.resourcePath+"\t. Link Start!!");
+    Logger.info("Entrypoint was found: "+this.resourcePath);
+    Logger.info("Link Start!!");
     Logger.info("Link Start Webpack Loader Options:\n");
     Logger.info(options);    
     return entrypointModuleCreator.createModule(options, content);

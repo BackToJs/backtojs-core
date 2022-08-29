@@ -1,59 +1,37 @@
 const Webpack = require('webpack');
-const {merge} = require('webpack-merge');
-const common = require('./WebpackCommonConfig.js');
+const chokidar = require("chokidar");
+const fs = require('fs-extra');
+const path = require('path');
 
-module.exports = merge(common, {
-  mode: 'development',
-  devtool: 'source-map',
-  output: {
-    chunkFilename: 'js/[name].chunk.js'
-  },
-  plugins: [
-    new Webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development')
-    })
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.(js)$/,
-        exclude: [/node_modules/],
-        use: [
-          {
-            loader: require.resolve('eslint-loader'),
-            options: {
-              configFile: LinkStartPaths.home+'/.eslintrc',
-              emitWarning: true
-            }
-          },
-          { loader: require.resolve('babel-loader'),
-            options: {
-              configFile: LinkStartPaths.home+'/.babelrc'
-            }
-          },
-          { loader: require.resolve('eslint-loader'),
-            options: {
-              configFile: LinkStartPaths.home+'/.eslintrc'
-            }
-          },
-          { loader: LinkStartPaths.home+'/src/main/org/linkstartjs/webpack/loader/LinkstartjsLoader.js',
-            options: {
-              srcLocation: LinkStartPaths.src,
-              LinkStartHomeLocation: LinkStartPaths.home,
-              linkstartJsLogLevel:process.env.LINK_START_LOG_LEVEL  || "info" ,
-              metaJsLogLevel: process.env.META_JS_LOG_LEVEL ||  "info"
-            }
-          }
-        ],
-      },
-      {
-        test: /\.html$/i,
-        loader: require.resolve('html-loader'),
-      },
-      {
-        test: /\.s?css$/i,
-        use: [require.resolve('style-loader'), require.resolve('css-loader')+'?sourceMap=true', require.resolve('sass-loader')]
-      }
-    ]
-  }
-});
+module.exports = {
+    liveReload: true,
+    hot: true,
+    port: 8080,
+    setupMiddlewares: (middlewares, devServer) => {
+        if (!devServer) {
+            throw new Error('webpack-dev-server is not defined');
+        }
+
+        devServer.app.get('/some/path', function(req, res) {
+            res.json({
+                custom: 'response'
+            });
+        });
+
+        chokidar.watch([
+          LinkStartPaths.src+'/**/*.*'
+        ]).on('all', async function(event, filename) {
+          if(devServer.compiler.idle===true && 
+            filename!=path.join(LinkStartPaths.src,"index.js")){
+            console.log("content changed: "+filename)
+            console.log("compiler.running: "+devServer.compiler.running)
+            console.log("compiler.idle: "+devServer.compiler.idle)
+            await fs.ensureFile(path.join(LinkStartPaths.src,"index.js"))
+            const now = new Date()
+            await fs.utimes(path.join(LinkStartPaths.src,"index.js"), now, now);
+          } 
+        })        
+
+        return middlewares;
+    },
+}

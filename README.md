@@ -40,6 +40,17 @@ Check the first demo:
 - [ ] Unit tests with (https://www.npmjs.com/package/assert-js)
 - [ ] Package as library
 - [ ] Create more default ui components and layout
+- [ ] https://webpack.js.org/configuration/dev-server/#devserverlivereload
+- [ ] https://webpack.js.org/api/webpack-dev-server/
+- [ ] https://github.com/Chance722/webpack-chokidar-plugin/blob/master/src/index.js
+- [ ] https://stackoverflow.com/questions/43704994/webpack-manually-added-compilation-file-dependency-should-force-rebuild
+https://searchcode.com/file/302411057/node_modules/webpack/lib/FlagDependencyExportsPlugin.js/
+https://www.npmjs.com/package/modify-webpack-plugin
+https://github.com/webpack/webpack/issues/10392
+https://github.com/webpack/webpack-dev-middleware/blob/9f8f9471411ddf9e882f7c83c85325b5cb324216/lib/context.js#L57-L60
+https://www.npmjs.com/package/webpack-recompilation-simulator
+https://gist.github.com/mark-bradshaw/ce2d449e30a856fe3b41
+https://stackoverflow.com/questions/51943998/is-it-possible-to-have-webpack-server-trigger-a-page-refresh-on-other-file-chang
 
 # Contributors
 
