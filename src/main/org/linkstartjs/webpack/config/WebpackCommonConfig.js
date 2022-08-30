@@ -7,30 +7,14 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 const WebpackUtil = require('../util/WebpackUtil.js');
-const appPath = process.env.LINKS_START_APP_PATH || process.cwd();
 const Logger = require("../../logger/Logger.js")
-const webpackChokidarPlugin = require("webpack-chokidar-plugin");
 const webpack = require('webpack');
-
-global.LinkStartPaths = {
-    src: appPath + '/src', // source files
-    build: appPath + '/dist', // production build files
-    home: path.resolve(__dirname, '..', '..', '..', '..', '..', '..') // linkstart home
-}
 
 var options = WebpackUtil.getLinkStartOptionsFromFilePath(LinkStartPaths.src + '/index.js')
 Logger.info("LinkStart Options:");
 Logger.info(options);
 
 var dynamicPugins = WebpackUtil.createMergeIntoSingleFilePlugin(options, LinkStartPaths.src);
-//use this https://stackoverflow.com/a/54523021/3957754 to add head or body chunks
-
-var faviconFile = WebpackUtil.smartUniqueFileLocator(LinkStartPaths.src, "favicon.ico");
-if (faviconFile != null && typeof faviconFile !== 'undefined') {
-    LinkStartPaths.faviconFile = faviconFile;
-} else {
-    LinkStartPaths.faviconFile = LinkStartPaths.home + "/src/main/resources/images/favicon.ico";
-}
 
 Logger.info("\nLinkStart Paths:");
 Logger.info(LinkStartPaths);

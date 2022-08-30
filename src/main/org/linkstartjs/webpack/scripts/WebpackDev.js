@@ -18,9 +18,6 @@ function WebpackDev() {
 
         console.log('Starting dev server...');
         await server.start();
-
-
-
     }
 
 }

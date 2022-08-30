@@ -20,44 +20,5 @@ module.exports = merge(common, {
     new MiniCssExtractPlugin({
       filename: 'css/bundle.css',
     }),
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.(js)$/,
-        exclude: [/node_modules/],
-        use: [
-          {
-            loader: require.resolve('eslint-loader'),
-            options: {
-              configFile: LinkStartPaths.home+'/.eslintrc',
-              emitWarning: true
-            }
-          },
-          { loader: require.resolve('babel-loader'),
-            options: {
-              configFile: LinkStartPaths.home+'/.babelrc'
-            }
-          },
-          { loader: require.resolve('eslint-loader'),
-            options: {
-              configFile: LinkStartPaths.home+'/.eslintrc'
-            }
-          },
-          { loader: LinkStartPaths.home+'/src/main/org/linkstartjs/webpack/loader/LinkstartjsLoader.js',
-            options: {
-              srcLocation: LinkStartPaths.src,
-              LinkStartHomeLocation: LinkStartPaths.home,
-              linkstartJsLogLevel:process.env.LINK_START_LOG_LEVEL  || "info" ,
-              metaJsLogLevel: process.env.META_JS_LOG_LEVEL ||  "info"
-            }
-          }
-        ],
-      },
-      {
-        test: /\.s?css/i,
-        use: [MiniCssExtractPlugin.loader, require.resolve('css-loader'), require.resolve('sass-loader')],
-      },
-    ],
-  },
+  ]
 });
