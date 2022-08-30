@@ -20,7 +20,7 @@ function LinkstartSpaServer() {
     ];
 
     this.run = async function(staticFolderName, settingsPath, allowedRoutes) {
-        var port = process.env.PORT || 2104;
+        var port = process.env.PORT || 2501;
         await SpaServer(app, allowedExt, port, allowedRoutes, staticFolderName, settingsPath);
     }
 

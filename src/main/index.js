@@ -16,14 +16,14 @@ if(args[0] === 'dev'){
   const WebpackBuild = require('./org/linkstartjs/webpack/scripts/WebpackBuild.js')
   var webpackBuild = new WebpackBuild();
   webpackBuild.run().then(function(data) {
-    Logger.info(`Build content: `+data)
+    Logger.info(`Build : completed`)
   });
 }else if(args[0] === 'start'){
   process.env.NODE_ENV = 'production'
   const LinkstartSpaServer = require('./org/linkstartjs/webpack/scripts/LinkstartSpaServer.js')
   var linkstartSpaServer = new LinkstartSpaServer();
-  linkstartSpaServer.run("dist", "src/settings.json", true).then(function() {
-    Logger.info("web is ready to use")
+  linkstartSpaServer.run("dist", "src/main/settings.json", true).then(function() {
+    Logger.info(`Start : completed`)
   });
 }else{
   console.log("LinkStart.js does not support this argument:"+args[0]);

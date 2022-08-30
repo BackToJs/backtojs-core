@@ -1,5 +1,5 @@
 const loaderUtils = require("loader-utils");
-const pathUtils = require('path');
+const path = require('path');
 const EntrypointModuleCreator = require('./EntrypointModuleCreator.js');
 const Logger = require('../../logger/Logger.js')
 
@@ -18,7 +18,7 @@ function loader(content) {
 
   var entrypointModuleCreator = new EntrypointModuleCreator();
 
-  if(this.resourcePath.startsWith(options.srcLocation+"/index.js")){
+  if(this.resourcePath.startsWith(path.join(options.srcLocation, "main", "index.js"))){
     Logger.info("Entrypoint was found: "+this.resourcePath);
     Logger.info("Link Start!!");
     Logger.info("Link Start Webpack Loader Options:\n");

@@ -54,9 +54,9 @@ WebpackUtil.createMergeIntoSingleFilePlugin = function(options, srcLocation){
     var cssFiles = [];
     filesToLoad.forEach(function(file){
       if(file.endsWith(".js")){
-        jsFiles.push(srcLocation+"/"+file)
+        jsFiles.push(srcLocation+"/main/"+file)
       }else if(file.endsWith(".css")){
-        cssFiles.push(srcLocation+"/"+file)
+        cssFiles.push(srcLocation+"/main/"+file)
       }
     })
 

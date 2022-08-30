@@ -10,7 +10,8 @@ const WebpackUtil = require('../util/WebpackUtil.js');
 const Logger = require("../../logger/Logger.js")
 const webpack = require('webpack');
 
-var options = WebpackUtil.getLinkStartOptionsFromFilePath(LinkStartPaths.src + '/index.js')
+var jsEntrypointAbsoluteLocation = path.join(LinkStartPaths.src ,"main", "/index.js");
+var options = WebpackUtil.getLinkStartOptionsFromFilePath(jsEntrypointAbsoluteLocation)
 Logger.info("LinkStart Options:");
 Logger.info(options);
 
@@ -21,7 +22,7 @@ Logger.info(LinkStartPaths);
 
 module.exports = {
     entry: {
-        app: LinkStartPaths.src + '/index.js'
+        app: jsEntrypointAbsoluteLocation
     },
     output: {
         path: LinkStartPaths.build,
@@ -38,9 +39,10 @@ module.exports = {
         new CleanWebpackPlugin(),
         new CopyWebpackPlugin({
             patterns: [{
-                from: LinkStartPaths.src,
+                from: path.join(LinkStartPaths.src ,"main"),
                 globOptions: {
                     ignore: [
+                        '/**/settings.json',
                         '/**/index.html',
                         '/**/index.js',
                         '/**/actions',
@@ -52,12 +54,12 @@ module.exports = {
         }),       
         new HtmlWebpackPlugin({
             favicon: LinkStartPaths.faviconFile,
-            template: LinkStartPaths.src + '/index.html' // template file
+            template: path.join(LinkStartPaths.src ,"main", '/index.html')
         })        
     ].concat(dynamicPugins),
     resolve: {
         alias: {
-            '~': LinkStartPaths.src
+            '~': path.join(LinkStartPaths.src ,"main")
         },
     },
     watch: true,

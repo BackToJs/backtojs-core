@@ -2,13 +2,14 @@ const Webpack = require('webpack');
 const chokidar = require("chokidar");
 const fs = require('fs-extra');
 const path = require('path');
-const EnvSettings = require('advanced-settings').EnvSettings;
+//TODO: fix this ugly line please
+const EnvSettings = require(path.join(LinkStartPaths.home,'node_modules','nodeboot-spa-server', 'node_modules', 'advanced-settings')).EnvSettings;
 const envSettings = new EnvSettings();
 
 module.exports = {
     liveReload: true,
     hot: true,
-    port: 8080,
+    port: process.env.PORT || 2501,
     setupMiddlewares: (middlewares, devServer) => {
         if (!devServer) {
             throw new Error('webpack-dev-server is not defined');
@@ -17,7 +18,7 @@ module.exports = {
         devServer.app.get('/settings.json', async function(req, res) {
             try {
                 settings = await envSettings.loadJsonFile(
-                    path.join(LinkStartPaths.src, "settings.json"), 'utf8');
+                    path.join(LinkStartPaths.src, "main","settings.json"), 'utf8');
                 res.json(settings);
             } catch (err) {
                 console.log(err)
@@ -25,17 +26,19 @@ module.exports = {
             }
         });
 
+        var jsEntrypointAbsoluteLocation = path.join(LinkStartPaths.src, "main", "index.js");
+
         chokidar.watch([
-            LinkStartPaths.src + '/**/*.*'
+            LinkStartPaths.src + '/main/**/*.*'
         ]).on('all', async function(event, filename) {
             if (devServer.compiler.idle === true &&
-                filename != path.join(LinkStartPaths.src, "index.js")) {
+                filename != jsEntrypointAbsoluteLocation) {
                 console.log("content changed: " + filename)
                 console.log("compiler.running: " + devServer.compiler.running)
                 console.log("compiler.idle: " + devServer.compiler.idle)
-                await fs.ensureFile(path.join(LinkStartPaths.src, "index.js"))
+                await fs.ensureFile(jsEntrypointAbsoluteLocation)
                 const now = new Date()
-                await fs.utimes(path.join(LinkStartPaths.src, "index.js"), now, now);
+                await fs.utimes(jsEntrypointAbsoluteLocation, now, now);
             }
         })
 

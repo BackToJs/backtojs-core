@@ -51,7 +51,8 @@ function EntrypointModuleCreator() {
     var linksStartCustomOptions = WebpackUtil.getLinkStartOptionsFromFileContent(content);
 
     Logger.debug("srcLocation:" + options.srcLocation);
-    var dependencies = DependencyHelper.getDependecies(options.srcLocation, [".js", ".html"], ["src/index.js", "src/index.html"],
+    var dependencies = DependencyHelper.getDependecies(path.join(options.srcLocation, "main"), 
+      [".js", ".html"], ["src/main/index.js", "src/main/index.html"],
     headAnnotations, internalAnnotations);
 
     Logger.debug("Dependencies found:");
@@ -66,7 +67,7 @@ function EntrypointModuleCreator() {
     for (dependency of dependencies) {
 
       if (dependency.meta.name == "Page") {
-        var rawStringTemplate = LinksStartWebpackLoaderCommon.getHtmlTemplateAsString(path.join(options.srcLocation, dependency.meta.location));
+        var rawStringTemplate = LinksStartWebpackLoaderCommon.getHtmlTemplateAsString(path.join(options.srcLocation, "main", dependency.meta.location));
         rawStringTemplate = _this.removeAnnotationInPage(rawStringTemplate);
         Logger.debug("initial page:"+rawStringTemplate)
         var domElementsEntries = "";
@@ -218,7 +219,7 @@ function EntrypointModuleCreator() {
     var importCssSentence;
     Logger.debug("EntrypointModuleCreator options:"+JSON.stringify(linksStartCustomOptions));
     if(typeof linksStartCustomOptions.importCssFiles === 'undefined' || linksStartCustomOptions.importCssFiles.length === 0){
-      var scssFile = WebpackUtil.smartUniqueFileLocator(options.srcLocation, 'index.scss');
+      var scssFile = WebpackUtil.smartUniqueFileLocator(path.join(options.srcLocation, "main"), 'index.scss');
       if(scssFile){
         scssFile = "."+scssFile
         importCssSentence = `import '${scssFile}'`;
@@ -251,7 +252,6 @@ function EntrypointModuleCreator() {
 
     Logger.debug("\nentrypoint is ready!!\n\n");
     Logger.debug(content);
-    Logger.debug("Cardinal system is ready");
     return content;
 
   }

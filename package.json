@@ -56,8 +56,7 @@
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.9.3",
     "webpack-merge": "5.1.3",
-    "webpack-merge-and-include-globally": "^2.1.26",
-    "advanced-settings": "git+https://github.com/nodeboot/advanced-settings.git"
+    "webpack-merge-and-include-globally": "^2.1.26"
   },
   "devDependencies": {
     "chromedriver": "^91.0.0",
