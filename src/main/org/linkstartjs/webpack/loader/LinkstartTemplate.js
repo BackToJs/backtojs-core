@@ -109,13 +109,17 @@ function LinkStartApplication() {
     _this.invokeRouteHandler(handler);
   }
 
-  _this.invokeRouteHandler = function(handler) {
+  _this.invokeRouteHandler = function(handler, inboundParams) {
 
     if (typeof handler.onLoad !== "undefined" && typeof handler.onLoad === "function") {
 
-      const onLoadPromise = new Promise(handler.onLoad);
-       
-      onLoadPromise.then((onloadResolveValue)=>{
+      //const onLoadPromise = new Promise(handler.onLoad);
+      //TODO: keep a simple js onload instead a promise
+      //  this.onLoad = (resolve, reject, inboundParams) => {
+      //    resolve();
+      //  };
+
+      handler.onLoad(inboundParams).then((onloadResolveValue)=>{
         
         if (typeof handler.render !== "undefined" && typeof handler.render === "function") {
            _this.performRender(handler);
@@ -525,19 +529,19 @@ function LinkStartApplication() {
 
   function eventRouter(e) {
     console.log(e.detail.eventId);
-    if (typeof _this.dependecyContext[`${e.detail.eventId}EventListener`] !== 'undefined') {
-      var listener = _this.dependecyContext[`${e.detail.eventId}EventListener`];
-      var payload = e.detail.payload;
-      listener.execute(payload)
+    if (typeof _this.dependecyContext[`${e.detail.eventId}`] !== 'undefined') {
+      var handler = _this.dependecyContext[`${e.detail.eventId}`];
+      var params = e.detail.params;
+      _this.invokeRouteHandler(handler, params);
     }
   }   
 
   document.addEventListener("DOMContentLoaded", function(event) {
-    //register global router
-    document.addEventListener("simple-event", eventRouter);
+    console.log("DOMContentLoaded")
   }); 
 
   @globalBottomVariablesSentence
+  document.addEventListener("simple-event", eventRouter);
 
 }
 

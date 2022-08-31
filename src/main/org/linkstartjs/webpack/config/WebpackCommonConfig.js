@@ -45,7 +45,7 @@ module.exports = {
                         '/**/settings.json',
                         '/**/index.html',
                         '/**/index.js',
-                        '/**/actions',
+                        '/**/handlers',
                         '/**/styles',
                         '/**/pages'
                     ]
