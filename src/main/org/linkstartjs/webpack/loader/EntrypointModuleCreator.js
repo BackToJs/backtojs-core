@@ -14,7 +14,7 @@ function EntrypointModuleCreator() {
   var entrypointTemplatePath = path.resolve(__filename,'..')+'/LinkstartTemplate.js';
   var entrypointTemplate = fileUtils.readFileSync(entrypointTemplatePath, 'utf8');
 
-  var headAnnotations = ["DefaultAction", "Page", "Module"];
+  var headAnnotations = ["RouteHandler","EventHandler", "Page", "Module"];
   var internalAnnotations = ["Autowire","HtmlElement","Render","ActionListener","HtmlElementsAllForOne","Async","Binding"];
   var allAnnotations = headAnnotations.concat(internalAnnotations);
 
@@ -23,8 +23,8 @@ function EntrypointModuleCreator() {
   var injectionTemplate = `_this.dependecyContext["@dependencyName"].@variable = _this.dependecyContext["@variableToAutowire"];`;
   var metadataMappingTemplate = `_this.metaContext["@dependencyName"] = @metadataForAction;`;
   var fragmentMappingTemplate = `_this.actionsByFragmentUrlRoute["@route"] = _this.dependecyContext["@dependencyName"];`;
-  var globalAttributesTemplate = `_this.defaultFragmentUrlRoute = "@route";`;
   var injectionNameTemplate = `_this.dependecyContext["@dependencyName"]._ls_name = "@dependencyName";`;
+  var globalBottomVariablesSentenceTemplate = `_this.entrypointDependencyName = "@entrypointDependencyName";`;
 
   var modelElementEntryTemplate = `
   domElements.push({
@@ -55,7 +55,7 @@ function EntrypointModuleCreator() {
       [".js", ".html"], ["src/main/index.js", "src/main/index.html"],
     headAnnotations, internalAnnotations);
 
-    Logger.debug("Dependencies found:");
+    Logger.info("Dependencies found:");
     Logger.info(dependencies);
 
     Logger.debug("Perform instantation...");
@@ -63,7 +63,8 @@ function EntrypointModuleCreator() {
     var instantiates = "";
     var fragmentListeners = "";
     var metadataByDependency = "";
-    var defaultFragmentUrlRoute;
+    var entrypointDependencyName;
+    var entrypointCount=0;
     for (dependency of dependencies) {
 
       if (dependency.meta.name == "Page") {
@@ -100,7 +101,7 @@ function EntrypointModuleCreator() {
 
         instantiates = instantiates.concat("\n").concat(instantiateSentence);
 
-      } else if (dependency.meta.name == "DefaultAction") {
+      } else if (dependency.meta.name == "RouteHandler" || dependency.meta.name == "EventHandler") {
 
         var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.meta.arguments.name);
         //get require
@@ -135,9 +136,11 @@ function EntrypointModuleCreator() {
 
         //lookup default entry point
         if (dependency.meta.arguments.entrypoint == "true") {
-          if (dependency.meta.arguments.route) {
-            defaultFragmentUrlRoute = dependency.meta.arguments.route;
+          if(entrypointCount>1){
+            throw new Error("only one entrypoint=true is allowed");
           }
+          entrypointDependencyName = dependency.meta.arguments.name;
+          entrypointCount++;
         }
       }else if (dependency.meta.name == "Module") {
 				var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.meta.arguments.name);
@@ -207,12 +210,12 @@ function EntrypointModuleCreator() {
 
     Logger.info("Success dependency injection");
 
-    var defaultFragmentUrlSentence;
-    if (defaultFragmentUrlRoute) {
-      defaultFragmentUrlSentence = globalAttributesTemplate
-      .replace("@route", defaultFragmentUrlRoute);
+    var globalBottomVariablesSentence;
+    if (entrypointDependencyName) {
+      globalBottomVariablesSentence = globalBottomVariablesSentenceTemplate
+      .replace("@entrypointDependencyName", entrypointDependencyName);
     } else {
-      defaultFragmentUrlSentence = "Logger.debug('There are not any @Action defined as entrypoint')";
+      globalBottomVariablesSentence = "Logger.debug('There are not any @RouteHandler nor @EventHandler defined as entrypoint')";
     }
 
     //import './styles/index.scss'
@@ -240,7 +243,7 @@ function EntrypointModuleCreator() {
     var entrypointModule = entrypointTemplate
       .replace("@importCssFilesSentence", importCssSentence)
       .replace("@importTemplateEngineSentence", defaultTemplateEngineImportSentence)
-      .replace("@defaultFragmentUrlSentence", defaultFragmentUrlSentence)
+      .replace("@globalBottomVariablesSentence", globalBottomVariablesSentence)
       .replace("@require", requires)
       .replace("@instantiate", instantiates)
       .replace("@injection", injections)

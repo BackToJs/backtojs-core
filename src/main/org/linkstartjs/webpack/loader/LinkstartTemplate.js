@@ -77,54 +77,62 @@ function LinkStartApplication() {
     _this.registerMetadataByDependency();
     _this.registerDependenciesByUrlFragment();
 
+    Logger.info("Linkstart framework start!!");  
 
-    if (_this.defaultFragmentUrlRoute && _this.actionsByFragmentUrlRoute[_this.defaultFragmentUrlRoute]) {
-      Logger.debug("default action detected: " + _this.defaultFragmentUrlRoute);
-      //validate if first request has a fragment
-      var fragment = location.hash.replace("#", "");
-      if(typeof fragment !== 'undefined' && fragment.length > 0){
-        _this.invokeActionByFragmentUrl(fragment);
-      }else{
-        _this.invokeActionByFragmentUrl(_this.defaultFragmentUrlRoute);
-      }
-    } else {
-      Logger.debug('There are not any @Action defined as entrypoint');
+    var fragment = location.hash.replace("#", "");
+
+    if(typeof fragment !== 'undefined' && fragment.length > 0){
+      _this.invokeActionByFragmentUrl(fragment);
+    }else{
+      //fragment is empty or null, it means localhost:8080 or acme.com
+      //search a RouteHandler or EventHandler with entrypoint
+      if (_this.entrypointDependencyName && _this.dependecyContext[_this.entrypointDependencyName]) {
+        Logger.info("entrypoint detected: " + _this.entrypointDependencyName);
+        _this.invokeRouteHandler(_this.dependecyContext[_this.entrypointDependencyName]);
+      } else {
+        Logger.debug('There are not any @RouteHandler nor @EventHandler defined as entrypoint');
+      }      
     }
   };
 
   _this.invokeActionByFragmentUrl = function(route) {
-
-    Logger.debug(`triggering action by route: ${route}`);
-    var action = _this.actionsByFragmentUrlRoute[route];
-    Logger.debug(`ls_name: ${action._ls_name}`);
-
-    if (typeof action === 'undefined') {
-      Logger.debug(`route ${route} has a wrong or undefined action`);
+    Logger.debug(`triggering RouteHandler by route: ${route}`);
+    var handler = _this.actionsByFragmentUrlRoute[route];
+    
+    if (typeof handler === 'undefined') {
+      Logger.debug(`route ${route} has a wrong or undefined RouteHandler`);
       return;
     }
 
-    if (typeof action.onLoad !== "undefined" && typeof action.onLoad === "function") {
+    Logger.debug(`ls_name: ${handler._ls_name}`);
 
-      const onLoadPromise = new Promise(action.onLoad);
+    _this.invokeRouteHandler(handler);
+  }
+
+  _this.invokeRouteHandler = function(handler) {
+
+    if (typeof handler.onLoad !== "undefined" && typeof handler.onLoad === "function") {
+
+      const onLoadPromise = new Promise(handler.onLoad);
        
       onLoadPromise.then((onloadResolveValue)=>{
         
-        if (typeof action.render !== "undefined" && typeof action.render === "function") {
-           _this.performRender(action);
+        if (typeof handler.render !== "undefined" && typeof handler.render === "function") {
+           _this.performRender(handler);
            // var pageName = _this.metaContext[action._ls_name].meta.arguments.page;
            // _this.performBinding(action, pageName);
 
-          if (typeof action.postRender !== "undefined" && typeof action.postRender === "function") {
-            action.postRender();
+          if (typeof handler.postRender !== "undefined" && typeof handler.postRender === "function") {
+            handler.postRender();
           }
 
         } else {
-          Logger.debug("Action does not have render() method");
+          Logger.debug("RouteHandler does not have render() method");
         }
       });
 
     } else {
-      Logger.debug("Action does not have onLoad() method");
+      Logger.debug("RouteHandler does not have onLoad() method");
     }
   
 
@@ -196,7 +204,7 @@ function LinkStartApplication() {
     var fragment = location.hash.replace("#", "");
     if (!_this.actionsByFragmentUrlRoute[fragment]) {
       //@TODO: what to do when route is not found: Show a message or nothing?
-      let messageToLog = "There are not any @DefaultAction asociated to this route: " + fragment;
+      let messageToLog = "There are not any @RouteHandler asociated to this route: " + fragment;
       Logger.debug(messageToLog);
       document.getElementById("root").innerHTML = '';
       document.getElementById("root").appendChild(document.createRange().createContextualFragment(messageToLog));
@@ -529,7 +537,7 @@ function LinkStartApplication() {
     document.addEventListener("simple-event", eventRouter);
   }); 
 
-  @defaultFragmentUrlSentence
+  @globalBottomVariablesSentence
 
 }
 
