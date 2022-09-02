@@ -65,6 +65,7 @@ function EntrypointModuleCreator() {
     var metadataByDependency = "";
     var entrypointDependencyName;
     var entrypointCount=0;
+    var htmlDomElementCount=1000;
     for (dependency of dependencies) {
 
       if (dependency.meta.name == "Page") {
@@ -79,18 +80,21 @@ function EntrypointModuleCreator() {
             if ($(element).attr('ls-element') === "true") {
               var htmlObjectId = $(element).attr('id');
               if (htmlObjectId) {
-                let uniqueId = Math.floor(Math.random() * 100001);
+                let uniqueId = htmlDomElementCount;
+                htmlDomElementCount++;
                 var entry = modelElementEntryTemplate.replace("@htmlObjectId", htmlObjectId);
                 entry = entry.replace("@lsId", uniqueId);
                 domElementsEntries = domElementsEntries.concat("\n").concat(entry);
-                $(element).attr("ls-id", uniqueId);
+                //$(element).attr("ls-id", uniqueId);
+                rawStringTemplate = LinksStartWebpackLoaderCommon.replaceAll(
+                  rawStringTemplate,"ls-element\\s*=\\s*true", `ls-element=true ls-id=${uniqueId}`);
               }
             }
           }
         });
 
-        var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString($.html());
-        fixedHtmlTemplate = LinksStartWebpackLoaderCommon.removeCheerioBody(fixedHtmlTemplate);
+        var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString(rawStringTemplate);
+        //fixedHtmlTemplate = LinksStartWebpackLoaderCommon.removeCheerioBody(fixedHtmlTemplate);
         Logger.debug(fixedHtmlTemplate)
 
         //instantiate
@@ -143,18 +147,18 @@ function EntrypointModuleCreator() {
           entrypointCount++;
         }
       }else if (dependency.meta.name == "Module") {
-				var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.meta.arguments.name);
-				//get require
-				var requireSentence = requireTemplate
-					.replace("@dependencyClassName", dependencyClassName)
-					.replace("@dependencyLocation", dependency.meta.location);
-				requires = requires.concat("\n").concat(requireSentence);
-				//instantiate
-				var instantiateSentence = instantiateModuleTemplate
-					.replace("@dependencyClassName", dependencyClassName)
-					.replace("@dependencyName", dependency.meta.arguments.name);
-				instantiates = instantiates.concat("\n").concat(instantiateSentence);
-			}else{
+        var dependencyClassName = LinksStartWebpackLoaderCommon.capitalize(dependency.meta.arguments.name);
+        //get require
+        var requireSentence = requireTemplate
+          .replace("@dependencyClassName", dependencyClassName)
+          .replace("@dependencyLocation", dependency.meta.location);
+        requires = requires.concat("\n").concat(requireSentence);
+        //instantiate
+        var instantiateSentence = instantiateModuleTemplate
+          .replace("@dependencyClassName", dependencyClassName)
+          .replace("@dependencyName", dependency.meta.arguments.name);
+        instantiates = instantiates.concat("\n").concat(instantiateSentence);
+      }else{
         Logger.debug(dependency.meta.name+" is not a LinkStart.js annotation");
       }
     }
@@ -260,10 +264,8 @@ function EntrypointModuleCreator() {
   }
 
   _this.removeAnnotationInModule = function(content) {
-    var allAnnotationsStringRegex=AnnotationHelper.createRegexFromAnnotations(allAnnotations);
-    var regex = new RegExp(allAnnotationsStringRegex, 'g');
-    while((result = regex.exec(content)) !== null) {
-        content = content.replace(result[0], "//"+result[0]);
+    for(var annotation of allAnnotations){
+      content = content.replace(new RegExp("@"+annotation, 'g'), "//@"+annotation);
     }
     return content;
   }

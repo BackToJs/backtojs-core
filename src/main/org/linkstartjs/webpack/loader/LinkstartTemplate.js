@@ -1,3 +1,4 @@
+const axios = require("axios");
 @importCssFilesSentence
 @importTemplateEngineSentence
 
@@ -21,6 +22,12 @@ Logger.info = function(message){
   // return Function.prototype.bind.call(console.log, console, message);
   // originalConsoleLog.call(console, message);
   console.log(message);
+}
+
+Logger.error = function(message){
+  // return Function.prototype.bind.call(console.log, console, message);
+  // originalConsoleLog.call(console, message);
+  console.error(message);
 }
 
 function LinkStartRoute(){}
@@ -68,16 +75,28 @@ function LinkStartApplication() {
   }
 
 
-  _this.start = function(options) {
+  _this.addSpecialDependencies = async function() {
+    //add spa settings  
+    var resp = await axios.get('./settings.json');
+    Logger.debug("loading settings")
+    Logger.debug(resp.data)
+    _this.dependecyContext["settings"] = resp.data
+
+
+    //add loggedinUserDetails
+    _this.dependecyContext["securityContext"] = {loggedinUserDetails:{}}
+  }
+
+
+  _this.start = async function(options) {
 
     global.LinkStartOptions = options;
 
     _this.registerDependenciesInContext();
+    await _this.addSpecialDependencies();
     _this.performInjection();
     _this.registerMetadataByDependency();
     _this.registerDependenciesByUrlFragment();
-
-    Logger.info("Linkstart framework start!!");  
 
     var fragment = location.hash.replace("#", "");
 
@@ -88,7 +107,7 @@ function LinkStartApplication() {
       //search a RouteHandler or EventHandler with entrypoint
       if (_this.entrypointDependencyName && _this.dependecyContext[_this.entrypointDependencyName]) {
         Logger.info("entrypoint detected: " + _this.entrypointDependencyName);
-        _this.invokeRouteHandler(_this.dependecyContext[_this.entrypointDependencyName]);
+        _this.invokeHandler(_this.dependecyContext[_this.entrypointDependencyName]);
       } else {
         Logger.debug('There are not any @RouteHandler nor @EventHandler defined as entrypoint');
       }      
@@ -104,12 +123,14 @@ function LinkStartApplication() {
       return;
     }
 
-    Logger.debug(`ls_name: ${handler._ls_name}`);
+    Logger.debug(`@RouteHandler executing: ${handler._ls_name}`);
 
-    _this.invokeRouteHandler(handler);
+    _this.invokeHandler(handler);
   }
 
-  _this.invokeRouteHandler = function(handler, inboundParams) {
+  _this.invokeHandler = function(handler, inboundParams) {
+
+    Logger.debug(`@EventHandler executing: ${handler._ls_name}`);
 
     if (typeof handler.onLoad !== "undefined" && typeof handler.onLoad === "function") {
 
@@ -124,7 +145,8 @@ function LinkStartApplication() {
         if (typeof handler.render !== "undefined" && typeof handler.render === "function") {
            _this.performRender(handler);
            // var pageName = _this.metaContext[action._ls_name].meta.arguments.page;
-           // _this.performBinding(action, pageName);
+           // start auto bindings 
+           _this.performBinding(handler);
 
           if (typeof handler.postRender !== "undefined" && typeof handler.postRender === "function") {
             handler.postRender();
@@ -169,35 +191,46 @@ function LinkStartApplication() {
       Logger.debug("render() was found");
       // throw new Error("Render function execution is not supported yet");
       var htmlAsString = action.render();
-
+      
       //bind action variables into html using ejs
       var variablesToBindingInfo = 
         _this.searchVariablesByAnnotationName(_this.metaContext[action._ls_name].variables, action._ls_name, "Binding");
       //create ejs variables
       var variablesToBinding = {}
       for(let varToBindingInfo of variablesToBindingInfo){
-       variablesToBinding[varToBindingInfo.name] = action[varToBindingInfo.name]
+        variablesToBinding[varToBindingInfo.name] = action[varToBindingInfo.name];
       }
+
+      Logger.debug(variablesToBinding);
       
-      let htmlPopulated = ejs.render(htmlAsString, variablesToBinding);
-      
-      var htmlToRender = document.createRange().createContextualFragment(htmlPopulated);
-      document.getElementById("root").innerHTML = '';
-      document.getElementById("root").appendChild(htmlToRender);
+      let htmlParsedString = ejs.render(htmlAsString, variablesToBinding);
+      var htmlToRender = document.createRange().createContextualFragment(htmlParsedString);
+
+      //get the dom element id to be renderized in:
+      var annotationArguments = _this.getAnnotationArgumentsOfUniqueFunctionAnnotated(action, "Render");
+      var idToBeRenderized;
+      if(typeof annotationArguments === 'undefined' || typeof annotationArguments.id === 'undefined'){
+        idToBeRenderized = "root";
+      }else{
+        idToBeRenderized = annotationArguments.id;
+      }
+
+      Logger.debug("handler will render content in an element with id: "+idToBeRenderized)
+      document.getElementById(idToBeRenderized).innerHTML = '';
+      document.getElementById(idToBeRenderized).appendChild(htmlToRender);
       //html dom is ready
       //bind dom onclick events to action methods
 
   }
 
-  _this.performBinding = function(action, pageName) {
+  _this.performBinding = function(action) {
     //html dom is ready
     Logger.debug(`performing bindings`);
-    //bind dom variables to action variables
-    _this.applyDomElemensAutoBinding(action, _this.dependecyContext[pageName], _this.metaContext[action._ls_name].variables);
-
     //bind dom onclick events to action methods
-    // _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action, (isRenderAnAnnotation===true)?action[variableToUseAsRender].getDomElements():null);
+    _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action);
 
+    //bind dom variables to action variables
+    //_this.applyDomElemensAutoBinding(action, _this.dependecyContext[pageName], _this.metaContext[action._ls_name].variables);
 
     //allForOne
     // _this.bindDomElementAllForOne(action, variableToUseAsRender, _this.metaContext[action._ls_name].variables);
@@ -260,7 +293,7 @@ function LinkStartApplication() {
     return renderVariables;
   }  
 
-  _this.applyActionListenersAutoBinding = function(functions, action, registeredDomElementsInPage) {
+  _this.applyActionListenersAutoBinding = function(functions, action) {
     Logger.debug("applying actionListeners auto binding for this action: "+action._ls_name)
     for (var internalActionFunctionName in functions) {
       for (var a in functions[internalActionFunctionName]) {
@@ -271,8 +304,16 @@ function LinkStartApplication() {
             var functionInstance = action[internalActionFunctionName];
             var tagNativeId = annotation.arguments.tagId;
             var eventType = annotation.arguments.type;
+            var pageNameWhoseContainsDomElements = annotation.arguments.pageName;
 
-            var lsId = _this.searchLinkStartIdInRegisteredDomElements(registeredDomElementsInPage, annotation.arguments.tagId);
+            var registeredDomElementsInPage;
+            if(typeof _this.dependecyContext[pageNameWhoseContainsDomElements] === 'undefined'){
+              Logger.debug(`@ActionListener ${internalActionFunctionName} has a pageName which don't exist in the context: ${pageNameWhoseContainsDomElements}`);
+            }else{
+              registeredDomElementsInPage = _this.dependecyContext[pageNameWhoseContainsDomElements].getDomElements();
+            }
+            var lsId = _this.searchLinkStartIdInRegisteredDomElements(registeredDomElementsInPage, 
+              annotation.arguments.tagId);
             var domElement;
             if (typeof lsId === 'undefined') {
               Logger.debug(`lsId for this actionListener ${annotation.arguments.tagId} is undefined. Did you register the dom element with ls-element=true ?`);
@@ -280,8 +321,7 @@ function LinkStartApplication() {
               domElement = document.getElementById(annotation.arguments.tagId);
             }else{
               domElement = _this.getElementByLsId(lsId);
-            }
-            Logger.debug("actionListener object:"+domElement)
+            }            
             if (typeof domElement !== 'undefined' && domElement != null) {
               if (eventType === "onclick") {
                 domElement.onclick = functionInstance;
@@ -521,24 +561,41 @@ function LinkStartApplication() {
     }
   }
 
+  _this.getAnnotationArgumentsOfUniqueFunctionAnnotated = function(handler, expectedAnnotation) {
+    
+    var functions = _this.metaContext[handler._ls_name].functions;
+    var metaArguments = [];
+    for (var internalActionFunctionName in functions) {
+      for (var a in functions[internalActionFunctionName]) {
+        var annotation = functions[internalActionFunctionName][a];
+        if (annotation.name == expectedAnnotation) {
+          metaArguments.push(annotation.arguments)
+        }  
+      }  
+    }
+    if(metaArguments.length>1){
+      Logger.debug(`${handler._ls_name} handler has more than one @${expectedAnnotation}`)
+      return;
+    }
 
+    return metaArguments[0];
+  }    
 
   //TODO: how initialize onclick before dom insertion
 
   window.onhashchange = _this.locationHashChanged;
 
   function eventRouter(e) {
-    console.log(e.detail.eventId);
+    if(typeof e.detail.eventId === 'undefined' || e.detail.eventId == null){
+      Logger.error("simple-event don't have eventId");
+      return;
+    }
     if (typeof _this.dependecyContext[`${e.detail.eventId}`] !== 'undefined') {
       var handler = _this.dependecyContext[`${e.detail.eventId}`];
       var params = e.detail.params;
-      _this.invokeRouteHandler(handler, params);
+      _this.invokeHandler(handler, params);
     }
   }   
-
-  document.addEventListener("DOMContentLoaded", function(event) {
-    console.log("DOMContentLoaded")
-  }); 
 
   @globalBottomVariablesSentence
   document.addEventListener("simple-event", eventRouter);
@@ -546,6 +603,10 @@ function LinkStartApplication() {
 }
 
 function linkStart(options) {
-  let linkStartApplication = new LinkStartApplication();
-  linkStartApplication.start(options);
+
+  document.addEventListener("DOMContentLoaded", function(event) {
+    Logger.info("Linkstart!!");  
+    let linkStartApplication = new LinkStartApplication();
+    linkStartApplication.start(options);    
+  }); 
 }
