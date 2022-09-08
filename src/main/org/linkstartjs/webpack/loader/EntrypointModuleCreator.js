@@ -6,6 +6,7 @@ const LinksStartWebpackLoaderCommon = require('./LinksStartWebpackLoaderCommon.j
 const cheerio = require('cheerio')
 const Logger = require('../../logger/Logger.js')
 const WebpackUtil = require('../util/WebpackUtil.js');
+const StringUtil = require('../../util/StringUtil.js');
 
 function EntrypointModuleCreator() {
 
@@ -66,6 +67,8 @@ function EntrypointModuleCreator() {
     var entrypointDependencyName;
     var entrypointCount=0;
     var htmlDomElementCount=1000;
+    var stringUtil = new StringUtil();
+
     for (dependency of dependencies) {
 
       if (dependency.meta.name == "Page") {
@@ -74,10 +77,32 @@ function EntrypointModuleCreator() {
         Logger.debug("initial page:"+rawStringTemplate)
         var domElementsEntries = "";
 
-        const $ = cheerio.load(rawStringTemplate, {decodeEntities: false});
+        var enhancedHtml = stringUtil.addLsIdToLinkstartTagElements(rawStringTemplate,htmlDomElementCount);
+
+        var fixedHtmlTemplate;
+        if(typeof enhancedHtml !== 'undefined' && enhancedHtml!=null){
+          for(idsPair of enhancedHtml.ids){
+            var entry = modelElementEntryTemplate.replace("@htmlObjectId", idsPair.htmlObjectId);
+            entry = entry.replace("@lsId", idsPair.lsId);
+            domElementsEntries = domElementsEntries.concat("\n").concat(entry);
+          }
+
+          fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString(enhancedHtml.html);
+          htmlDomElementCount = enhancedHtml.lastId        
+        }else{
+          fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString(rawStringTemplate);
+        }
+
+        //TODO: delete this block in the next push
+        /*const $ = cheerio.load(enhancedHtml.html, {decodeEntities: false, scriptingEnabled:true});
         $('*').each(function(index, element) {
-          if ($(element)) {
-            if ($(element).attr('ls-element') === "true") {
+          var element = $(element);
+          if (element) {
+            var lsElement = $(element).attr('ls-element');
+            var lsId = $(element).attr('ls-id');
+            var tagId = $(element).attr('id');
+
+            if (lsElement === "true" &&  lsId != "" && tagId  != "") {
               var htmlObjectId = $(element).attr('id');
               if (htmlObjectId) {
                 let uniqueId = htmlDomElementCount;
@@ -85,16 +110,16 @@ function EntrypointModuleCreator() {
                 var entry = modelElementEntryTemplate.replace("@htmlObjectId", htmlObjectId);
                 entry = entry.replace("@lsId", uniqueId);
                 domElementsEntries = domElementsEntries.concat("\n").concat(entry);
-                //$(element).attr("ls-id", uniqueId);
-                rawStringTemplate = LinksStartWebpackLoaderCommon.replaceAll(
-                  rawStringTemplate,"ls-element\\s*=\\s*true", `ls-element=true ls-id=${uniqueId}`);
+                $(element).attr("ls-id", uniqueId);
+                //rawStringTemplate = LinksStartWebpackLoaderCommon.replaceAll(
+                  //rawStringTemplate,"ls-element\\s*=\\s*true", `ls-element=true ls-id=${uniqueId}`);
               }
             }
           }
-        });
-
-        var fixedHtmlTemplate = LinksStartWebpackLoaderCommon.fixString(rawStringTemplate);
+        });*/
         //fixedHtmlTemplate = LinksStartWebpackLoaderCommon.removeCheerioBody(fixedHtmlTemplate);
+
+        //var fixedHtmlTemplate = enhancedHtml.html;
         Logger.debug(fixedHtmlTemplate)
 
         //instantiate

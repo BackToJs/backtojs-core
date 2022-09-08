@@ -4,7 +4,8 @@
   "description": "linkstart.js framework",
   "main": "index.js",
   "scripts": {
-    "test": "node src/test/index.js"
+    "test_e2e": "node src/test/index.js",
+    "test": "mocha  'src/test/**/*.test.js' --exit "
   },
   "bin": {
     "linkstart": "src/main/index.js"
