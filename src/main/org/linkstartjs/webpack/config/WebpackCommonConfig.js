@@ -15,7 +15,7 @@ var options = WebpackUtil.getLinkStartOptionsFromFilePath(jsEntrypointAbsoluteLo
 Logger.info("LinkStart Options:");
 Logger.info(options);
 
-var dynamicPugins = WebpackUtil.createMergeIntoSingleFilePlugin(options, LinkStartPaths.src);
+var dynamicPugins = WebpackUtil.createMergeIntoSingleFilePlugin(options, LinkStartPaths.src, LinkStartPaths.workspace);
 
 Logger.info("\nLinkStart Paths:");
 Logger.info(LinkStartPaths);

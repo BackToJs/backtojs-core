@@ -6,6 +6,7 @@ function LinkStartUtil() {
     this.configureGlobalLocations = function() {
         var appPath = process.env.LINKS_START_APP_PATH || process.cwd();
         global.LinkStartPaths = {
+            workspace: appPath, // web root
             src: appPath + '/src', // source files
             build: appPath + '/dist', // production build files
             home: path.resolve(__dirname, '..', '..', '..', '..', '..') // linkstart home

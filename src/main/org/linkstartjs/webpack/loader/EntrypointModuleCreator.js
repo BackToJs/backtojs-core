@@ -176,7 +176,7 @@ function EntrypointModuleCreator() {
         //get require
         var requireSentence = requireTemplate
           .replace("@dependencyClassName", dependencyClassName)
-          .replace("@dependencyLocation", dependency.meta.location);
+          .replace("@dependencyLocation",  "."+dependency.meta.location);
         requires = requires.concat("\n").concat(requireSentence);
         //instantiate
         var instantiateSentence = instantiateModuleTemplate

@@ -1,5 +1,6 @@
 const pathHelper = require('path')
 const fs = require('fs');
+const path = require('path');
 const glob = require('glob');
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 
@@ -35,7 +36,7 @@ WebpackUtil.getLinkStartOptionsFromFileContent = function(contents){
   }
 }
 
-WebpackUtil.createMergeIntoSingleFilePlugin = function(options, srcLocation){
+WebpackUtil.createMergeIntoSingleFilePlugin = function(options, srcLocation, workspaceLocation){
 
   if(typeof options === 'undefined'){
     return [];
@@ -53,10 +54,19 @@ WebpackUtil.createMergeIntoSingleFilePlugin = function(options, srcLocation){
     var jsFiles = [];
     var cssFiles = [];
     filesToLoad.forEach(function(file){
-      if(file.endsWith(".js")){
-        jsFiles.push(srcLocation+"/main/"+file)
+
+      var baseLocation;
+      if(file.startsWith("@")){
+        baseLocation = path.join(workspaceLocation, "node_modules");
+        file = file.substring(1);
+      }else{
+        baseLocation = path.join(srcLocation, "main");
+      }
+
+      if(file.endsWith(".js")){        
+        jsFiles.push(path.join(baseLocation, file))
       }else if(file.endsWith(".css")){
-        cssFiles.push(srcLocation+"/main/"+file)
+        cssFiles.push(path.join(baseLocation, file))
       }
     })
 
