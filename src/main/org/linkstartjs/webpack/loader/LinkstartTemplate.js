@@ -1,5 +1,4 @@
 const axios = require("axios");
-const ejs = require("ejs");
 @importCssFilesSentence
 @importTemplateEngineSentence
 
