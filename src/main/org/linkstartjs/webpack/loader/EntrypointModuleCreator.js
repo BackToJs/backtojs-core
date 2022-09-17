@@ -254,7 +254,7 @@ function EntrypointModuleCreator() {
       var scssFile = WebpackUtil.smartUniqueFileLocator(path.join(options.srcLocation, "main"), 'index.scss');
       if(scssFile){
         scssFile = "."+scssFile
-        importCssSentence = `import '${scssFile}'`;
+        importCssSentence = `require('${scssFile}')`;
       }else{
         importCssSentence = "";
       }
@@ -265,9 +265,8 @@ function EntrypointModuleCreator() {
     Logger.info("Style found: "+importCssSentence);
 
     //TODO: support for other template engines like handlebars, pug, etc
-    var defaultTemplateEngineJsLocation = path.join(options.LinkStartHomeLocation, "node_modules/ejs/ejs.js");
-    //var defaultTemplateEngineImportSentence = `import ejs from '${defaultTemplateEngineJsLocation}';`;
-    var defaultTemplateEngineImportSentence = "";
+    //var defaultTemplateEngineJsLocation = path.join(options.LinkStartHomeLocation, "node_modules/ejs/ejs.js");
+    var defaultTemplateEngineImportSentence = `const ejs = require("ejs/ejs.min.js");`;
 
 
     var entrypointModule = entrypointTemplate

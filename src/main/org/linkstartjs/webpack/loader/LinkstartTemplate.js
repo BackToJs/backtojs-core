@@ -1,5 +1,4 @@
 const axios = require("axios");
-const ejs = requir("ejs/ejs.min.js");
 @importCssFilesSentence
 @importTemplateEngineSentence
 
