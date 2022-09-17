@@ -283,7 +283,7 @@ function EntrypointModuleCreator() {
     content = entrypointModule.concat("\n").concat(content);
 
     Logger.debug("\nentrypoint is ready!!\n\n");
-    Logger.info(content);
+    Logger.debug(content);
     return content;
 
   }
