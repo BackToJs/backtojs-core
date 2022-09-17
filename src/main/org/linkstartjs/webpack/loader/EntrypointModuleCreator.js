@@ -265,8 +265,9 @@ function EntrypointModuleCreator() {
     Logger.info("Style found: "+importCssSentence);
 
     //TODO: support for other template engines like handlebars, pug, etc
-    //var defaultTemplateEngineJsLocation = path.join(options.LinkStartHomeLocation, "node_modules/ejs/ejs.js");
-    var defaultTemplateEngineImportSentence = `import ejs from "ejs";`;
+    var defaultTemplateEngineJsLocation = path.join(options.LinkStartHomeLocation, "node_modules/ejs/ejs.js");
+    //var defaultTemplateEngineImportSentence = `import ejs from '${defaultTemplateEngineJsLocation}';`;
+    var defaultTemplateEngineImportSentence = "";
 
 
     var entrypointModule = entrypointTemplate
