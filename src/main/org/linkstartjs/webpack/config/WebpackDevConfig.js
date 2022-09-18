@@ -2,8 +2,7 @@ const Webpack = require('webpack');
 const chokidar = require("chokidar");
 const fs = require('fs-extra');
 const path = require('path');
-//TODO: fix this ugly line please
-const EnvSettings = require(path.join(LinkStartPaths.home,'node_modules','nodeboot-spa-server', 'node_modules', 'advanced-settings')).EnvSettings;
+const EnvSettings = require("advanced-settings").EnvSettings;
 const envSettings = new EnvSettings();
 
 module.exports = {
