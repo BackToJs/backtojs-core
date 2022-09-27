@@ -325,8 +325,10 @@ function LinkStartApplication() {
             if (typeof domElement !== 'undefined' && domElement != null) {
               if (eventType === "onclick") {
                 domElement.onclick = functionInstance;
+              }if (eventType === "onchange") {
+                domElement.onchange = functionInstance;
               } else {
-                Logger.debug("type function not implemented yet: " + eventType);
+                Logger.debug("event type not implemented yet: " + eventType);
               }
             } else {
               Logger.debug(`ActionListener with html tag id: ${annotation.arguments.tagId} was not found in html dom`);
