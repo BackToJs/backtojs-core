@@ -157,4 +157,26 @@ describe('StringUtil: addLsIdToLinkstartTagElements', function() {
         }
         expect(enhancedHtml.ids[0].lsId).to.equal(expectedIds[enhancedHtml.ids[0].htmlObjectId]);      
     });
+
+    it('name and id in the same tag', function() {
+        var stringUtil = new StringUtil();
+
+        var rawHtml = `
+      <select ls-element=true name="cars" id="selectDepartamentos" class="form-control"  >
+    `;
+
+
+        var enhancedHtml = stringUtil.addLsIdToLinkstartTagElements(rawHtml, 5);
+        const $ = cheerio.load(enhancedHtml.html, {
+            decodeEntities: false,
+            scriptingEnabled: true
+        });
+        expect($.html().includes('ls-id="5"')).to.equal(true);
+        expect(enhancedHtml.lastId).to.equal(5);
+        expect(enhancedHtml.ids.length).to.equal(1);
+        var expectedIds = {
+            'selectDepartamentos': 5
+        }
+        expect(enhancedHtml.ids[0].lsId).to.equal(expectedIds[enhancedHtml.ids[0].htmlObjectId]);      
+    });    
 });

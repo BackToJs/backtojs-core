@@ -44,7 +44,11 @@ function StringUtil() {
             if (regexMatches.length == 0) {
                 return;
             }
-            return rawHtmlLine.match(/"((?:\\.|[^"\\])*)"/)[1].trim();
+            if(regexMatches.length==0){
+              return;
+            }
+
+            return regexMatches[0].split("=")[1].replace(/\"/g,"").trim();
         } catch (err) {
             console.log("html tag has ls-element=true but don't has id=foo . Html: " + rawHtmlLine);
             console.log(err);

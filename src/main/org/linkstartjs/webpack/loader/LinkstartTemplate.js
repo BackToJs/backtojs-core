@@ -229,8 +229,8 @@ function LinkStartApplication() {
     //bind dom onclick events to action methods
     _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action);
 
-    //bind dom variables to action variables
-    //_this.applyDomElemensAutoBinding(action, _this.dependecyContext[pageName], _this.metaContext[action._ls_name].variables);
+    //bind dom variables to handler variables
+    _this.applyDomElementsAutoBinding(_this.metaContext[action._ls_name].variables, action);
 
     //allForOne
     // _this.bindDomElementAllForOne(action, variableToUseAsRender, _this.metaContext[action._ls_name].variables);
@@ -339,7 +339,61 @@ function LinkStartApplication() {
     }
   }
 
-  _this.applyDomElemensAutoBinding = function(action, pageInstanceToRender, variables) {
+  _this.applyDomElementsAutoBinding = function(variables, action) {
+    Logger.debug("apply dom elements auto binding for this handler: "+action._ls_name);
+    for (var internalActionVariableName in variables) {
+      for (var v in variables[internalActionVariableName]) {
+        var annotation = variables[internalActionVariableName][v];
+        if (annotation.name == 'HtmlElement') {
+            Logger.debug("variable to be binded was found: "+internalActionVariableName)
+            var variableInstance = action[internalActionVariableName];
+            var tagNativeId = annotation.arguments.tagId;
+            var pageNameWhoseContainsDomElements = annotation.arguments.pageName;
+            Logger.debug("tagNativeId: "+tagNativeId)
+            Logger.debug("pageNameWhoseContainsDomElements: "+pageNameWhoseContainsDomElements)
+
+            if(typeof tagNativeId === 'undefined' && typeof pageNameWhoseContainsDomElements === 'undefined'){
+              Logger.debug(`@HtmlElement ${internalActionFunctionName} don't have pageName nor tagId`);
+              return;
+            }
+
+            //pageName or tagId exist
+            var searchedHtmlDomElement;
+            if(typeof pageNameWhoseContainsDomElements !== 'undefined'){
+              //if pageName != null, search in page scanned elements
+              var pageInstance;
+              if(typeof _this.dependecyContext[pageNameWhoseContainsDomElements] === 'undefined'){
+                Logger.debug(`@HtmlElement ${internalActionFunctionName} has a pageName which don't exist in the context: ${pageNameWhoseContainsDomElements}`);
+                return;
+              }else{
+                pageInstance = _this.dependecyContext[pageNameWhoseContainsDomElements];
+                searchedHtmlDomElement = _this.getElementInPage(pageInstance, tagNativeId);
+                if (typeof searchedHtmlDomElement === 'undefined') {
+                  Logger.debug(`Html element with id ${tagNativeId} was not found in the page ${pageNameWhoseContainsDomElements} .`);
+                  return;
+                }
+              }
+            }else if(typeof tagNativeId !== 'undefined'){
+              //search directly in the dom
+              searchedHtmlDomElement = document.getElementById(tagNativeId);
+              if (typeof searchedHtmlDomElement === 'undefined') {
+                Logger.debug(`Html element with id ${tagNativeId} was not found in the html dom.`);
+                return;
+              }
+            }  
+
+            if (typeof searchedHtmlDomElement !== 'undefined') {
+              action[internalActionVariableName] = searchedHtmlDomElement;
+              Logger.debug(`Html element with id ${tagNativeId} was binded to ${internalActionVariableName} on its handler.`);
+            }else{
+              Logger.debug(`Html element with id ${tagNativeId} was not found in the dom or in the page ${pageNameWhoseContainsDomElements} .`);
+            }
+        }
+      }
+    }
+  }  
+
+  _this.applyDomElemensAutoBindingDeprecated = function(action, pageInstanceToRender, variables) {
 
     Logger.debug("apply dom elements auto binding for this action: "+action._ls_name);
 
@@ -525,8 +579,8 @@ function LinkStartApplication() {
     }
   };
 
-  _this.getElementInPageRegisteredElements = function(pageInstanceToRender, htmlTagId, variableNameToBind) {
-    let domElements = pageInstanceToRender.getDomElements();
+  _this.getElementInPage = function(pageInstance, htmlTagId) {
+    let domElements = pageInstance.getDomElements();
     var searchedHtmlDomElement;
     for (var elementInDom of domElements) {
       var tagId = elementInDom.tagId;
