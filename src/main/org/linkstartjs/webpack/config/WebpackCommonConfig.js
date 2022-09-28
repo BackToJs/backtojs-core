@@ -54,7 +54,7 @@ module.exports = {
         }),       
         new HtmlWebpackPlugin({
             favicon: LinkStartPaths.faviconFile,
-            template: path.join(LinkStartPaths.src ,"main", '/index.html')
+            template: path.join(LinkStartPaths.src ,"main", options.templateName || 'index.html')
         })        
     ].concat(dynamicPugins),
     resolve: {
