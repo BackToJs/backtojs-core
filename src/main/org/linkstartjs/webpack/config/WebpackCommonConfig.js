@@ -37,24 +37,19 @@ module.exports = {
     },
     plugins: [ 
         new CleanWebpackPlugin(),
-        new CopyWebpackPlugin({
+        new CopyWebpackPlugin(
+		{
             patterns: [{
-                from: path.join(LinkStartPaths.src ,"main"),
-                globOptions: {
-                    ignore: [
-                        '/**/settings.json',
-                        '/**/index.html',
-                        '/**/index.js',
-                        '/**/handlers',
-                        '/**/styles',
-                        '/**/pages'
-                    ]
-                }
-            }]
+				from: path.join(LinkStartPaths.src ,"main", "images"),
+				to: "./images"
+			},{
+				from: path.join(LinkStartPaths.src ,"main", "fonts"),
+				to: "./fonts"
+			}]
         }),       
         new HtmlWebpackPlugin({
             favicon: LinkStartPaths.faviconFile,
-            template: path.join(LinkStartPaths.src ,"main", options.templateName || 'index.html')
+            template: path.join(LinkStartPaths.src ,"main", 'index.html')
         })        
     ].concat(dynamicPugins),
     resolve: {
