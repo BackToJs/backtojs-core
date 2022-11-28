@@ -266,12 +266,13 @@ function EntrypointModuleCreator() {
 
     //TODO: support for other template engines like handlebars, pug, etc
     //var defaultTemplateEngineJsLocation = path.join(options.LinkStartHomeLocation, "node_modules/ejs/ejs.js");
-    var defaultTemplateEngineImportSentence = `const ejs = require("ejs/ejs.min.js");`;
-
+    var importTemplateEngineSentence = `const ejs = require("@LinkStartHomeLocation/node_modules/ejs/ejs.min.js");`.replace("@LinkStartHomeLocation", options.LinkStartHomeLocation);
+    var importAxiosSentence = `import axios from "@LinkStartHomeLocation/node_modules/axios";`.replace("@LinkStartHomeLocation", options.LinkStartHomeLocation);
 
     var entrypointModule = entrypointTemplate
+      .replace("@importAxiosSentence", importAxiosSentence)
       .replace("@importCssFilesSentence", importCssSentence)
-      .replace("@importTemplateEngineSentence", defaultTemplateEngineImportSentence)
+      .replace("@importTemplateEngineSentence", importTemplateEngineSentence)
       .replace("@globalBottomVariablesSentence", globalBottomVariablesSentence)
       .replace("@require", requires)
       .replace("@instantiate", instantiates)

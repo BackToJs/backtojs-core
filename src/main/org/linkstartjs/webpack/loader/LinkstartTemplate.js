@@ -1,4 +1,4 @@
-const axios = require("axios");
+@importAxiosSentence
 @importCssFilesSentence
 @importTemplateEngineSentence
 
@@ -76,12 +76,11 @@ function LinkStartApplication() {
 
 
   _this.addSpecialDependencies = async function() {
-    //add spa settings  
+    //add spa settings
     var resp = await axios.get('./settings.json');
     Logger.debug("loading settings")
     Logger.debug(resp.data)
     _this.dependecyContext["settings"] = resp.data
-
 
     //add loggedinUserDetails
     _this.dependecyContext["securityContext"] = {loggedinUserDetails:{}}
