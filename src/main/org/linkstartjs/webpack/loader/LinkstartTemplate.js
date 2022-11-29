@@ -2,33 +2,54 @@
 @importCssFilesSentence
 @importTemplateEngineSentence
 
-function Logger(){}
+// define a new console
+var originalConsole = console.log
+function getDateForLogger(date) {
+  var year = date.getFullYear(),
+  month = date.getMonth() + 1, // months are zero indexed
+  day = date.getDate(),
+  hour = date.getHours(),
+  minute = date.getMinutes(),
+  second = date.getSeconds(),
+  hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+  minuteFormatted = minute < 10 ? "0" + minute : minute,
+  morning = hour < 12 ? "am" : "pm";
 
-var originalConsoleLog = console.log
-Logger.debug = function(message){
-  if(typeof LinkStartOptions !== 'undefined' && typeof LinkStartOptions.logLevel !== 'undefined' && LinkStartOptions.logLevel==="debug"){
-    // console.log(message);
-    // console.log.call(this, message)
-    // return Function.prototype.bind.call(console.log, console, message);
-    // var args = Array.prototype.slice.call(arguments);
-    // args.unshift(console);
-    // return Function.prototype.bind.apply(console.log, args);
-    // originalConsoleLog.call(console, message);
-    console.log(message);
+  return month + "/" + day + "/" + year + " " + hourFormatted + ":" +
+      minuteFormatted + morning;
+}
+
+function getCallerFileAndLine(stack) {
+
+  if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.env === 'undefined' || LinkStartOptions.env!=="dev"){
+    return "".padEnd(30);
   }
-}
 
-Logger.info = function(message){
-  // return Function.prototype.bind.call(console.log, console, message);
-  // originalConsoleLog.call(console, message);
-  console.log(message);
-}
+  var traceobj = stack.split("\n")[1].split(":");
+  var file = traceobj[1].split("/./")[1];
+	var line = traceobj[2];
+  return `${file} ${line}`.padEnd(60)
+};
 
-Logger.error = function(message){
-  // return Function.prototype.bind.call(console.log, console, message);
-  // originalConsoleLog.call(console, message);
-  console.error(message);
-}
+global.console.log = function() {
+  var file_line = getCallerFileAndLine(new Error("").stack)
+	var level = "INFO ";
+  var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
+  
+	new_args.push.apply(new_args, arguments);
+	originalConsole.apply(null, new_args);
+};
+
+global.console.debug = function() {  
+  if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.logLevel === 'undefined' || LinkStartOptions.logLevel!=="debug"){
+    return;
+  }
+	var file_line = getCallerFileAndLine(new Error("").stack)
+  var level = "DEBUG";
+  var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
+	new_args.push.apply(new_args, arguments);
+	originalConsole.apply(null, new_args);
+};
 
 function LinkStartRoute(){}
 
@@ -78,8 +99,8 @@ function LinkStartApplication() {
   _this.addSpecialDependencies = async function() {
     //add spa settings
     var resp = await axios.get('./settings.json');
-    Logger.debug("loading settings")
-    Logger.debug(resp.data)
+    console.debug("loading settings")
+    console.debug(resp.data)
     _this.dependecyContext["settings"] = resp.data
 
     //add loggedinUserDetails
@@ -105,31 +126,31 @@ function LinkStartApplication() {
       //fragment is empty or null, it means localhost:8080 or acme.com
       //search a RouteHandler or EventHandler with entrypoint
       if (_this.entrypointDependencyName && _this.dependecyContext[_this.entrypointDependencyName]) {
-        Logger.info("entrypoint detected: " + _this.entrypointDependencyName);
+        console.log("entrypoint detected: " + _this.entrypointDependencyName);
         _this.invokeHandler(_this.dependecyContext[_this.entrypointDependencyName]);
       } else {
-        Logger.debug('There are not any @RouteHandler nor @EventHandler defined as entrypoint');
+        console.debug('There are not any @RouteHandler nor @EventHandler defined as entrypoint');
       }      
     }
   };
 
   _this.invokeActionByFragmentUrl = function(route) {
-    Logger.debug(`triggering RouteHandler by route: ${route}`);
+    console.debug(`triggering RouteHandler by route: ${route}`);
     var handler = _this.actionsByFragmentUrlRoute[route];
     
     if (typeof handler === 'undefined') {
-      Logger.debug(`route ${route} has a wrong or undefined RouteHandler`);
+      console.debug(`route ${route} has a wrong or undefined RouteHandler`);
       return;
     }
 
-    Logger.debug(`@RouteHandler executing: ${handler._ls_name}`);
+    console.debug(`@RouteHandler executing: ${handler._ls_name}`);
 
     _this.invokeHandler(handler);
   }
 
   _this.invokeHandler = function(handler, inboundParams) {
 
-    Logger.debug(`@EventHandler executing: ${handler._ls_name}`);
+    console.debug(`@EventHandler executing: ${handler._ls_name}`);
 
     if (typeof handler.onLoad !== "undefined" && typeof handler.onLoad === "function") {
 
@@ -152,30 +173,30 @@ function LinkStartApplication() {
           }
 
         } else {
-          Logger.debug("RouteHandler does not have render() method");
+          console.debug("RouteHandler does not have render() method");
         }
       });
 
     } else {
-      Logger.debug("RouteHandler does not have onLoad() method");
+      console.debug("RouteHandler does not have onLoad() method");
     }
   
 
     /*if (typeof action.onLoad !== "undefined" && typeof action.onLoad === "function") {
       var isLoadAsync = _this.isFunctionAnnotatedWith(_this.metaContext[action._ls_name], "onLoad", "Async");
       if(isLoadAsync){//onLoad is async
-        Logger.debug("onLoad is Async");
+        console.debug("onLoad is Async");
         action.onLoad(function(){
           _this.performRender(action);
         });
       }else{
-        Logger.debug("onLoad is not Async");
+        console.debug("onLoad is not Async");
         action.onLoad();
         var pageName = _this.performRender(action);
         _this.performBinding(action, pageName);
       }
     } else {
-      Logger.debug("Action does not have onLoad() method");
+      console.debug("Action does not have onLoad() method");
       var pageName = _this.performRender(action);
       _this.performBinding(action, pageName);
       if (typeof action.postBinding !== "undefined" && typeof action.postBinding === "function"){
@@ -187,7 +208,7 @@ function LinkStartApplication() {
 
   _this.performRender = (action) =>{
 
-      Logger.debug("render() was found");
+      console.debug("render() was found");
       // throw new Error("Render function execution is not supported yet");
       var htmlAsString = action.render();
       
@@ -200,7 +221,7 @@ function LinkStartApplication() {
         variablesToBinding[varToBindingInfo.name] = action[varToBindingInfo.name];
       }
 
-      Logger.debug(variablesToBinding);
+      console.debug(variablesToBinding);
       
       let htmlParsedString = ejs.render(htmlAsString, variablesToBinding);
       var htmlToRender = document.createRange().createContextualFragment(htmlParsedString);
@@ -214,7 +235,7 @@ function LinkStartApplication() {
         idToBeRenderized = annotationArguments.id;
       }
 
-      Logger.debug("handler will render content in an element with id: "+idToBeRenderized)
+      console.debug("handler will render content in an element with id: "+idToBeRenderized)
       document.getElementById(idToBeRenderized).innerHTML = '';
       document.getElementById(idToBeRenderized).appendChild(htmlToRender);
       //html dom is ready
@@ -224,7 +245,7 @@ function LinkStartApplication() {
 
   _this.performBinding = function(action) {
     //html dom is ready
-    Logger.debug(`performing bindings`);
+    console.debug(`performing bindings`);
     //bind dom onclick events to action methods
     _this.applyActionListenersAutoBinding(_this.metaContext[action._ls_name].functions, action);
 
@@ -236,12 +257,12 @@ function LinkStartApplication() {
   }
 
   _this.locationHashChanged = function() {    
-    Logger.debug(`new hash fragment in url: ${location.hash}`);
+    console.debug(`new hash fragment in url: ${location.hash}`);
     var fragment = location.hash.replace("#", "");
     if (!_this.actionsByFragmentUrlRoute[fragment]) {
       //@TODO: what to do when route is not found: Show a message or nothing?
       let messageToLog = "There are not any @RouteHandler asociated to this route: " + fragment;
-      Logger.debug(messageToLog);
+      console.debug(messageToLog);
       document.getElementById("root").innerHTML = '';
       document.getElementById("root").appendChild(document.createRange().createContextualFragment(messageToLog));
       return;
@@ -266,11 +287,11 @@ function LinkStartApplication() {
     }
 
     if (renderCount == 0) {
-      Logger.debug(actionName + " action does not have any @Render annotation");
+      console.debug(actionName + " action does not have any @Render annotation");
       return;
     }
     if (renderCount > 1) {
-      Logger.debug(actionName + " action has more than one @Render annotation. Just one is allowed.");
+      console.debug(actionName + " action has more than one @Render annotation. Just one is allowed.");
       return;
     }
     return renderVariable;
@@ -293,13 +314,13 @@ function LinkStartApplication() {
   }  
 
   _this.applyActionListenersAutoBinding = function(functions, action) {
-    Logger.debug("applying actionListeners auto binding for this action: "+action._ls_name)
+    console.debug("applying actionListeners auto binding for this action: "+action._ls_name)
     for (var internalActionFunctionName in functions) {
       for (var a in functions[internalActionFunctionName]) {
         var annotation = functions[internalActionFunctionName][a];
         if (annotation.name == 'ActionListener') {
           if (typeof action[internalActionFunctionName] !== "undefined" && typeof action[internalActionFunctionName] === "function") {
-            Logger.debug("actionListener to be binded was found: "+internalActionFunctionName)
+            console.debug("actionListener to be binded was found: "+internalActionFunctionName)
             var functionInstance = action[internalActionFunctionName];
             var tagNativeId = annotation.arguments.tagId;
             var eventType = annotation.arguments.type;
@@ -307,7 +328,7 @@ function LinkStartApplication() {
 
             var registeredDomElementsInPage;
             if(typeof _this.dependecyContext[pageNameWhoseContainsDomElements] === 'undefined'){
-              Logger.debug(`@ActionListener ${internalActionFunctionName} has a pageName which don't exist in the context: ${pageNameWhoseContainsDomElements}`);
+              console.debug(`@ActionListener ${internalActionFunctionName} has a pageName which don't exist in the context: ${pageNameWhoseContainsDomElements}`);
             }else{
               registeredDomElementsInPage = _this.dependecyContext[pageNameWhoseContainsDomElements].getDomElements();
             }
@@ -315,8 +336,8 @@ function LinkStartApplication() {
               annotation.arguments.tagId);
             var domElement;
             if (typeof lsId === 'undefined') {
-              Logger.debug(`lsId for this actionListener ${annotation.arguments.tagId} is undefined. Did you register the dom element with ls-element=true ?`);
-              Logger.debug(`${annotation.arguments.tagId} will be searched directly in html dom`);
+              console.debug(`lsId for this actionListener ${annotation.arguments.tagId} is undefined. Did you register the dom element with ls-element=true ?`);
+              console.debug(`${annotation.arguments.tagId} will be searched directly in html dom`);
               domElement = document.getElementById(annotation.arguments.tagId);
             }else{
               domElement = _this.getElementByLsId(lsId);
@@ -327,10 +348,10 @@ function LinkStartApplication() {
               }if (eventType === "onchange") {
                 domElement.onchange = functionInstance;
               } else {
-                Logger.debug("event type not implemented yet: " + eventType);
+                console.debug("event type not implemented yet: " + eventType);
               }
             } else {
-              Logger.debug(`ActionListener with html tag id: ${annotation.arguments.tagId} was not found in html dom`);
+              console.debug(`ActionListener with html tag id: ${annotation.arguments.tagId} was not found in html dom`);
             }
           }
         }
@@ -339,20 +360,20 @@ function LinkStartApplication() {
   }
 
   _this.applyDomElementsAutoBinding = function(variables, action) {
-    Logger.debug("apply dom elements auto binding for this handler: "+action._ls_name);
+    console.debug("apply dom elements auto binding for this handler: "+action._ls_name);
     for (var internalActionVariableName in variables) {
       for (var v in variables[internalActionVariableName]) {
         var annotation = variables[internalActionVariableName][v];
         if (annotation.name == 'HtmlElement') {
-            Logger.debug("variable to be binded was found: "+internalActionVariableName)
+            console.debug("variable to be binded was found: "+internalActionVariableName)
             var variableInstance = action[internalActionVariableName];
             var tagNativeId = annotation.arguments.tagId;
             var pageNameWhoseContainsDomElements = annotation.arguments.pageName;
-            Logger.debug("tagNativeId: "+tagNativeId)
-            Logger.debug("pageNameWhoseContainsDomElements: "+pageNameWhoseContainsDomElements)
+            console.debug("tagNativeId: "+tagNativeId)
+            console.debug("pageNameWhoseContainsDomElements: "+pageNameWhoseContainsDomElements)
 
             if(typeof tagNativeId === 'undefined' && typeof pageNameWhoseContainsDomElements === 'undefined'){
-              Logger.debug(`@HtmlElement ${internalActionFunctionName} don't have pageName nor tagId`);
+              console.debug(`@HtmlElement ${internalActionFunctionName} don't have pageName nor tagId`);
               return;
             }
 
@@ -362,13 +383,13 @@ function LinkStartApplication() {
               //if pageName != null, search in page scanned elements
               var pageInstance;
               if(typeof _this.dependecyContext[pageNameWhoseContainsDomElements] === 'undefined'){
-                Logger.debug(`@HtmlElement ${internalActionFunctionName} has a pageName which don't exist in the context: ${pageNameWhoseContainsDomElements}`);
+                console.debug(`@HtmlElement ${internalActionFunctionName} has a pageName which don't exist in the context: ${pageNameWhoseContainsDomElements}`);
                 return;
               }else{
                 pageInstance = _this.dependecyContext[pageNameWhoseContainsDomElements];
                 searchedHtmlDomElement = _this.getElementInPage(pageInstance, tagNativeId);
                 if (typeof searchedHtmlDomElement === 'undefined') {
-                  Logger.debug(`Html element with id ${tagNativeId} was not found in the page ${pageNameWhoseContainsDomElements} .`);
+                  console.debug(`Html element with id ${tagNativeId} was not found in the page ${pageNameWhoseContainsDomElements} .`);
                   return;
                 }
               }
@@ -376,16 +397,16 @@ function LinkStartApplication() {
               //search directly in the dom
               searchedHtmlDomElement = document.getElementById(tagNativeId);
               if (typeof searchedHtmlDomElement === 'undefined') {
-                Logger.debug(`Html element with id ${tagNativeId} was not found in the html dom.`);
+                console.debug(`Html element with id ${tagNativeId} was not found in the html dom.`);
                 return;
               }
             }  
 
             if (typeof searchedHtmlDomElement !== 'undefined') {
               action[internalActionVariableName] = searchedHtmlDomElement;
-              Logger.debug(`Html element with id ${tagNativeId} was binded to ${internalActionVariableName} on its handler.`);
+              console.debug(`Html element with id ${tagNativeId} was binded to ${internalActionVariableName} on its handler.`);
             }else{
-              Logger.debug(`Html element with id ${tagNativeId} was not found in the dom or in the page ${pageNameWhoseContainsDomElements} .`);
+              console.debug(`Html element with id ${tagNativeId} was not found in the dom or in the page ${pageNameWhoseContainsDomElements} .`);
             }
         }
       }
@@ -394,7 +415,7 @@ function LinkStartApplication() {
 
   _this.applyDomElemensAutoBindingDeprecated = function(action, pageInstanceToRender, variables) {
 
-    Logger.debug("apply dom elements auto binding for this action: "+action._ls_name);
+    console.debug("apply dom elements auto binding for this action: "+action._ls_name);
 
     var variablesAnnotatedWithDomElement = _this.searchVariablesAnnotatedWith(variables, "HtmlElement");
 
@@ -403,28 +424,28 @@ function LinkStartApplication() {
 
       var htmlTagId = variable.annotationArguments.id;
       if (typeof htmlTagId !== 'undefined') {
-        Logger.debug(`Searching ${htmlTagId} html element`)
+        console.debug(`Searching ${htmlTagId} html element`)
         var searchedHtmlDomElement = _this.getElementInPageRegisteredElements(pageInstanceToRender, htmlTagId, variable.variableName);
         if (typeof searchedHtmlDomElement !== 'undefined') {
           action[variable.variableName] = searchedHtmlDomElement;
-          Logger.debug(`Html element with id ${htmlTagId} was binded to ${variable.variableName} on its action.`);
+          console.debug(`Html element with id ${htmlTagId} was binded to ${variable.variableName} on its action.`);
         }else{
-          Logger.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered elements`);
+          console.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered elements`);
           searchedHtmlDomElement = document.getElementById(htmlTagId);
           if (typeof searchedHtmlDomElement !== 'undefined') {
             //@TODO: show warning if there are several matches
             action[variable.variableName] = searchedHtmlDomElement;
-            Logger.debug(`Html element with id ${htmlTagId} was binded to ${variable.variableName} on its action. Id was obtained with document.getElementById`);
+            console.debug(`Html element with id ${htmlTagId} was binded to ${variable.variableName} on its action. Id was obtained with document.getElementById`);
           }else{
-            Logger.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered element nor html dom elements`);
+            console.debug(`Html element with id ${htmlTagId} was not found in LinkStart page registered element nor html dom elements`);
           }
         }
       } else {
-        Logger.debug(`variable ${variable.variableName} annotated with @HtmlElement does no have [id] argument`);
+        console.debug(`variable ${variable.variableName} annotated with @HtmlElement does no have [id] argument`);
       }
     });
     if(typeof variablesAnnotatedWithDomElement=== 'undefined' || variablesAnnotatedWithDomElement.length == 0){
-      Logger.debug(`this action ${action._ls_name} does not have @HtmlElement`);
+      console.debug(`this action ${action._ls_name} does not have @HtmlElement`);
     }
   };
 
@@ -440,19 +461,19 @@ function LinkStartApplication() {
 
     //TODO: debug
     if(variablesAnnotatedWithDomElement.length == 0){
-      //Logger.debug(`${action._ls_name} does not have any @HtmlElementsAllForOne annotation`);
+      //console.debug(`${action._ls_name} does not have any @HtmlElementsAllForOne annotation`);
       return;
     }
 
     if(variablesAnnotatedWithDomElement.length >1){
-      Logger.debug(`${action._ls_name} has more than one @HtmlElementsAllForOne. Just one is allowed`);
+      console.debug(`${action._ls_name} has more than one @HtmlElementsAllForOne. Just one is allowed`);
       return;
     }
 
     var internalActionVariableName = variablesAnnotatedWithDomElement[0].variableName;
 
     if (typeof internalActionVariableName === 'undefined') {
-      Logger.debug(`HtmlElementsAllForOne annotation was found but, is not possible to determine the related action variable`);
+      console.debug(`HtmlElementsAllForOne annotation was found but, is not possible to determine the related action variable`);
     }
 
     //apply binding
@@ -509,7 +530,7 @@ function LinkStartApplication() {
           //set default value
           model[tagId] = _this.getDefaultSelectValue(domElement);
         } else {
-          Logger.debug("Model binding is not implemented yet for this tag:" + domElement.tagName);
+          console.debug("Model binding is not implemented yet for this tag:" + domElement.tagName);
         }
       }
     });
@@ -537,14 +558,14 @@ function LinkStartApplication() {
     var functions = actionAnnotationInfo.functions;
 
     if(typeof functions[functionName]==='undefined'){
-      Logger.debug(`${functionName} function does not exist in this action as annotated function`);
+      console.debug(`${functionName} function does not exist in this action as annotated function`);
       return false;
     }
 
     for (var annotationIndex in functions[functionName]) {
       var annotation = functions[functionName][annotationIndex];
       if(annotation.name === annotationName){
-        Logger.debug("is async!");
+        console.debug("is async!");
         return true;
       }
     }
@@ -570,11 +591,11 @@ function LinkStartApplication() {
   _this.getElementByLsId = function(lsId) {
     let list = document.querySelectorAll('[ls-id="' + lsId + '"]');
     if (list.length == 0) {
-      Logger.debug("There are not any element with lsId:" + lsId);
+      console.debug("There are not any element with lsId:" + lsId);
     } else if (list.length == 1) {
       return list[0];
     } else {
-      Logger.debug("There are more than one element with this lsId:" + lsId);
+      console.debug("There are more than one element with this lsId:" + lsId);
     }
   };
 
@@ -629,7 +650,7 @@ function LinkStartApplication() {
       }  
     }
     if(metaArguments.length>1){
-      Logger.debug(`${handler._ls_name} handler has more than one @${expectedAnnotation}`)
+      console.debug(`${handler._ls_name} handler has more than one @${expectedAnnotation}`)
       return;
     }
 
@@ -660,7 +681,7 @@ function LinkStartApplication() {
 function linkStart(options) {
 
   document.addEventListener("DOMContentLoaded", function(event) {
-    Logger.info("Linkstart!!");  
+    console.log("Linkstart!!");  
     let linkStartApplication = new LinkStartApplication();
     linkStartApplication.start(options);    
   }); 
