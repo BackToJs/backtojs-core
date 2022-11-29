@@ -2,66 +2,66 @@
 @importCssFilesSentence
 @importTemplateEngineSentence
 
-// define a new console
-var originalConsole = console.log
-function getDateForLogger(date) {
-  var year = date.getFullYear(),
-  month = date.getMonth() + 1, // months are zero indexed
-  day = date.getDate(),
-  hour = date.getHours(),
-  minute = date.getMinutes(),
-  second = date.getSeconds(),
-  hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
-  minuteFormatted = minute < 10 ? "0" + minute : minute,
-  morning = hour < 12 ? "am" : "pm";
-
-  return month + "/" + day + "/" + year + " " + hourFormatted + ":" +
-      minuteFormatted + morning;
-}
-
-function getCallerFileAndLine(stack) {
-
-  if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.env === 'undefined' || LinkStartOptions.env!=="dev"){
-    return "".padEnd(30);
-  }
-
-  var traceobj = stack.split("\n")[1].split(":");
-  var file = traceobj[1].split("/./")[1];
-	var line = traceobj[2];
-  return `${file} ${line}`.padEnd(60)
-};
-
-global.console.log = function() {
-  var file_line = getCallerFileAndLine(new Error("").stack)
-	var level = "INFO ";
-  var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
-  
-	new_args.push.apply(new_args, arguments);
-	originalConsole.apply(null, new_args);
-};
-
-global.console.debug = function() {  
-  if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.logLevel === 'undefined' || LinkStartOptions.logLevel!=="debug"){
-    return;
-  }
-	var file_line = getCallerFileAndLine(new Error("").stack)
-  var level = "DEBUG";
-  var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
-	new_args.push.apply(new_args, arguments);
-	originalConsole.apply(null, new_args);
-};
-
-function LinkStartRoute(){}
-
-//@Deprecated
-LinkStartRoute.goTo = function(hashFragmentRoute){
-  // window.location.href = "#"
-  window.location.href = `#${hashFragmentRoute}`
-}
-
-global.LinkStartRoute = LinkStartRoute;
-
 function LinkStartApplication() {
+
+  // define a new console
+  var originalConsole = console.log
+  function getDateForLogger(date) {
+    var year = date.getFullYear(),
+    month = date.getMonth() + 1, // months are zero indexed
+    day = date.getDate(),
+    hour = date.getHours(),
+    minute = date.getMinutes(),
+    second = date.getSeconds(),
+    hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+    minuteFormatted = minute < 10 ? "0" + minute : minute,
+    morning = hour < 12 ? "am" : "pm";
+
+    return month + "/" + day + "/" + year + " " + hourFormatted + ":" +
+        minuteFormatted + morning;
+  }
+
+  function getCallerFileAndLine(stack) {
+
+    if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.env === 'undefined' || LinkStartOptions.env!=="dev"){
+      return "".padEnd(30);
+    }
+
+    var traceobj = stack.split("\n")[1].split(":");
+    var file = traceobj[1].split("/./")[1];
+    var line = traceobj[2];
+    return `${file} ${line}`.padEnd(60)
+  };
+
+  global.console.log = function() {
+    var file_line = getCallerFileAndLine(new Error("").stack)
+    var level = "INFO ";
+    var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
+    
+    new_args.push.apply(new_args, arguments);
+    originalConsole.apply(null, new_args);
+  };
+
+  global.console.debug = function() {  
+    if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.logLevel === 'undefined' || LinkStartOptions.logLevel!=="debug"){
+      return;
+    }
+    var file_line = getCallerFileAndLine(new Error("").stack)
+    var level = "DEBUG";
+    var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
+    new_args.push.apply(new_args, arguments);
+    originalConsole.apply(null, new_args);
+  };
+
+  function LinkStartRoute(){}
+
+  //@Deprecated
+  LinkStartRoute.goTo = function(hashFragmentRoute){
+    // window.location.href = "#"
+    window.location.href = `#${hashFragmentRoute}`
+  }
+
+  global.LinkStartRoute = LinkStartRoute;  
 
   var _this = this;
   _this.dependecyContext = {};
@@ -109,8 +109,8 @@ function LinkStartApplication() {
 
 
   _this.start = async function(options) {
-
     global.LinkStartOptions = options;
+    console.log("Linkstart!!!");  
 
     _this.registerDependenciesInContext();
     await _this.addSpecialDependencies();
@@ -680,8 +680,7 @@ function LinkStartApplication() {
 
 function linkStart(options) {
 
-  document.addEventListener("DOMContentLoaded", function(event) {
-    console.log("Linkstart!!");  
+  document.addEventListener("DOMContentLoaded", function(event) {    
     let linkStartApplication = new LinkStartApplication();
     linkStartApplication.start(options);    
   }); 
