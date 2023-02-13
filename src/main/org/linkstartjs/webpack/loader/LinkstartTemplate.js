@@ -98,7 +98,7 @@ function LinkStartApplication() {
 
   _this.addSpecialDependencies = async function() {
     //add spa settings
-    var resp = await axios.get('./settings.json');
+    var resp = await axios.get(getLocationBasePath()+'/settings.json');
     console.debug("loading settings")
     console.debug(resp.data)
     _this.dependecyContext["settings"] = resp.data
@@ -671,7 +671,26 @@ function LinkStartApplication() {
       var params = e.detail.params;
       _this.invokeHandler(handler, params);
     }
-  }   
+  }
+
+  function getLocationBasePath() {
+    
+    if (typeof window === "undefined") {
+      console.error("ReferenceError: window is not defined. Are you in frontend javascript layer?");
+      return;
+    }
+    
+    if (typeof window.location === "undefined") {
+      console.error("ReferenceError: window.location is not defined. Are you in frontend javascript layer?");
+      return;
+    }
+    
+    if(window.location.port){
+      return window.location.protocol+"//"+window.location.hostname+":"+window.location.port
+    }else {
+      return window.location.protocol+"//"+window.location.hostname
+    }
+  }  
 
   @globalBottomVariablesSentence
   document.addEventListener("simple-event", eventRouter);

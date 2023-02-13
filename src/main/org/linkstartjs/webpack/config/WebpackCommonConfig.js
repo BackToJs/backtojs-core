@@ -27,6 +27,7 @@ module.exports = {
     output: {
         path: LinkStartPaths.build,
         filename: 'js/[name].js',
+        publicPath: "/"
     },
     optimization: {
         minimize: options.webpackMinimize === undefined ? true : false,

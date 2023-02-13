@@ -8,6 +8,7 @@ const envSettings = new EnvSettings();
 module.exports = {
     liveReload: true,
     hot: true,
+    historyApiFallback: true ,
     port: process.env.PORT || 2501,
     setupMiddlewares: (middlewares, devServer) => {
         if (!devServer) {
