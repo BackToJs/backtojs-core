@@ -44,4 +44,7 @@ module.exports = {
 
         return middlewares;
     },
+    client: {
+        logging: 'none',
+    },
 }

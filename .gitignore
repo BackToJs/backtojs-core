@@ -1,4 +1,13 @@
 **/.DS_Store
 /node_modules
-/dist
+dist/
 src/test/app/dist
+
+src/test_deprecated
+.nyc_output
+
+/coverage/*
+!/coverage/branches.svg
+!/coverage/functions.svg
+!/coverage/lines.svg
+!/coverage/statements.svg

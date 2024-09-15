@@ -58,7 +58,7 @@ module.exports = {
             '~': path.join(LinkStartPaths.src ,"main")
         },
     },
-    watch: true,
+    watch: false,
     module: {
         rules: [
 

@@ -4,7 +4,7 @@ const path = require('path');
 function LinkStartUtil() {
 
     this.configureGlobalLocations = function() {
-        var appPath = process.env.LINKS_START_APP_PATH || process.cwd();
+        var appPath = process.env.LINKSTART_APP_PATH || process.cwd();
         global.LinkStartPaths = {
             workspace: appPath, // web root
             src: appPath + '/src', // source files

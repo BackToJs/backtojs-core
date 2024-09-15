@@ -21,8 +21,8 @@ function LinkStartApplication() {
         minuteFormatted + morning;
   }
 
+  //#TODO delete this or replace by createLogger
   function getCallerFileAndLine(stack) {
-
     if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.env === 'undefined' || LinkStartOptions.env!=="dev"){
       return "".padEnd(30);
     }
@@ -36,11 +36,20 @@ function LinkStartApplication() {
   global.console.log = function() {
     var file_line = getCallerFileAndLine(new Error("").stack)
     var level = "INFO ";
-    var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
+    var new_args = [`${getDateForLogger(new Date())} ${level}: `];
     
     new_args.push.apply(new_args, arguments);
     originalConsole.apply(null, new_args);
   };
+
+  global.console.error = function() {
+    var file_line = getCallerFileAndLine(new Error("").stack)
+    var level = "ERR  ";
+    var new_args = [`${getDateForLogger(new Date())} ${level}: `];
+    
+    new_args.push.apply(new_args, arguments);
+    originalConsole.apply(null, new_args);
+  };  
 
   global.console.debug = function() {  
     if(typeof LinkStartOptions === 'undefined' || typeof LinkStartOptions.logLevel === 'undefined' || LinkStartOptions.logLevel!=="debug"){
@@ -48,7 +57,7 @@ function LinkStartApplication() {
     }
     var file_line = getCallerFileAndLine(new Error("").stack)
     var level = "DEBUG";
-    var new_args = [`${getDateForLogger(new Date())} ${level} ${file_line}: `];
+    var new_args = [`${getDateForLogger(new Date())} ${level}: `];
     new_args.push.apply(new_args, arguments);
     originalConsole.apply(null, new_args);
   };
@@ -129,7 +138,8 @@ function LinkStartApplication() {
         console.log("entrypoint detected: " + _this.entrypointDependencyName);
         _this.invokeHandler(_this.dependecyContext[_this.entrypointDependencyName]);
       } else {
-        console.debug('There are not any @RouteHandler nor @EventHandler defined as entrypoint');
+        //#TODO: throw an error?
+        console.log('Entrypoint is missing');
       }      
     }
   };
@@ -699,7 +709,7 @@ function LinkStartApplication() {
 
 function linkStart(options) {
 
-  document.addEventListener("DOMContentLoaded", function(event) {    
+  document.addEventListener("DOMContentLoaded", function(event) {
     let linkStartApplication = new LinkStartApplication();
     linkStartApplication.start(options);    
   }); 

@@ -244,7 +244,7 @@ function EntrypointModuleCreator() {
       globalBottomVariablesSentence = globalBottomVariablesSentenceTemplate
       .replace("@entrypointDependencyName", entrypointDependencyName);
     } else {
-      globalBottomVariablesSentence = "Logger.debug('There are not any @RouteHandler nor @EventHandler defined as entrypoint')";
+      globalBottomVariablesSentence = "console.log('There are not any @RouteHandler nor @EventHandler defined as entrypoint');";
     }
 
     //import './styles/index.scss'
@@ -291,7 +291,7 @@ function EntrypointModuleCreator() {
 
   _this.removeAnnotationInModule = function(content) {
     for(var annotation of allAnnotations){
-      content = content.replace(new RegExp("@"+annotation, 'g'), "//@"+annotation);
+      content = content.replace(new RegExp('\\[[a-zA-Z]{3,}\\(\\s*.+\\s*\\)\\]'), "//"+annotation);      
     }
     return content;
   }

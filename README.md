@@ -1,69 +1,125 @@
+# Back To Js - Core
 
-![logo](https://raw.githubusercontent.com/jrichardsz/static_resources/master/linkstart/linkstart-533X300.png)
+<p float="left">
+  <img src="./coverage/branches.svg">
+  <img src="./coverage/functions.svg">
+  <img src="./coverage/lines.svg">
+  <img src="./coverage/statements.svg">
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f99e634f-bbaa-4a48-9fbf-be56246045c5" >  
+</p>
 
 
-# LinkStart.js Beta
 ---
 
-A JavaScript framework for creating web applications in an fast, simple and intuitive way focus on productivity inspired in swing, spring and my beloved java.
+A framework to help us to back the time in which javascript was simple, intuitive and without insane concepts.
 
-LinkStart.js applications are built by composing a series of simple html page templates + javascript page listener.
+Just html + javascript
 
 # Features
 
 - Pure html. Forgot alien tags or attributes:
   - `<App> <MuiThemeProvider> <app-navigation> *ngIf="!authService.isLoggedIn()" <Drawer open containerStyle={{ position: null }}>`
 - Just your web code. Forgot alien files `.babelrc .eslintrc tslint.json .etc`
-- @Annotattions like java
-- Dependency Injection like java
+- Annotations like java or c#
+- Dependency Injection
 - Automatic actionable elements detection
 - Automatic router binding
+- Compatible with any fucking javascript framework in the world
 
 # Demo
 
 Check the first demo:
 
-- https://github.com/linkstartjs/linkstartjs-demos
+- https://github.com/backtojs/backtojs-demos
 
 # How it works?
 
-- Coming Soon
+Just install the tool, create the project, add your js and run it
 
+## Install
 
-# Road map
+Install the tool
 
-- [ ] Add LinkStartHelper for final apps
-- [ ] Add hot reload for html modifications
-- [ ] Add build option in bin file
-- [ ] Add build script
-- [ ] Code refactor
-- [ ] Unit tests with (https://www.npmjs.com/package/assert-js)
-- [ ] Package as library
-- [ ] Create more default ui components and layout
-- [ ] https://webpack.js.org/configuration/dev-server/#devserverlivereload
-- [ ] https://webpack.js.org/api/webpack-dev-server/
-- [ ] https://github.com/Chance722/webpack-chokidar-plugin/blob/master/src/index.js
-- [ ] https://stackoverflow.com/questions/43704994/webpack-manually-added-compilation-file-dependency-should-force-rebuild
-https://searchcode.com/file/302411057/node_modules/webpack/lib/FlagDependencyExportsPlugin.js/
-https://www.npmjs.com/package/modify-webpack-plugin
-https://github.com/webpack/webpack/issues/10392
-https://github.com/webpack/webpack-dev-middleware/blob/9f8f9471411ddf9e882f7c83c85325b5cb324216/lib/context.js#L57-L60
-https://www.npmjs.com/package/webpack-recompilation-simulator
-https://gist.github.com/mark-bradshaw/ce2d449e30a856fe3b41
-https://stackoverflow.com/questions/51943998/is-it-possible-to-have-webpack-server-trigger-a-page-refresh-on-other-file-chang
+```
+npm install -g github:/backtojs/backtojs-core
+```
 
-# Contributors
+## Create new project
+
+```
+backtojs --new-project acme
+cd ./acme
+```
+
+## Add your html
+
+**/src/pages/HelloWorld.html**
+```html
+[HelloWorld]
+<h1>Hello World Example</h1>
+<p>This is a very basic "Hello World" example made up in HTML and CSS</p>
+```
+
+## Add your controller
+
+**/src/controllers/HelloWorldController.js**
+
+```js
+[Controller(entrypoint="true")]
+function HelloWorldController() {
+
+  [Autowire(name="HelloWorld")]
+  this.page;
+
+  [OnLoad]
+  this.onLoad = () => {
+    console.log("onLoad: Hello World!!");
+  };
+
+  [Render]
+  this.render = () => {
+    return this.page.getHtml();
+  };
+
+}
+
+module.exports = HelloWorldController;
+```
+
+## Start as dev
+
+```
+npm run dev
+```
+
+Go to http://localhost:1308
+
+## Documentation
+
+- coming soon
+
+## Samples
+
+- coming soon
+
+## Acknowledgments
+
+- <a href="https://www.textstudio.com/">Font generator</a>
+  - https://www.textstudio.com/logo/back-to-the-past-text-243
+- My first idea was in 2018. Project in that time called Lassie.js https://github.com/BackToJs/backtojs-core/tree/1.0.1-beta
+
+## Contributors
 
 <table>
   <tbody>
     <td>
       <img src="https://avatars0.githubusercontent.com/u/3322836?s=460&v=4" width="100px;"/>
       <br />
-      <label><a href="http://jrichardsz.github.io/">Richard Leon</a></label>
+      <label><a href="http://jrichardsz.github.io/">jrichardsz</a></label>
       <br />
     </td>    
   </tbody>
 </table>
-
-# Since
-- 2018

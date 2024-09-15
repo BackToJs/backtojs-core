@@ -7,43 +7,39 @@ const config = require('../config/WebpackProdConfig.js');
 const Logger = require("../../logger/Logger.js")
 const util = require('util');
 const compiler = webpack(config);
-const webpackCompilerRunPromise = util.promisify(compiler.run);
-const rimrafPromise = util.promisify(rimraf);
-const fsStatPromise = util.promisify(fs.stat);
-const fsAccessPromise = util.promisify(fs.access);
-const fsReaddirPromise = util.promisify(fs.readdir);
 
 function WebpackBuild() {
 
   this.run = () => {
-    return new Promise((resolve, reject) => {
-      this.clean(LinkStartPaths.build).then(function() {
-        compiler.run(function(err, stats) {
-          if (err) {
-            Logger.info("Webpack compiler encountered a fatal error");
-            Logger.info(err);
-            return reject();
-          }
-          if (stats.hasErrors()) {
-            Logger.info("Webpack compiler encountered a fatal error");
-            Logger.info(stats.compilation.errors);
-            Logger.info(stats.toJson());
-            return reject()
-          }
+    return new Promise( async (resolve, reject) => {
 
-          const jsonStats = stats.toJson()
-          Logger.debug(jsonStats);
-          Logger.info(`Webpack compilation completed successfully. Build folder ${LinkStartPaths.build}:`)
+      await this.clean(LinkStartPaths.build);
+      Logger.info("Success clean")
 
-          fs.readdir(LinkStartPaths.build, (err, files) => {
-            files.forEach(file => {
-              Logger.info("- " + file);
-            });
-            Logger.info("LinkStart build has completed")
-            resolve();
-          });
-        });
-      })
+      compiler.run(async function(err, stats) {
+        Logger.info("Webpack compilation is starting...")
+        if (err) {
+          Logger.info("Webpack compiler encountered a fatal error");
+          Logger.info(err);
+          return reject();
+        }
+        if (stats.hasErrors()) {
+          Logger.info("Webpack compiler encountered a fatal error");
+          Logger.info(stats.compilation.errors);
+          Logger.info(stats.toJson());
+          return reject()
+        }
+
+        const jsonStats = stats.toJson()
+        Logger.debug(jsonStats);
+        Logger.info(`Webpack compilation completed successfully. Build folder ${LinkStartPaths.build}:`)
+
+        var dirContent = await fs.promises.readdir(LinkStartPaths.build);
+        dirContent.forEach(file => {
+          Logger.info("- " + file);
+        });        
+        resolve();
+      });
     });
   }
 
@@ -60,7 +56,6 @@ function WebpackBuild() {
       })
     });
   }
-
 }
 
 module.exports = WebpackBuild

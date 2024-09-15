@@ -7,8 +7,8 @@ const cheerio = require('cheerio')
 
 describe('StringUtil: addLsIdToLinkstartTagElements', function() {
     it('simple html', function() {
-        var stringUtil = new StringUtil();
-
+      
+        var stringUtil = new StringUtil();        
         var rawHtml = `
     <table>
       <tbody>
@@ -38,7 +38,7 @@ describe('StringUtil: addLsIdToLinkstartTagElements', function() {
       </tbody>
     </table>
     `;
-
+    console.log(rawHtml);
 
         var enhancedHtml = stringUtil.addLsIdToLinkstartTagElements(rawHtml, 5);
         const $ = cheerio.load(enhancedHtml.html, {
