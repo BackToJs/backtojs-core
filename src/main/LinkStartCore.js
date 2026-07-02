@@ -29,9 +29,7 @@ function LinkStartCore() {
             process.env.NODE_ENV = 'production'
             const LinkstartSpaServer = require('./org/linkstartjs/webpack/scripts/LinkstartSpaServer.js')
             var linkstartSpaServer = new LinkstartSpaServer();
-            linkstartSpaServer.run("dist", "src/main/settings.json", true).then(function () {
-                Logger.info(`Start : completed`)
-            });
+            await linkstartSpaServer.run("dist", "resources/settings.json", true, LinkStartPaths.src);
         } else {
             console.log("LinkStart.js does not support this argument:" + args[0]);
         }

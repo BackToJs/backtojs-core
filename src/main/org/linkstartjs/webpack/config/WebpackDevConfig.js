@@ -47,4 +47,5 @@ module.exports = {
     client: {
         logging: 'none',
     },
+    port: 9000
 }

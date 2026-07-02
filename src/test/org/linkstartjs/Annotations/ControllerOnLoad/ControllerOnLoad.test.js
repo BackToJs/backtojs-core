@@ -20,6 +20,8 @@ describe('[Controller]', function() {
     process.env.LINKSTART_APP_PATH = path.join(__dirname, "project")
     var linkStartCore = new LinkStartCore();
     await linkStartCore.start();
+    process.env.LINKSTART_OVERRIDE_ARGV = "start"
+    await linkStartCore.start();
   });
 
   it.only('controller must be triggered if entrypoint="true"', function() {
