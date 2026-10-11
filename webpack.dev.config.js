@@ -11,20 +11,26 @@ if (fs.existsSync(customCssPath)) {
   entries.push(customCssPath);
 }
 
-const envKeys = Object.keys(process.env)
+const envObj = Object.keys(process.env)
   .filter(key => key.startsWith('BACK2JS_'))
   .reduce((env, key) => {
     const newKey = key.replace(/^BACK2JS_/, '');
-    env[`process.env.${newKey}`] = JSON.stringify(process.env[key]);
+    env[newKey] = process.env[key];
     return env;
-  }, {});
+  }, {
+    NODE_ENV: process.env.NODE_ENV || 'development'
+  });
+
+const envKeys = {
+  'process.env': JSON.stringify(envObj)
+};
 
 module.exports = {
   mode: process.env.NODE_ENV,
   entry: entries,
   output: {
     filename: "bundle.js",
-    path: __dirname + "/build",
+    path: process.cwd() + "/build",
     publicPath: "/"
   },
   module: {

@@ -72,9 +72,9 @@ async updateView(targetElement) {
 
 ## 3. Services and Dependency Injection
 
-Any class automatically discovered by Webpack (e.g., inside `src/api/` or `src/audio/`) is registered as a Singleton in the Dependency Injection (DI) Container. 
+Any class automatically discovered by Webpack (inside `src/api/` or `src/services/`) is registered as a Singleton in the Dependency Injection (DI) Container. 
 
-To use a service, simply add its class name to your controller's `[Inject(...)]` annotation, and it will be passed directly into your constructor.
+To use a service or API client, simply add its class name to your controller's `[Inject(...)]` annotation, and it will be passed directly into your constructor.
 
 ```javascript
 // In src/api/ApiClient.js
@@ -82,17 +82,51 @@ export class ApiClient {
   fetchData() { return []; }
 }
 
+// In src/services/AudioService.js
+export class AudioService {
+  playSound() { /* ... */ }
+}
+
 // In src/controllers/LoginController.js
 [Controller]
-[Inject("ApiClient")]
+[Inject("ApiClient", "AudioService")]
 export class LoginController {
-  constructor(apiClient) {
+  constructor(apiClient, audioService) {
     this.apiClient = apiClient;
+    this.audioService = audioService;
   }
 }
 ```
 
-## 4. Routing and Navigation
+## 4. Application Configuration & Startup (`[Configuration]`)
+
+If you need to perform global setup or load resources (such as dynamically injecting font/stylesheet `<link>` tags, fetching remote configs, or verifying authentication) **before** any Controllers are instantiated or routes are drawn, use a Configuration class.
+
+Mark your class with the `[Configuration]` attribute and place it in your project's `src/` directory (e.g., inside `src/config/AppConfig.js`).
+
+### `async onInit()` Lifecycle
+
+The framework will execute `onInit()` during the initial boot sequence and `await` it to ensure all critical resources are fully ready **before** the Router kicks in and the initial view is rendered.
+
+```javascript
+// In src/config/AppConfig.js
+[Configuration]
+export class AppConfig {
+
+  async onInit() {
+    // 1. Inject external resources dynamically at boot
+    const fontsLink = document.createElement('link');
+    fontsLink.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;700&display=swap';
+    fontsLink.rel = 'stylesheet';
+    document.head.appendChild(fontsLink);
+
+    // 2. Perform asynchronous startup tasks (optional)
+    // await this.loadGlobalSettings();
+  }
+}
+```
+
+## 5. Routing and Navigation
 
 The Router listens to standard URL Hash changes. To programmatically navigate between controllers, dispatch a global `framework:navigate` event:
 
@@ -102,7 +136,7 @@ document.dispatchEvent(new CustomEvent('framework:navigate', {
 }));
 ```
 
-## 5. Inter-Controller Communication (Global Event Bus)
+## 6. Inter-Controller Communication (Global Event Bus)
 
 To keep your controllers completely decoupled, avoid passing callbacks. Instead, use the native DOM Event Bus to broadcast and listen for changes.
 

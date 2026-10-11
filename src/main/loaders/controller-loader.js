@@ -34,13 +34,17 @@ module.exports = function(content) {
   });
 
   // Pass 2: Handle [Inject(...)]
-  // Match the annotation, followed by any whitespace/newlines or other annotations (middle),
-  // followed by the class declaration.
   const injectRegex = /\[Inject\(([^)]+)\)\]([\s\S]*?)(\bexport\s+class\s+[A-Za-z0-9_]+\s*\{)/g;
   finalContent = finalContent.replace(injectRegex, (match, args, middle, classDecl) => {
-    // args will be something like `"TodoStatsController", "TodoListController"`
     const newlines = (match.substring(0, match.indexOf(']') + 1).match(/\n/g) || []).length;
     return '\n'.repeat(newlines) + middle + classDecl + ` static inject = [${args}]; `;
+  });
+
+  // Pass 3: Handle [Configuration]
+  const configRegex = /\[Configuration\]([\s\S]*?)(\bexport\s+class\s+[A-Za-z0-9_]+\s*\{)/g;
+  finalContent = finalContent.replace(configRegex, (match, middle, classDecl) => {
+    const newlines = (match.substring(0, match.indexOf(']') + 1).match(/\n/g) || []).length;
+    return '\n'.repeat(newlines) + middle + classDecl + ` static isConfiguration = true; `;
   });
 
   return finalContent;
