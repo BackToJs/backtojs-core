@@ -2,6 +2,20 @@
 
 Welcome to the custom, highly-optimized Vanilla JS Framework! This framework leverages Modern JavaScript and Webpack to give you an architecture similar to Angular or Vue, but with zero overhead and full control over the DOM.
 
+## Why Back2Js?
+
+Modern frameworks like React, Angular, and similar tools have drifted away from the clean and beautiful simplicity of native HTML and JavaScript:
+- **Crazy Syntaxes:** They invented proprietary syntaxes (like JSX or complex templating languages) that only make sense within their own ecosystems.
+- **Painful Testing:** Setting up and writing unit tests for React or Angular components is often a massive pain in the ass due to their heavy abstractions, lifecycle hooks, and virtual DOM complexities.
+- **Absurd Build Times:** Seriously, why does compiling a web frontend take longer than building a massive enterprise backend in Java or C#? Modern frameworks spend minutes churning through megabytes of polyfills and abstractions just to render a `<div>`.
+- **Bloated Bundles:** Users shouldn't have to download a 2MB JavaScript payload before they can even click a button.
+
+Back2Js returns you to the native roots of web development:
+- **Enterprise Architecture:** You get the structural benefits of enterprise apps (like Dependency Injection, Routing, and Controllers).
+- **Vanilla Simplicity:** You write standard, beautiful HTML and Vanilla JS—making testing straightforward and development a breeze.
+- **Lightning Fast Builds:** Without a massive framework weighing you down, your frontend builds are practically instantaneous.
+- **Tiny Footprint:** Zero overhead. You ship exactly what you write, leading to ridiculously small bundle sizes.
+
 ## 1. Creating a Controller
 
 Controllers are the backbone of the framework. You create them simply by placing a new JavaScript file into the `src/controllers/` directory.

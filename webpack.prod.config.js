@@ -4,9 +4,10 @@ const {
 } = require("clean-webpack-plugin");
 const webpack = require("webpack");
 const fs = require("fs");
+const path = require("path");
 
-const entries = [__dirname + "/src/main/DefaultSpaIndex.js"];
-const customCssPath = process.cwd() + "/src/css/style.css";
+const entries = [path.join(__dirname, "src/main/DefaultSpaIndex.js")];
+const customCssPath = path.join(process.cwd(), "src/css/style.css");
 if (fs.existsSync(customCssPath)) {
   entries.push(customCssPath);
 }
@@ -30,7 +31,7 @@ module.exports = {
   entry: entries,
   output: {
     filename: "bundle.js",
-    path: process.cwd() + "/build",
+    path: path.join(process.cwd(), "build"),
     publicPath: "./"
   },
   module: {
@@ -42,7 +43,7 @@ module.exports = {
       test: /\.js$/,
       use: [
         "babel-loader",
-        require.resolve(__dirname + "/src/main/loaders/controller-loader.js")
+        require.resolve(path.join(__dirname, "src/main/loaders/controller-loader.js"))
       ],
       exclude: /node_modules/
     },
@@ -76,14 +77,14 @@ module.exports = {
   ],
   resolve: {
     modules: [
-      process.cwd() + '/src',
+      path.join(process.cwd(), 'src'),
       'node_modules'
     ],
     fallback: {
       "fs": false
     },
     alias: {
-      ejs_components: __dirname + '/node_modules/ejs'
+      ejs_components: path.join(__dirname, 'node_modules/ejs')
     }
   }
 };
